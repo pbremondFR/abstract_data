@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2024/06/07 20:44:57 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/06/07 21:06:02 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,10 +49,10 @@ class vector
 		typedef 			value_type const&							const_reference;
 		typedef typename	Allocator::pointer							pointer;
 		typedef typename	Allocator::const_pointer					const_pointer;
-		typedef typename	random_access_iterator<pointer>				iterator;
-		typedef typename	random_access_iterator<const_pointer>		const_iterator;
-		typedef typename	reverse_iterator<iterator>					reverse_iterator;
-		typedef typename	reverse_iterator<const_iterator>			const_reverse_iterator;
+		typedef typename	::ft::random_access_iterator<pointer>		iterator;
+		typedef typename	::ft::random_access_iterator<const_pointer>	const_iterator;
+		typedef typename	::ft::reverse_iterator<iterator>			reverse_iterator;
+		typedef typename	::ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
 	public:
 		explicit vector(const Allocator& alloc = Allocator());

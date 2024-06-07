@@ -1,1 +1,6 @@
 .vscode
+objs
+ft_output
+ft_containers_test
+std_output
+std_containers_test

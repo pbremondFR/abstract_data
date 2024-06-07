@@ -53,12 +53,12 @@ inline bool operator> (const stack<T, Container>& x, const stack<T, Container>& 
 
 template <class T, class Container>
 inline bool operator>=(const stack<T, Container>& x, const stack<T, Container>& y) {
-	return !(x.c < y.c)
+	return !(x.c < y.c);
 }
 
 template <class T, class Container>
 inline bool operator<=(const stack<T, Container>& x, const stack<T, Container>& y) {
-	return !(x.c > y.c)
+	return !(x.c > y.c);
 }
 
 } // namespace ft

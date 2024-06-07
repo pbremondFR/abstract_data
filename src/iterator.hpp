@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 19:27:37 by pbremond          #+#    #+#             */
-/*   Updated: 2024/06/07 19:03:27 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/06/07 21:01:52 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,10 +102,10 @@ class reverse_iterator
 		// using typename	iterator_traits<Iterator>::reference;
 
 		// ISO paper's version
-		// typedef Iterator											iterator_type;
-		// typedef typename iterator_traits<Iterator>::difference_type	difference_type;
-		// typedef typename iterator_traits<Iterator>::reference		reference;
-		// typedef typename iterator_traits<Iterator>::pointer			pointer;
+		typedef Iterator											iterator_type;
+		typedef typename iterator_traits<Iterator>::difference_type	difference_type;
+		typedef typename iterator_traits<Iterator>::reference		reference;
+		typedef typename iterator_traits<Iterator>::pointer			pointer;
 
 		reverse_iterator() : current() {}
 		explicit reverse_iterator(iterator_type src) : current(src) {};
@@ -119,12 +119,12 @@ class reverse_iterator
 		reference	operator[](difference_type n) const { return (*prev(current, n + 1)); }
 
 		reverse_iterator&	operator++()	{ --current; return (*this);					  };
-		reverse_iterator	operator++(int)	{ this_type tmp = *this; --current; return (tmp); };
+		reverse_iterator	operator++(int)	{ reverse_iterator tmp = *this; --current; return (tmp); };
 		reverse_iterator&	operator--()	{ ++current; return (*this);					  };
-		reverse_iterator	operator--(int)	{ this_type tmp = *this; ++current; return (tmp); };
+		reverse_iterator	operator--(int)	{ reverse_iterator tmp = *this; ++current; return (tmp); };
 
-		reverse_iterator	operator+(difference_type n) const { return (this_type(current - n)); }
-		reverse_iterator	operator-(difference_type n) const { return (this_type(current + n)); }
+		reverse_iterator	operator+(difference_type n) const { return (reverse_iterator(current - n)); }
+		reverse_iterator	operator-(difference_type n) const { return (reverse_iterator(current + n)); }
 
 		reverse_iterator&	operator+=(difference_type n) { current -= n; return (*this); }
 		reverse_iterator&	operator-=(difference_type n) { current += n; return (*this); }

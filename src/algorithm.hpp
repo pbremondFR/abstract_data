@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 22:45:28 by pbremond          #+#    #+#             */
-/*   Updated: 2024/06/07 20:36:57 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/06/07 21:05:05 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ namespace __detail::heap
 template <class RandomIt>
 void	make_heap(RandomIt first, RandomIt last)
 {
-	make_heap(first, last, less);
+	make_heap(first, last, less<typename RandomIt::value_type>());
 }
 
 template <class RandomIt, class Compare>
@@ -94,7 +94,7 @@ void	make_heap(RandomIt first, RandomIt last, Compare comp)
 template <class RandomIt>
 void	push_heap(RandomIt first, RandomIt last)
 {
-	push_heap(first, last, less);
+	push_heap(first, last, less<typename RandomIt::value_type>());
 }
 
 template <class RandomIt, class Compare>
@@ -106,7 +106,7 @@ void	push_heap(RandomIt first, RandomIt last, Compare comp)
 template <class RandomIt>
 void	pop_heap(RandomIt first, RandomIt last)
 {
-	pop_heap(first, last, less);
+	pop_heap(first, last, less<typename RandomIt::value_type>());
 }
 
 template <class RandomIt, class Compare>
