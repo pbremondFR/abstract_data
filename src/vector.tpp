@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2024/06/07 20:40:32 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/06/07 21:15:49 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ ft::vector<T, Allocator>::assign(InputIt first, InputIt last)
 template < class T, class Allocator >
 template < class InputIt >
 void	ft::vector<T, Allocator>::_do_assign(InputIt first, InputIt last,
-	std::input_iterator_tag)
+	input_iterator_tag)
 {
 	#if VEC_DEBUG_VERBOSE == true
 		std::cerr << _BLU"vector: assign: In input iterator specialization"RESET << std::endl;
@@ -151,13 +151,13 @@ void	ft::vector<T, Allocator>::_do_assign(InputIt first, InputIt last,
 template < class T, class Allocator >
 template < class ForwardIt >
 void	ft::vector<T, Allocator>::_do_assign(ForwardIt first, ForwardIt last,
-	std::forward_iterator_tag)
+	forward_iterator_tag)
 {
 	#if VEC_DEBUG_VERBOSE == true
 		std::cerr << _BLU"vector: assign: In forward iterator specialization"RESET << std::endl;
 	#endif
 
-	difference_type	newSize = std::distance<ForwardIt>(first, last);
+	difference_type	newSize = ft::distance<ForwardIt>(first, last);
 
 	if (static_cast<size_type>(newSize) > _capacity)
 		this->reserve(newSize);
