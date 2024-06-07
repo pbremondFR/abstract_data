@@ -1,3 +1,8 @@
+// I'd love to use #pragma once, but since it's tEcHnIcAlLy not standardized today,
+// much less in C++98...
+#ifndef FT_STACK
+#define FT_STACK
+
 #include <deque>
 // TODO: remove std::deque and use our own
 
@@ -7,11 +12,13 @@ namespace ft
 template <class T, class Container = std::deque<T> >
 class queue {
 public:
-	typedef typename Container::value_type value_type;
-	typedef typename Container::size_type size_type;
-	typedef Container container_type;
+	typedef typename	Container::value_type	value_type;
+	typedef typename	Container::size_type	size_type;
+	typedef				Container				container_type;
+
 protected:
 	Container c;
+
 public:
 	explicit inline queue(const Container& src = Container()) : c(src) {}
 
@@ -56,3 +63,5 @@ inline bool operator<=(const queue<T, Container>& x, const queue<T, Container>& 
 }
 
 }	// namespace ft
+
+#endif

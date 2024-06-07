@@ -1,15 +1,16 @@
 #include <vector>
 #include <functional>
+#include <functional.hpp>
 
 namespace ft {
 
 // TODO: replace std members
-template <class T, class Container = std::vector<T>, class Compare = std::less<typename Container::value_type> >
+template <class T, class Container = std::vector<T>, class Compare = less<typename Container::value_type> >
 class priority_queue {
 public:
-	typedef typename Container::value_type value_type;
-	typedef typename Container::size_type size_type;
-	typedef Container container_type;
+	typedef typename	Container::value_type	value_type;
+	typedef typename	Container::size_type	size_type;
+	typedef				Container				container_type;
 
 protected:
 	Container c;

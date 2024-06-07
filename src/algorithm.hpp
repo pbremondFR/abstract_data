@@ -1,0 +1,141 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   algorithm.hpp                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/27 22:45:28 by pbremond          #+#    #+#             */
+/*   Updated: 2024/06/07 18:57:35 by pbremond         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#pragma once
+#include <functional.hpp>
+
+namespace ft
+{
+
+template <class T>
+void	swap(T& a, T& b)
+{
+	T tmp(a);
+	a = b;
+	b = tmp;
+}
+
+template <class ForwardIt1, class ForwardIt2>
+void	iter_swap(ForwardIt1 a, ForwardIt2 b)
+{
+	swap(*a, *b);
+}
+
+template <class RandomIt>
+void	make_heap(RandomIt first, RandomIt last)
+{
+	make_heap(first, last, less);
+}
+
+template <class RandomIt, class Compare>
+void	make_heap(RandomIt first, RandomIt last, Compare comp)
+{
+
+}
+
+template <class RandomIt>
+void	push_heap(RandomIt first, RandomIt last)
+{
+	push_heap(first, last, less);
+}
+
+template <class RandomIt, class Compare>
+void	push_heap(RandomIt first, RandomIt last, Compare comp)
+{
+
+}
+
+template <class RandomIt>
+void	pop_heap(RandomIt first, RandomIt last)
+{
+	pop_heap(first, last, less);
+}
+
+template <class RandomIt, class Compare>
+void	pop_heap(RandomIt first, RandomIt last, Compare comp)
+{
+
+}
+
+template < class InputIt1, class InputIt2 >
+bool	equal(InputIt1 first1, InputIt1 last1, InputIt2 first2)
+{
+	for (; first1 != last1; ++first1, ++first2)
+		if (*first1 != *first2)
+			return (false);
+	return (true);
+}
+
+// Why the FUCK was this not implemented until C++14. Fuck you C++98, I'm implementing it.
+template < class InputIt1, class InputIt2 >
+bool	equal(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2)
+{
+	for (; first1 != last1 && first2 != last2; ++first1, ++first2)
+		if (*first1 != *first2)
+			return (false);
+	return (first1 == last1 && first2 == last2);
+}
+
+template < class InputIt1, class InputIt2, class BinaryPredicate >
+bool	equal(InputIt1 first1, InputIt1 last1, InputIt2 first2, BinaryPredicate p)
+{
+	for (; first1 != last1; ++first1, ++first2)
+		if (!p(first1, first2))
+			return (false);
+	return (true);
+}
+
+template < class InputIt1, class InputIt2, class BinaryPredicate >
+bool	equal(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2,
+	BinaryPredicate p)
+{
+	for (; first1 != last1 && first2 != last2; ++first1, ++first2)
+		if (!p(first1, first2))
+			return (false);
+	return (true);
+}
+
+template < class InputIt1, class InputIt2 >
+bool	lexicographical_compare(InputIt1 first1, InputIt1 last1,
+								InputIt2 first2, InputIt2 last2)
+{ // TESTME: different behaviour from the next overload
+	while (first1 != last1 && first2 != last2)
+	{
+		if (*first1 < *first2)
+			return (true);
+		if (*first1 > *first2)
+			return (false);
+		++first1;
+		++first2;
+	}
+	return (first1 == last1 && first2 != last2);
+}
+
+template < class InputIt1, class InputIt2, class Compare >
+bool	lexicographical_compare(InputIt1 first1, InputIt1 last1,
+								InputIt2 first2, InputIt2 last2,
+								Compare comp)
+{ // TESTME: different behaviour from the previous overload
+	while (first1 != last1 && first2 != last2 && *first1 == *first2)
+	{
+		if (comp(*first1, *first2))
+			return (true);
+		if (comp(*first2, *first1))
+			return (false);
+		++first1;
+		++first2;
+	}
+	return (first1 == last1 && first2 != last2);
+}
+
+
+} // namespace ft
