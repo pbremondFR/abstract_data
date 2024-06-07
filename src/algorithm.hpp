@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 22:45:28 by pbremond          #+#    #+#             */
-/*   Updated: 2024/06/07 18:57:35 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/06/07 20:36:57 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,47 @@ void	iter_swap(ForwardIt1 a, ForwardIt2 b)
 	swap(*a, *b);
 }
 
+// TESTME and do everything else I guess
+namespace __detail::heap
+{
+	// Iterator is necessarily a random access iterator
+	template <class It>	inline It	get_left_child(It pos)	{ return 2 * pos + 1; }
+	template <class It>	inline It	get_right_child(It pos)	{ return 2 * pos + 2; }
+	template <class It>	inline It	get_parent(It pos)		{ return (pos - 1) / 2; }
+
+	template <class It>	void	sift_down(It begin, It end)
+	{
+		while (get_left_child(begin) < end)
+		{
+			// Use Compare instead of operator<() ?
+			It child = get_left_child(begin);
+			if (child + 1 < end && *child < *(child + 1))
+				child = child + 1;
+			if (*begin < *child) {
+				swap_iter(begin, child);
+				begin = child;
+			}
+			else
+				return;
+		}
+	}
+
+	template <class It> void	sift_up(It begin, It end)
+	{
+		while (end > begin)
+		{
+			It parent = get_parent(end);
+			if (*parent < *end) {
+				swap_iter(parent, end);
+				end = parent;
+			}
+			else
+				return;
+		}
+	}
+} // namespace __detail::heap
+
+
 template <class RandomIt>
 void	make_heap(RandomIt first, RandomIt last)
 {
@@ -39,7 +80,15 @@ void	make_heap(RandomIt first, RandomIt last)
 template <class RandomIt, class Compare>
 void	make_heap(RandomIt first, RandomIt last, Compare comp)
 {
+	using namespace __detail::heap;
 
+	// TODO: That's the wiki version of the algo with std::less, what about general version?
+	RandomIt start = parent(last - 1) + 1;
+	while (start > first)	// Would comp(first, start) work in all cases?
+	{
+		--start;
+		sift_down(start, last - first);
+	}
 }
 
 template <class RandomIt>
