@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2024/06/07 21:07:00 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/07/02 17:10:37 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@
 #include <utility>
 #include "utility.hpp"
 
-// #include <map>
-// #include "map.hpp"
+#include <map>
+#include "map.hpp"
 
 #ifdef BONUS
 # include <set>
@@ -33,6 +33,7 @@
 #include <list>
 #include <cstdlib>
 
+#include "ansi_color.h"
 // #include "optional.hpp"
 
 #ifndef NAMESP
@@ -225,109 +226,109 @@ int	main(void)
 	// 	opt.reset();
 	// 	std::cout << "Has value: " << opt.has_value() << std::endl;
 	// }
-	// newtest();
-	// {
-	// 	NAMESP::map<int, char>	test;
-	// 	test.insert(NAMESP::make_pair(42, 'a'));
-	// 	NAMESP::map<int, char>::iterator it = test.begin();
-	// 	std::cout << (*it).second << std::endl;
-	// 	std::cout << it.operator->() << std::endl;
-	// 	std::cout << it.operator*().first << std::endl;
-	// 	it->second = 'b';
-	// 	std::cout << it->second << std::endl;
-	// 	// it->first = 'b';
-	// }
-	// newtest();
-	// {
-	// 	NAMESP::map<int, std::string>	test;
-	// 	test.insert(NAMESP::make_pair(30, "30"));
-	// 	test.insert(NAMESP::make_pair(20, "20"));
-	// 	test.insert(NAMESP::make_pair(70, "70"));
-	// 	test.insert(NAMESP::make_pair(10, "10"));
-	// 	test.insert(NAMESP::make_pair(50, "50"));
-	// 	test.insert(NAMESP::make_pair(40, "40"));
-	// 	test.insert(NAMESP::make_pair(60, "60"));
+	newtest();
+	{
+		NAMESP::map<int, char>	test;
+		test.insert(NAMESP::make_pair(42, 'a'));
+		NAMESP::map<int, char>::iterator it = test.begin();
+		std::cout << (*it).second << std::endl;
+		std::cout << it.operator->() << std::endl;
+		std::cout << it.operator*().first << std::endl;
+		it->second = 'b';
+		std::cout << it->second << std::endl;
+		// it->first = 'b';
+	}
+	newtest();
+	{
+		NAMESP::map<int, std::string>	test;
+		test.insert(NAMESP::make_pair(30, "30"));
+		test.insert(NAMESP::make_pair(20, "20"));
+		test.insert(NAMESP::make_pair(70, "70"));
+		test.insert(NAMESP::make_pair(10, "10"));
+		test.insert(NAMESP::make_pair(50, "50"));
+		test.insert(NAMESP::make_pair(40, "40"));
+		test.insert(NAMESP::make_pair(60, "60"));
 
-	// 	printMap("map", test);
-	// }
-	// newtest();
-	// {
-	// 	NAMESP::map<int, std::string>	test;
-	// 	test.insert(NAMESP::make_pair(10, "10"));
-	// 	test.insert(NAMESP::make_pair(5, "5"));
-	// 	test.insert(NAMESP::make_pair(15, "15"));
-	// 	test.insert(NAMESP::make_pair(2, "2"));
-	// 	test.insert(NAMESP::make_pair(7, "7"));
-	// 	test.insert(NAMESP::make_pair(6, "6"));
-	// 	test.insert(NAMESP::make_pair(8, "8"));
+		printMap("map", test);
+	}
+	newtest();
+	{
+		NAMESP::map<int, std::string>	test;
+		test.insert(NAMESP::make_pair(10, "10"));
+		test.insert(NAMESP::make_pair(5, "5"));
+		test.insert(NAMESP::make_pair(15, "15"));
+		test.insert(NAMESP::make_pair(2, "2"));
+		test.insert(NAMESP::make_pair(7, "7"));
+		test.insert(NAMESP::make_pair(6, "6"));
+		test.insert(NAMESP::make_pair(8, "8"));
 
-	// 	printMap("map - test", test);
-	// 	// test.debug_printByLevel();
+		printMap("map - test", test);
+		// test.debug_printByLevel();
 
-	// 	// test.debug_leftRotate(5);
+		// test.debug_leftRotate(5);
 
-	// 	printMap("map - test", test);
-	// 	// test.debug_printByLevel();
+		printMap("map - test", test);
+		// test.debug_printByLevel();
 
-	// 	// test.debug_rightRotate(7);
+		// test.debug_rightRotate(7);
 
-	// 	printMap("map - test", test);
-	// 	// test.debug_printByLevel();
-	// }
-	// newtest();
-	// {
-	// 	NAMESP::map<int, std::string>	test;
-	// 	test.insert(NAMESP::make_pair(10, "10"));
-	// 	test.insert(NAMESP::make_pair(5, "5"));
-	// 	test.insert(NAMESP::make_pair(15, "15"));
-	// 	test.insert(NAMESP::make_pair(2, "2"));
-	// 	test.insert(NAMESP::make_pair(7, "7"));
-	// 	test.insert(NAMESP::make_pair(6, "6"));
-	// 	test.insert(NAMESP::make_pair(8, "8"));
-	// 	test.insert(NAMESP::make_pair(1, "1"));
-	// 	test.insert(NAMESP::make_pair(0, "0"));
+		printMap("map - test", test);
+		// test.debug_printByLevel();
+	}
+	newtest();
+	{
+		NAMESP::map<int, std::string>	test;
+		test.insert(NAMESP::make_pair(10, "10"));
+		test.insert(NAMESP::make_pair(5, "5"));
+		test.insert(NAMESP::make_pair(15, "15"));
+		test.insert(NAMESP::make_pair(2, "2"));
+		test.insert(NAMESP::make_pair(7, "7"));
+		test.insert(NAMESP::make_pair(6, "6"));
+		test.insert(NAMESP::make_pair(8, "8"));
+		test.insert(NAMESP::make_pair(1, "1"));
+		test.insert(NAMESP::make_pair(0, "0"));
 
-	// 	printMap("map - test", test);
-	// 	// test.debug_printByLevel();
-	// 	// test.debug_printFamily(10);
-	// 	// test.debug_printFamily(15);
-	// }
-	// newtest();
-	// {
-	// 	NAMESP::map<int, std::string>	test;
-	// 	test.insert(NAMESP::make_pair(10, "10"));
-	// 	test.insert(NAMESP::make_pair(5, "5"));
-	// 	test.insert(NAMESP::make_pair(15, "15"));
-	// 	test.insert(NAMESP::make_pair(2, "2"));
-	// 	test.insert(NAMESP::make_pair(7, "7"));
-	// 	test.insert(NAMESP::make_pair(6, "6"));
-	// 	test.insert(NAMESP::make_pair(8, "8"));
-	// 	test.insert(NAMESP::make_pair(1, "1"));
-	// 	printMap("map - test", test);
-	// 	std::cout << test.insert(test.find(1), NAMESP::make_pair(0, "0"))->first << std::endl;
+		printMap("map - test", test);
+		// test.debug_printByLevel();
+		// test.debug_printFamily(10);
+		// test.debug_printFamily(15);
+	}
+	newtest();
+	{
+		NAMESP::map<int, std::string>	test;
+		test.insert(NAMESP::make_pair(10, "10"));
+		test.insert(NAMESP::make_pair(5, "5"));
+		test.insert(NAMESP::make_pair(15, "15"));
+		test.insert(NAMESP::make_pair(2, "2"));
+		test.insert(NAMESP::make_pair(7, "7"));
+		test.insert(NAMESP::make_pair(6, "6"));
+		test.insert(NAMESP::make_pair(8, "8"));
+		test.insert(NAMESP::make_pair(1, "1"));
+		printMap("map - test", test);
+		std::cout << test.insert(test.find(1), NAMESP::make_pair(0, "0"))->first << std::endl;
 
-	// 	printMap("map - test", test);
-	// 	// test.debug_printByLevel();
-	// 	// test.debug_printFamily(10);
-	// 	// test.debug_printFamily(15);
-	// }
-	// newtest();
-	// {
-	// 	NAMESP::map<int, int>	test;
-	// 	std::cout << "With size 0, expecting begin() == end()\n"
-	// 		<< (test.begin() == test.end() ?
-	// 			_GRN"PASSED: begin() == end()"RESET
-	// 			: _RED"FAILED: begin() != end()"RESET)
-	// 		<< std::endl;
-	// }
-	// newtest();
-	// {
-	// 	NAMESP::map<int, int>	test;
-	// 	test.insert(NAMESP::make_pair(42, 42));
-	// 	NAMESP::map<int, int>::iterator	it = test.end();
-	// 	it--;
-	// 	std::cout << it->first << " | " << it->second << std::endl;
-	// }
+		printMap("map - test", test);
+		// test.debug_printByLevel();
+		// test.debug_printFamily(10);
+		// test.debug_printFamily(15);
+	}
+	newtest();
+	{
+		NAMESP::map<int, int>	test;
+		std::cout << "With size 0, expecting begin() == end()\n"
+			<< (test.begin() == test.end() ?
+				GRN "PASSED: begin() == end()" RESET
+				: RED "FAILED: begin() != end()" RESET)
+			<< std::endl;
+	}
+	newtest();
+	{
+		NAMESP::map<int, int>	test;
+		test.insert(NAMESP::make_pair(42, 42));
+		NAMESP::map<int, int>::iterator	it = test.end();
+		it--;
+		std::cout << it->first << " | " << it->second << std::endl;
+	}
 	newtest();
 	try
 	{
@@ -349,43 +350,43 @@ int	main(void)
 	// {
 	// 	lmartin_main();
 	// }
-	// newtest();
-	// {
-	// 	NAMESP::map<char, int>	test;
+	newtest();
+	{
+		NAMESP::map<char, int>	test;
 
-	// 	test['a'];
-	// 	test['b'];
-	// 	test['c'];
-	// 	test['d'];
-	// 	test['e'];
-	// 	test['f'];
-	// 	test['h'];
+		test['a'];
+		test['b'];
+		test['c'];
+		test['d'];
+		test['e'];
+		test['f'];
+		test['h'];
 
-	// 	test.insert(test.find('f'), NAMESP::make_pair('g', 1337));
-	// 	printMap("test", test);
-	// }
-	// newtest();
-	// {
-	// 	std::string	input1 = "ABCDEFGHIJ";
-	// 	std::string input2 = "KLMNOPQRST";
-	// 	std::list<NAMESP::pair<char, char> >	inputA;
-	// 	std::list<NAMESP::pair<char, char> >	inputB;
-	// 	NAMESP::map<char, char>	test1;
-	// 	NAMESP::map<char, char>	test2;
+		test.insert(test.find('f'), NAMESP::make_pair('g', 1337));
+		printMap("test", test);
+	}
+	newtest();
+	{
+		std::string	input1 = "ABCDEFGHIJ";
+		std::string input2 = "KLMNOPQRST";
+		std::list<NAMESP::pair<char, char> >	inputA;
+		std::list<NAMESP::pair<char, char> >	inputB;
+		NAMESP::map<char, char>	test1;
+		NAMESP::map<char, char>	test2;
 
-	// 	for (std::string::iterator it = input1.begin(); it != input1.end(); ++it)
-	// 		inputA.push_back(NAMESP::make_pair(*it, *it));
-	// 	for (std::string::iterator it = input2.begin(); it != input2.end(); ++it)
-	// 		inputB.push_back(NAMESP::make_pair(*it, *it));
-	// 	test1.insert(inputA.begin(), inputA.end());
-	// 	test2.insert(inputB.begin(), inputB.end());
+		for (std::string::iterator it = input1.begin(); it != input1.end(); ++it)
+			inputA.push_back(NAMESP::make_pair(*it, *it));
+		for (std::string::iterator it = input2.begin(); it != input2.end(); ++it)
+			inputB.push_back(NAMESP::make_pair(*it, *it));
+		test1.insert(inputA.begin(), inputA.end());
+		test2.insert(inputB.begin(), inputB.end());
 
-	// 	printMap("Test 1", test1);
-	// 	printMap("Test 2", test2);
-	// 	std::swap(test1, test2);
-	// 	printMap("Test 1", test1);
-	// 	printMap("Test 2", test2);
-	// }
+		printMap("Test 1", test1);
+		printMap("Test 2", test2);
+		std::swap(test1, test2);
+		printMap("Test 1", test1);
+		printMap("Test 2", test2);
+	}
 	newtest();
 	{ // Enable vector debugging information to see the results !
 		#if VEC_DEBUG_VERBOSE == false
@@ -395,63 +396,63 @@ int	main(void)
 		testOptiSFINAE.push_back("CECI EST UN TEST MDR");
 		testOptiSFINAE.insert(testOptiSFINAE.begin(), "CECI EN EST UN AUTRE LOL");
 	}
-	// const int size = 1e6;
-	// newtest();
-	// {
+	const int size = 1e6;
+	newtest();
+	{
 
-	// 	{
-	// 	NAMESP::map<int, char>	mapperf;
-	// 	fillMapWithRand(size, mapperf);
-	// 	std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
-	// 	}
-	// 	{
-	// 	#ifdef BONUS
-	// 	NAMESP::set<int>	setperf;
-	// 	fillSetWithRand(size, setperf);
-	// 	std::cout << "Filled set, " << size - setperf.size() << " elements failed to insert" << std::endl;
-	// 	#endif
-	// 	}
-	// 	{
-	// 	NAMESP::vector<int>	vecperf;
-	// 	fillVecWithRand(size, vecperf);
-	// 	std::cout << "Filled vector, " << size - vecperf.size() << " elements failed to insert" << std::endl;
-	// 	}
-	// 	{
-	// 	NAMESP::stack<int>	stackperf;
-	// 	fillStackWithRand(size, stackperf);
-	// 	std::cout << "Filled stack, " << size - stackperf.size() << " elements failed to insert" << std::endl;
-	// 	}
-	// }
-	// newtest();
-	// {
+		{
+		NAMESP::map<int, char>	mapperf;
+		fillMapWithRand(size, mapperf);
+		std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
+		}
+		{
+		#ifdef BONUS
+		NAMESP::set<int>	setperf;
+		fillSetWithRand(size, setperf);
+		std::cout << "Filled set, " << size - setperf.size() << " elements failed to insert" << std::endl;
+		#endif
+		}
+		{
+		NAMESP::vector<int>	vecperf;
+		fillVecWithRand(size, vecperf);
+		std::cout << "Filled vector, " << size - vecperf.size() << " elements failed to insert" << std::endl;
+		}
+		{
+		NAMESP::stack<int>	stackperf;
+		fillStackWithRand(size, stackperf);
+		std::cout << "Filled stack, " << size - stackperf.size() << " elements failed to insert" << std::endl;
+		}
+	}
+	newtest();
+	{
 
-	// 	{
-	// 	NAMESP::map<int, std::string>	mapperf;
-	// 	for (std::size_t i = 0; i < size; ++i)
-	// 		mapperf.insert(NAMESP::make_pair(std::rand(), "According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible."));
-	// 	std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
-	// 	}
-	// 	{
-	// 	NAMESP::vector<std::string>	vecperf;
-	// 	for (std::size_t i = 0; i < size; ++i)
-	// 		vecperf.push_back("According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible.");
-	// 	std::cout << "Filled vector, " << size - vecperf.size() << " elements failed to insert" << std::endl;
-	// 	}
-	// 	{
-	// 	NAMESP::stack<std::string>	stackperf;
-	// 	for (std::size_t i = 0; i < size; ++i)
-	// 		stackperf.push("According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible.");
-	// 	std::cout << "Filled stack, " << size - stackperf.size() << " elements failed to insert" << std::endl;
-	// 	}
-	// }
-	// newtest();
-	// {
-	// 	NAMESP::map<int, char>	mapperf;
-	// 	for (std::size_t i = 0; i < size; ++i) {
-	// 		mapperf.insert(NAMESP::make_pair(i, 'A'));
-	// 	}
-	// 	std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
-	// }
+		{
+		NAMESP::map<int, std::string>	mapperf;
+		for (std::size_t i = 0; i < size; ++i)
+			mapperf.insert(NAMESP::make_pair(std::rand(), "According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible."));
+		std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
+		}
+		{
+		NAMESP::vector<std::string>	vecperf;
+		for (std::size_t i = 0; i < size; ++i)
+			vecperf.push_back("According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible.");
+		std::cout << "Filled vector, " << size - vecperf.size() << " elements failed to insert" << std::endl;
+		}
+		{
+		NAMESP::stack<std::string>	stackperf;
+		for (std::size_t i = 0; i < size; ++i)
+			stackperf.push("According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible.");
+		std::cout << "Filled stack, " << size - stackperf.size() << " elements failed to insert" << std::endl;
+		}
+	}
+	newtest();
+	{
+		NAMESP::map<int, char>	mapperf;
+		for (std::size_t i = 0; i < size; ++i) {
+			mapperf.insert(NAMESP::make_pair(i, 'A'));
+		}
+		std::cout << "Filled map, " << size - mapperf.size() << " elements failed to insert" << std::endl;
+	}
 	// newtest();
 	// {
 	// 	NAMESP::vector<int>	vecperf;

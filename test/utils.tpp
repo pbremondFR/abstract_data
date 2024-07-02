@@ -63,13 +63,13 @@ void	fillVecWithRand(std::size_t amount, NAMESP::vector<T>& vec)
 	}
 }
 
-// template <class Key, class T>
-// void	fillMapWithRand(std::size_t amount, NAMESP::map<Key, T>& map)
-// {
-// 	for (std::size_t i = 0; i < amount; ++i) {
-// 		map.insert(NAMESP::make_pair( Key(std::rand()), T() ));
-// 	}
-// }
+template <class Key, class T>
+void	fillMapWithRand(std::size_t amount, NAMESP::map<Key, T>& map)
+{
+	for (std::size_t i = 0; i < amount; ++i) {
+		map.insert(NAMESP::make_pair( Key(std::rand()), T() ));
+	}
+}
 
 #ifdef BONUS
 template <class Key>
