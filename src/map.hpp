@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2024/07/02 17:05:04 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/07/03 02:55:46 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,9 +82,9 @@ class map
 
 			void	rotateLeft(__s_node **treeRoot)
 			{
-				#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 					logstream << BBLU"DEBUG: "BRED"left rotate (" << this->val.first << ")"RESET << std::endl;
-				#endif
+#endif
 				__s_node	*son = this->right;
 				if (son == NULL)
 					throw (std::logic_error("map: attempted to left-rotate with no right child"));
@@ -104,9 +104,9 @@ class map
 
 			void	rotateRight(__s_node **treeRoot)
 			{
-				#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 					logstream << BBLU"DEBUG: "BGRN"right rotate (" << this->val.first << ")"RESET << std::endl;
-				#endif
+#endif
 				__s_node	*son = this->left;
 				if (son == NULL)
 					throw (std::logic_error("map: attempted to right-rotate with no left child"));
@@ -296,14 +296,14 @@ class map
 		inline reverse_iterator			rend()		 { return reverse_iterator(begin()); }
 		inline const_reverse_iterator	rend() const { return reverse_iterator(begin()); }
 
-	#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 		void	debug_leftRotate(Key const& key);
 		void	debug_rightRotate(Key const& key);
 		void	debug_printByLevel() const;
 		void	debug_printByLevel(Key const& key) const;
 		void	debug_printFamily(Key const& key) const;
 		void	debug_printFamily(const __s_node *node) const;
-	#endif
+#endif
 
 	private:
 		void	_postfix_dealloc(__s_node *root);
@@ -417,9 +417,9 @@ namespace std
 	void	swap(ft::map<Key, T, Compare, Alloc>& lhs,
 				 ft::map<Key, T, Compare, Alloc>& rhs)
 	{
-		#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 			std::cout << _BLU"DEBUG: map: std::swap is specialized"RESET << std::endl;
-		#endif
+#endif
 		lhs.swap(rhs);
 	}
 }

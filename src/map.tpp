@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2022/09/19 20:26:47 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/07/03 02:55:17 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ ft::map<Key, T, Compare, Allocator>::map(Compare const& comp, Allocator const& a
 	_endLeaf->parent = NULL;
 	_endLeaf->left = NULL;
 	_endLeaf->right = NULL;
-	
+
 	_dummy->colour = __s_node::BLACK;
 	_dummy->parent = NULL;
 	_dummy->left = NULL;
@@ -120,7 +120,7 @@ ft::map<Key, T, Compare, Allocator>::map(InputIt first, InputIt last,
 	_endLeaf->parent = NULL;
 	_endLeaf->left = NULL;
 	_endLeaf->right = NULL;
-	
+
 	_dummy->colour = __s_node::BLACK;
 	_dummy->parent = NULL;
 	_dummy->left = NULL;
@@ -137,7 +137,7 @@ ft::map<Key, T, Compare, Allocator>::map(map const& src)
 	_endLeaf->parent = NULL;
 	_endLeaf->left = NULL;
 	_endLeaf->right = NULL;
-	
+
 	_dummy->colour = __s_node::BLACK;
 	_dummy->parent = NULL;
 	_dummy->left = NULL;
@@ -175,7 +175,7 @@ ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
 		++_size;
 		return (_correctInsertion(_root, iterator(_root)));
 	}
-	
+
 	while (!_isLeaf(tree))
 	{
 		prev = tree;
@@ -211,9 +211,9 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 {
 	iterator	next = hint;
 
-	#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 		logstream << BCYN"Entering insert() hint overload."RESET << std::endl;
-	#endif
+#endif
 	if (hint == this->end())
 		return (this->insert(val).first);
 
@@ -223,9 +223,9 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 	if (_compare(hintedKey, val.first) == true
 		&& (next == _endLeaf || _compare(val.first, nextKey) == true)) // hintedKey < val.first < nextKey
 	{
-		#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 			logstream << BCYN"Hint looks correct, trying to find slot..."RESET << std::endl;
-		#endif
+#endif
 		__s_node	*hintNode = hint._node;
 		__s_node	*nextNode = next._node;
 		if (_isLeaf(hintNode->right))
@@ -245,9 +245,9 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 			return (_correctInsertion(nextNode->left, iterator(nextNode->left)).first);
 		}
 	}
-	#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 		logstream << BRED"No insertion optimisation could be done."RESET << std::endl;
-	#endif
+#endif
 	return (this->insert(val).first);
 }
 
@@ -271,16 +271,16 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 {
 	__s_node	*node = pos._node;
 
-	#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 		logstream << BBLU"DEBUG: Erasing node " << node->val.first << RESET << std::endl;
 		debug_printByLevel();
-	#endif
+#endif
 
 	if (!_isLeaf(node->left) && !_isLeaf(node->right))
 	{
-		#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 			logstream << BYEL"Node has two children, replacing with predecessor...\n"RESET;
-		#endif
+#endif
 		__s_node	*src = node->left;
 		while (!_isLeaf(src->right)) // Get the direct in-order predecessor
 			src = src->right;
@@ -290,9 +290,9 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 	}
 	__s_node	*child = _isLeaf(node->left) ? node->right : node->left;
 	if (child == NULL) {
-		#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 			logstream << BYEL"Found node with no children\n"RESET;
-		#endif
+#endif
 		if (_getColour(node) == __s_node::BLACK)
 		{
 			child = _dummy;
@@ -303,12 +303,12 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 			child->right = NULL;
 		}
 	}
-	
+
 	if (_getColour(node) == __s_node::RED)
 	{
-		#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 			logstream << UCYN"Targeted node is red, remove it and don't fix tree"RESET << std::endl;
-		#endif
+#endif
 		_removeNodeWithSingleChild(node, child);
 	}
 	else
@@ -357,17 +357,17 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 	while (node != _root && node != NULL)
 	{
 		if (_getColour(node) == __s_node::RED) { // Went far enough up the tree, found red node
-			#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 				logstream << UCYN"In case 1 (red node)"RESET << std::endl;
-			#endif
+#endif
 			node->colour = __s_node::BLACK;
 			return ;
 		}
 		else if (_getColour(node->brother()) == __s_node::RED) // case 2: red brother
 		{
-			#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 				logstream << UCYN"In case 2 (red brother)"RESET << std::endl;
-			#endif
+#endif
 			node->brother()->colour = __s_node::BLACK; // swap parent and brother's colours
 			node->parent->colour = __s_node::RED;
 			if (node->isLeftChild())
@@ -378,25 +378,25 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 		if (_getColour(node->brother()->left) == __s_node::BLACK // case 3: black brother, black nephews
 			&& _getColour(node->brother()->right) == __s_node::BLACK)
 		{
-			#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 				logstream << UCYN"In case 3 (black brother and black nephews)"RESET << std::endl;
-			#endif
+#endif
 			node->brother()->colour = __s_node::RED;
 			node = node->parent;
 		}
 		else // case 4: black brother, at least one red nephew
 		{
-			#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 				logstream << UCYN"In case 4 (black brother, at least one red nephew)"RESET << std::endl;
-			#endif
+#endif
 			if (node->isLeftChild()) // left symetry
 			{
 				assert(node->brother() != NULL);
 				if (_getColour(node->brother()->right) == __s_node::BLACK) // subcase: If far nephew isn't red
 				{
-					#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 						logstream << UCYN"In subcase 1, far nephew isn't red"RESET << std::endl;
-					#endif
+#endif
 					node->brother()->rotateRight(&_root);
 					node->brother()->colour = __s_node::BLACK;
 					node->brother()->right->colour = __s_node::RED; // make it so the far nephew is red
@@ -412,9 +412,9 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 				assert(node->brother() != NULL);
 				if (_getColour(node->brother()->left) == __s_node::BLACK) // If far nephew isn't red
 				{
-					#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 						logstream << UCYN"In subcase 1, far nephew isn't red"RESET << std::endl;
-					#endif
+#endif
 					node->brother()->rotateLeft(&_root);
 					node->brother()->colour = __s_node::BLACK;
 					node->brother()->left->colour = __s_node::RED; // make it so the far nephew is red
@@ -575,10 +575,10 @@ void	ft::map<Key, T, Compare, Allocator>::_postfix_dealloc(__s_node *root)
 		return ;
 	_postfix_dealloc(root->left);
 	_postfix_dealloc(root->right);
-	#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 		logstream << BBLU"DEBUG: _postfix_dealloc(): "RESET
 			<< root->val.first << '\t' << root->val.second << std::endl;
-	#endif
+#endif
 	_allocator.destroy(root);
 	_allocator.deallocate(root, 1);
 }
@@ -602,42 +602,42 @@ template <class Key, class T, class Compare, class Allocator>
 ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
 	ft::map<Key, T, Compare, Allocator>::_correctInsertion(__s_node *node, iterator const& retval)
 {
-	#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 		logstream << std::endl;
 		debug_printByLevel(node->val.first);
-	#endif
+#endif
 	switch (_checkInsertValidity(node))
 	{
 		case CORRECT_ROOT:
-			#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 				logstream << _BLU"DEBUG: insert case 1 for node " << node->val.first
 					<< " (recolor root)"RESET << std::endl;
-			#endif
+#endif
 			node->colour = __s_node::BLACK;
 			return (ft::pair<iterator, bool>(retval, true));
 
 		case CORRECT_NOTHING:
-			#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 				logstream << _BLU"DEBUG: insert case 2 for node " << node->val.first
 					<< " (do nothing)"RESET << std::endl;
-			#endif
+#endif
 			return (ft::pair<iterator, bool>(retval, true));
 
 		case CORRECT_COLOR:
-			#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 				logstream << _BLU"DEBUG: insert case 3 for node " << node->val.first
 					<< " (recolor parent, uncle and grandparent)"RESET << std::endl;
-			#endif
+#endif
 			node->parent->colour = __s_node::BLACK;
 			node->uncle()->colour = __s_node::BLACK;
 			node->parent->parent->colour = __s_node::RED;
 			return (_correctInsertion(node->parent->parent, retval));
 
 		case CORRECT_ROTATE:
-			#if MAP_DEBUG_VERBOSE == true
+#if MAP_DEBUG_VERBOSE == true
 				logstream << _BLU"DEBUG: insert case 4 for node " << node->val.first
 					<< " (rotations and stuff)"RESET << std::endl;
-			#endif
+#endif
 			_correctInsertion_rotate(node);
 			return (ft::pair<iterator, bool>(retval, true));
 	}
@@ -661,7 +661,7 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 		node->parent->rotateRight(&_root);
 		node = node->right;
 	}
-	
+
 	grandparent = node->parent->parent;
 	if (node == node->parent->left)
 		grandparent->rotateRight(&_root);
