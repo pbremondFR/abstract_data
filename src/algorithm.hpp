@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 22:45:28 by pbremond          #+#    #+#             */
-/*   Updated: 2024/06/07 21:05:05 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/07/03 02:51:42 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ void	iter_swap(ForwardIt1 a, ForwardIt2 b)
 }
 
 // TESTME and do everything else I guess
-namespace __detail::heap
+// NOTE: lmao I can't write namespace __detail::heap because that's C++17
+namespace __detail { namespace heap
 {
 	// Iterator is necessarily a random access iterator
 	template <class It>	inline It	get_left_child(It pos)	{ return 2 * pos + 1; }
@@ -68,7 +69,7 @@ namespace __detail::heap
 				return;
 		}
 	}
-} // namespace __detail::heap
+}} // namespace __detail::heap
 
 
 template <class RandomIt>

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/04 16:21:48 by pbremond          #+#    #+#             */
-/*   Updated: 2024/06/07 20:47:33 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/07/03 02:48:50 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,14 @@
 # define ANSI_COLOR_H
 
 //Regular text
-# define BLK "\e[0;30m"
-# define RED "\e[0;31m"
-# define GRN "\e[0;32m"
-# define YEL "\e[0;33m"
-# define BLU "\e[0;34m"
-# define MAG "\e[0;35m"
-# define CYN "\e[0;36m"
-# define WHT "\e[0;37m"
+# define _BLK "\e[0;30m"
+# define _RED "\e[0;31m"
+# define _GRN "\e[0;32m"
+# define _YEL "\e[0;33m"
+# define _BLU "\e[0;34m"
+# define _MAG "\e[0;35m"
+# define _CYN "\e[0;36m"
+# define _WHT "\e[0;37m"
 
 //Regular bold text
 # define BBLK "\e[1;30m"

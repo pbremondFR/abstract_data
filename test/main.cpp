@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2024/07/02 17:10:37 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/07/03 02:50:19 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -317,8 +317,8 @@ int	main(void)
 		NAMESP::map<int, int>	test;
 		std::cout << "With size 0, expecting begin() == end()\n"
 			<< (test.begin() == test.end() ?
-				GRN "PASSED: begin() == end()" RESET
-				: RED "FAILED: begin() != end()" RESET)
+				_GRN "PASSED: begin() == end()" RESET
+				: _RED "FAILED: begin() != end()" RESET)
 			<< std::endl;
 	}
 	newtest();
