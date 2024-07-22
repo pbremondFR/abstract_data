@@ -1,8 +1,24 @@
 ## abstract_data
 ### ft_containers 2: electric boogaloo
 
-Dear 42 pedago,
+THIS PROJECT IS A WORK-IN-PROGRESS
 
-Fuck C++98. Bonus points for not including the DRs.
+### Task: implement from scratch all following containers and anything else necessary for them to function:
+- list
+- deque
+- vector
+- map
+- set
+- multimap
+- multiset
+- stack
+- queue
+- priority_queue
+- unordered_map
+- unordered_set
+- unordered_multimap
+- unordered_multiset
 
-Respectfully yours,
+Referencing anything in the std namespace is forbidden except for std::allocator, std::string, std::numeric_limits, and iterator tags.
+
+***Compliance with ISO IEC 14882-1998 is mandatory.***
