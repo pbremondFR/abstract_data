@@ -20,6 +20,7 @@ private:
 	// Allocator rebind to allocate nodes correctly
 	typedef typename Allocator::template rebind<_Node>::other	_Alloc;
 
+	// TODO: Dummy node? Right now front and back are null when list is empty, that fucks up iterators
 	_Node	*_front;
 	_Node	*_back;
 	_Alloc	_allocator;
@@ -45,7 +46,7 @@ private:
 		_Iterator& operator=(_Iterator const& x)	{ _node = x._node; return *this; }
 
 		// Allows iterator -> const_iterator convertion
-		inline operator _Iterator<const IteratorValueType>() const { return (this->_node); }
+		inline operator _Iterator<const value_type>() const { return (this->_node); }
 
 		bool	operator==(_Iterator const& x)	{ return _node == x._node; }
 		bool	operator!=(_Iterator const& x)	{ return _node != x._node; }
@@ -82,39 +83,21 @@ public:
 	// 23.2.2.1 construct/copy/destroy:
 	explicit list(const Allocator& alloc = Allocator())
 		: _front(nullptr), _back(nullptr), _allocator(alloc), _size(0) {}
-	explicit list(size_type n, const T& value = T(), const Allocator& alloc = Allocator())
-		: _front(nullptr), _back(nullptr), _allocator(alloc), _size(0)
-	{
-		for (size_t i = 0; i < n; ++i)
-			this->push_back(value);
-	}
+
+	explicit list(size_type n, const T& value = T(), const Allocator& alloc = Allocator());
 	template <class InputIterator>
-	list(InputIterator first, InputIterator last, const Allocator& alloc = Allocator())
-		: _front(nullptr), _back(nullptr), _allocator(alloc), _size(0)
-	{
-		for (; first != last; ++first)
-			push_back(*first);
-	}
-	list(const list<T, Allocator>& x) : _front(nullptr), _back(nullptr), _allocator(x._allocator), _size(0)
-	{
-		for (const_iterator i = x.begin(); i != x.end(); ++i)
-			this->push_back(*i);
-	}
+	list(InputIterator first, InputIterator last, const Allocator& alloc = Allocator());
+	list(const list<T, Allocator>& x);
 	~list()
 	{
 		clear();
 	}
+	list<T, Allocator>& operator=(const list<T, Allocator>& other);
 
-	list<T, Allocator>& operator=(const list<T, Allocator>& other)
-	{
-		clear();
-		this->_allocator = other._allocator;
-		for (const_iterator i = other.begin(); i != other.end(); ++i)
-			push_back(*i);
-	}
-	template <class InputIterator>
-	void	assign(InputIterator first, InputIterator last)	{ *this = list(first, last, _allocator); }
-	void	assign(size_type n, const T& value)				{ *this = list(n, value, _allocator); }
+	// XXX: Strong Exception Guarantee mandated by standard's effects
+	template <class InputIterator>	// TODO: SFINAE?
+	void	assign(InputIterator first, InputIterator last)	{ clear(); insert(begin(), first, last); }
+	void	assign(size_type n, const T& value)				{ clear(); insert(begin(), n, value); }
 	allocator_type	get_allocator() const					{ return _allocator; }
 
 	// iterators:
@@ -151,7 +134,7 @@ public:
 	void		insert(iterator position, InputIterator first, InputIterator last);
 	iterator	erase(iterator position);
 	iterator	erase(iterator position, iterator last);
-	void		swap(list<T,Allocator>&);	 // XXX: Check idiomatic swap implementation?
+	void		swap(list<T,Allocator> &other);	 // XXX: Check idiomatic swap implementation?
 	void		clear();
 
 	// 23.2.2.4 list operations:
