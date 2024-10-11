@@ -4,7 +4,7 @@ using namespace ft;
 
 template <class T, class Allocator>
 list<T, Allocator>::list(size_type n, const T& value = T(), const Allocator& alloc = Allocator())
-	: _front(nullptr), _back(nullptr), _allocator(alloc), _size(0)
+	: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
 {
 	// TESTME: Exception guarantee?
 	// push_back holds the string exception guarantee, and the object is correctly initialized.
@@ -12,14 +12,18 @@ list<T, Allocator>::list(size_type n, const T& value = T(), const Allocator& all
 	// before the push_back call that threw.
 	// XXX: In C++, throwing from a constructor does not call the destructor. BUT the destructor
 	// will still be called when the object is destructed (out-of-scope or manually...)
-
+	_end = _allocator.allocate(1);
+	_end->prev = nullptr;
+	_end->next = nullptr;
+	_front = _end;
 	for (size_t i = 0; i < n; ++i)
 		push_back(value);
 }
+
 template <class T, class Allocator>
 template <class InputIterator>
 list<T, Allocator>::list(InputIterator first, InputIterator last, const Allocator& alloc = Allocator())
-	: _front(nullptr), _back(nullptr), _allocator(alloc), _size(0)
+	: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
 {
 	for (; first != last; ++first)
 		push_back(*first);
@@ -27,7 +31,7 @@ list<T, Allocator>::list(InputIterator first, InputIterator last, const Allocato
 
 template <class T, class Allocator>
 list<T, Allocator>::list(const list<T, Allocator>& x)
-	: _front(nullptr), _back(nullptr), _allocator(x._allocator), _size(0)
+	: _front(nullptr), _end(nullptr), _allocator(x._allocator), _size(0)
 {
 	for (const_iterator i = x.begin(); i != x.end(); ++i)
 		push_back(*i);
@@ -69,8 +73,7 @@ void	list<T, Allocator>::push_front(const T& value)
 		_allocator.construct(new_node->data, value);
 		new_node->prev = nullptr;
 		new_node->next = _front;
-		if (_front)	// XXX: Linus Torvalds' talk on "code taste", need to watch it
-			_front->prev = new_node;
+		_front->prev = new_node;
 		_front = new_node;
 		++_size;
 	}
@@ -100,10 +103,10 @@ void	list<T, Allocator>::push_back(const T& value)
 	try
 	{
 		_allocator.construct(new_node->data, value);
-		new_node->prev = _back;
-		new_node->next = nullptr;
-		_back->next = new_node;
-		_back = new_node;
+		new_node->prev = _end->prev;
+		new_node->next = _end;
+		_end->prev = new_node;
+		_front = _size == 0 ? new_node : _front;	// If size == 0
 		++_size;
 	}
 	catch(const std::exception&)	// Strong exception guarantee
@@ -117,10 +120,12 @@ void	list<T, Allocator>::push_back(const T& value)
 template <class T, class Allocator>
 void	list<T, Allocator>::pop_back()
 {
-	_Node *popped = _back;
+	_Node *popped = _end->prev;
 	// XXX: UB when list is empty, YAAAAAAYYYYYY
-	_back = popped->prev;
-	_back->next = nullptr;
+	if (popped->prev)
+		popped->prev->next = _end;
+	_end = popped->prev;
+	_front = _size == 1 ? _end : _front;	// If removing last node
 	--_size;
 	_allocator.destroy(popped->data);
 	_allocator.deallocate(popped, 1);
@@ -136,6 +141,7 @@ list<T, Allocator>::iterator	list<T, Allocator>::insert(iterator position, const
 		new_node->prev = position._node->prev;
 		new_node->next = position._node;
 		position._node->prev = new_node;
+		_front = position == begin() ? new_node : _front;	// If inserting at the front
 		++_size;
 	}
 	catch(const std::exception&)	// Strong exception guarantee
@@ -187,7 +193,7 @@ template <class T, class Allocator>
 void	list<T, Allocator>::swap(list<T, Allocator> &other)
 {
 	::ft::swap(_front,		other._front);
-	::ft::swap(_back,		other._back);
+	::ft::swap(_end,		other._end);
 	::ft::swap(_allocator,	other._allocator);
 	::ft::swap(_size,		other._size);
 }

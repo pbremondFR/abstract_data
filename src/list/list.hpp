@@ -22,7 +22,7 @@ private:
 
 	// TODO: Dummy node? Right now front and back are null when list is empty, that fucks up iterators
 	_Node	*_front;
-	_Node	*_back;
+	_Node	*_end;		// End "dummy" node, corresponds to end iterator
 	_Alloc	_allocator;
 	size_t	_size;
 
@@ -82,7 +82,7 @@ public:
 
 	// 23.2.2.1 construct/copy/destroy:
 	explicit list(const Allocator& alloc = Allocator())
-		: _front(nullptr), _back(nullptr), _allocator(alloc), _size(0) {}
+		: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0) {}
 
 	explicit list(size_type n, const T& value = T(), const Allocator& alloc = Allocator());
 	template <class InputIterator>
@@ -91,6 +91,7 @@ public:
 	~list()
 	{
 		clear();
+		_allocator.deallocate(_end, 1);
 	}
 	list<T, Allocator>& operator=(const list<T, Allocator>& other);
 
@@ -103,12 +104,12 @@ public:
 	// iterators:
 	iterator				begin()			{ return _front; }
 	const_iterator			begin() const	{ return _front; }
-	iterator				end()			{ return _back; }
-	const_iterator			end() const		{ return _back; }
+	iterator				end()			{ return _end; }
+	const_iterator			end() const		{ return _end; }
 	reverse_iterator		rbegin()		{ return reverse_iterator(_front); }
 	const_reverse_iterator	rbegin() const	{ return reverse_iterator(_front); }
-	reverse_iterator		rend()			{ return reverse_iterator(_back); }
-	const_reverse_iterator	rend() const	{ return reverse_iterator(_back); }
+	reverse_iterator		rend()			{ return reverse_iterator(_end); }
+	const_reverse_iterator	rend() const	{ return reverse_iterator(_end); }
 
 	// 23.2.2.2 capacity:
 	bool		empty() const		{ return _size == 0; }
@@ -120,8 +121,8 @@ public:
 	// XXX: LMAO, UB if list is empty. Isn't that so funny?!?!?!?!
 	reference		front()			{ return _front->data; }
 	const_reference	front() const	{ return _front->data; }
-	reference		back()			{ return _back->data; }
-	const_reference	back() const	{ return _back->data; }
+	reference		back()			{ return _end->data; }
+	const_reference	back() const	{ return _end->data; }
 
 	// 23.2.2.3 modifiers:
 	void		push_front(const T& x);
