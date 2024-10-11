@@ -202,7 +202,7 @@ template <class T, class Allocator>
 void	list<T, Allocator>::clear()
 {
 	_Node *head = _front;
-	while (head)
+	while (head != _end)
 	{
 		_Node *prev = head;
 		head = head->next;
@@ -212,8 +212,126 @@ void	list<T, Allocator>::clear()
 	}
 }
 
+// Descriptions of function semantics contain the following elements (as appropriate):148)
+// — Requires: the preconditions for calling the function
+// — Effects: the actions performed by the function
+// — Postconditions: the observable results established by the function
+// — Returns: a description of the value(s) returned by the function
+// — Throws: any exceptions thrown by the function, and the conditions that would cause the exception
+// — Complexity: the time and/or space complexity of the function
+
 template <class T, class Allocator>
 void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other)
 {
+	if (other.empty())
+		return;
 
+	_Node *insert_after = position._node->prev;	// Insert splice after this node...
+	_Node *insert_before = position._node;		// ...and before this node
+	_Node *other_last = other._end->prev;		// Last node of other list
+
+	if (insert_before)
+		insert_after->next = other._front;
+	else
+		_front = other._front;
+	other._front->prev = insert_after;
+
+	insert_before->prev = other_last;
+	other_last->next = insert_before;
+
+	other._end->prev = nullptr;
+	other._front = other._end;
+	other._size = 0;
+}
+
+template <class T, class Allocator>
+void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, iterator target)
+{
+	if (other.empty())
+		return;
+
+	_Node *insert_after = position._node->prev;	// Insert splice after this node...
+	_Node *insert_before = position._node;		// ...and before this node
+
+	insert_after->next = target._node;
+	if (insert_before)
+		insert_before->prev = target._node;
+	else
+		_front = target._node;	// If inserting at beginning of the list
+
+	if (target != other.begin())
+		target._node->prev->next = target._node->next;
+	else
+		other._front = target._node->next;
+	target._node->next->prev = target._node->prev;
+
+	target._node->prev = insert_after;
+	target._node->next = insert_before;
+	--other._size;
+}
+
+
+template <class T, class Allocator>
+void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, iterator range_begin,
+	iterator range_end)
+{
+	if (other.empty())
+		return;
+
+	_Node *other_before = range_begin._node->prev;	// Node from other list that's before range_begin
+	if (range_begin == other.begin())
+		other._front = range_end._node;
+	else
+		other_before->next = range_end._node;
+	range_end._node->prev = other_before;
+
+	_Node *insert_after = position._node->prev;	// Insert splice after this node...
+	_Node *insert_before = position._node;		// ...and before this node
+	_Node *range_last = range_end._node->prev;
+
+	insert_after->next = range_begin._node;
+	range_begin._node->prev = insert_after;
+
+	insert_before->prev = range_last;
+	range_last->next = insert_before;
+}
+
+// TODO: Replace this implementation with a remove_if(std::identity) or something like that?
+template <class T, class Allocator>
+void	list<T, Allocator>::remove(const T& value)
+{
+	_Node *head = _front;
+
+	while (*head->next != _end)
+	{
+		if (head->next->data == value)
+		{
+			_Node *to_delete = head->next;
+			head->next = to_delete->next;
+			head->next->prev = head;
+			_allocator.destroy(to_delete->data);
+			_allocator.deallocate(to_delete, 1);
+		}
+		head = head->next;
+	}
+}
+
+template <class T, class Allocator>
+template <class Predicate>
+void	list<T, Allocator>::remove_if(Predicate pred)
+{
+	_Node *head = _front;
+
+	while (*head->next != _end)
+	{
+		if (pred(head->next->data))
+		{
+			_Node *to_delete = head->next;
+			head->next = to_delete->next;
+			head->next->prev = head;
+			_allocator.destroy(to_delete->data);
+			_allocator.deallocate(to_delete, 1);
+		}
+		head = head->next;
+	}
 }
