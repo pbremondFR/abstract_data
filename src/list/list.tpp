@@ -4,6 +4,16 @@
 using namespace ft;
 
 template <class T, class Allocator>
+list<T, Allocator>::list(const Allocator& alloc)
+		: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
+{
+	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy. Can I do that?
+	_end->prev = nullptr;
+	_end->next = nullptr;
+	_front = _end;
+}
+
+template <class T, class Allocator>
 list<T, Allocator>::list(size_type n, const T& value, const Allocator& alloc)
 	: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
 {
@@ -13,7 +23,7 @@ list<T, Allocator>::list(size_type n, const T& value, const Allocator& alloc)
 	// before the push_back call that threw.
 	// XXX: In C++, throwing from a constructor does not call the destructor. BUT the destructor
 	// will still be called when the object is destructed (out-of-scope or manually...)
-	_end = _allocator.allocate(1);
+	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy. Can I do that?
 	_end->prev = nullptr;
 	_end->next = nullptr;
 	_front = _end;
@@ -26,6 +36,10 @@ template <class InputIterator>
 list<T, Allocator>::list(InputIterator first, InputIterator last, const Allocator& alloc)
 	: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
 {
+	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy. Can I do that?
+	_end->prev = nullptr;
+	_end->next = nullptr;
+	_front = _end;
 	for (; first != last; ++first)
 		push_back(*first);
 }
@@ -34,6 +48,10 @@ template <class T, class Allocator>
 list<T, Allocator>::list(const list<T, Allocator>& x)
 	: _front(nullptr), _end(nullptr), _allocator(x._allocator), _size(0)
 {
+	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy. Can I do that?
+	_end->prev = nullptr;
+	_end->next = nullptr;
+	_front = _end;
 	for (const_iterator i = x.begin(); i != x.end(); ++i)
 		push_back(*i);
 }
@@ -71,7 +89,7 @@ void	list<T, Allocator>::push_front(const T& value)
 	_Node *new_node = _allocator.allocate(1);
 	try
 	{
-		_allocator.construct(new_node->data, value);
+		_allocator.construct(new_node, _Node(value));
 		new_node->prev = nullptr;
 		new_node->next = _front;
 		_front->prev = new_node;
@@ -93,7 +111,7 @@ void	list<T, Allocator>::pop_front()
 	_front = popped->next;
 	_front->prev = nullptr;
 	--_size;
-	_allocator.destroy(popped->data);
+	_allocator.destroy(popped);
 	_allocator.deallocate(popped, 1);
 }
 
@@ -103,9 +121,11 @@ void	list<T, Allocator>::push_back(const T& value)
 	_Node *new_node = _allocator.allocate(1);
 	try
 	{
-		_allocator.construct(new_node->data, value);
+		_allocator.construct(new_node, _Node(value));
 		new_node->prev = _end->prev;
 		new_node->next = _end;
+		if (_end->prev)
+			_end->prev->next = new_node;
 		_end->prev = new_node;
 		_front = _size == 0 ? new_node : _front;	// If size == 0
 		++_size;
@@ -128,7 +148,7 @@ void	list<T, Allocator>::pop_back()
 	_end = popped->prev;
 	_front = _size == 1 ? _end : _front;	// If removing last node
 	--_size;
-	_allocator.destroy(popped->data);
+	_allocator.destroy(popped);
 	_allocator.deallocate(popped, 1);
 }
 
@@ -139,7 +159,7 @@ typename list<T, Allocator>::iterator
 	_Node *new_node = _allocator.allocate(1);
 	try
 	{
-		_allocator.construct(new_node->data, value);
+		_allocator.construct(new_node, _Node(value));
 		new_node->prev = position._node->prev;
 		new_node->next = position._node;
 		position._node->prev = new_node;
@@ -181,7 +201,7 @@ typename list<T, Allocator>::iterator
 		to_erase->prev->next = to_erase->next;
 	to_erase->next->prev = to_erase->prev;
 
-	_allocator.destroy(to_erase->data);
+	_allocator.destroy(to_erase);
 	_allocator.deallocate(to_erase, 1);
 }
 
@@ -204,7 +224,7 @@ typename list<T, Allocator>::iterator
 	{
 		_Node *to_delete = first_node;
 		first_node = first_node->next;
-		_allocator.destroy(to_delete->data);
+		_allocator.destroy(to_delete);
 		_allocator.deallocate(to_delete, 1);
 	}
 }
@@ -226,7 +246,7 @@ void	list<T, Allocator>::clear()
 	{
 		_Node *prev = head;
 		head = head->next;
-		_allocator.destroy(prev->data);
+		_allocator.destroy(prev);
 		_allocator.deallocate(prev, 1);
 		--_size;
 	}
@@ -329,7 +349,7 @@ void	list<T, Allocator>::remove(const T& value)
 			_Node *to_delete = head->next;
 			head->next = to_delete->next;
 			head->next->prev = head;
-			_allocator.destroy(to_delete->data);
+			_allocator.destroy(to_delete);
 			_allocator.deallocate(to_delete, 1);
 		}
 		head = head->next;
@@ -349,7 +369,7 @@ void	list<T, Allocator>::remove_if(Predicate pred)
 			_Node *to_delete = head->next;
 			head->next = to_delete->next;
 			head->next->prev = head;
-			_allocator.destroy(to_delete->data);
+			_allocator.destroy(to_delete);
 			_allocator.deallocate(to_delete, 1);
 		}
 		head = head->next;

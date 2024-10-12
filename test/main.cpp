@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2024/10/12 17:36:32 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/10/12 18:16:49 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,6 @@
 # include "set.hpp"
 #endif
 
-#include "list/list.hpp"
-
 #include <list>
 #include <cstdlib>
 
@@ -44,7 +42,7 @@
 # define NAMESP std
 #endif
 
-void	newtest(void)
+static void	newtest(void)
 {
 	static int	i(1);
 
@@ -55,10 +53,14 @@ void	newtest(void)
 #include "utils.tpp"
 
 void	lmartin_main(void);	// Never forget
+void	tests_list();
 
 int	main(void)
 {
 	std::srand(1337);
+
+	tests_list();
+	return 0;
 
 	newtest();
 	try

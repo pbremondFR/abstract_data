@@ -23,6 +23,10 @@ private:
 		_Node	*prev;
 		_Node	*next;
 		T		data;
+
+		// Goodbye, POD...
+		_Node(const T& data_, _Node *prev_ = nullptr, _Node *next_ = nullptr)
+			: prev(prev_), next(next_), data(data_) {}
 	};
 
 	// Allocator rebind to allocate nodes correctly
@@ -89,9 +93,7 @@ public:
 	typedef				ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
 	// 23.2.2.1 construct/copy/destroy:
-	explicit list(const Allocator& alloc = Allocator())
-		: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0) {}
-
+	explicit list(const Allocator& alloc = Allocator());
 	explicit list(size_type n, const T& value = T(), const Allocator& alloc = Allocator());
 	template <class InputIterator>
 	list(InputIterator first, InputIterator last, const Allocator& alloc = Allocator());
