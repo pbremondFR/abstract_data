@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2024/07/03 02:50:19 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/10/12 17:36:32 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@
 # include <set>
 # include "set.hpp"
 #endif
+
+#include "list/list.hpp"
 
 #include <list>
 #include <cstdlib>

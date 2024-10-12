@@ -5,6 +5,12 @@
 #include <cstddef>
 #include "algorithm.hpp"
 
+#if __cplusplus < 201103L
+# ifndef nullptr
+#  define nullptr NULL
+# endif
+#endif
+
 namespace ft
 {
 
@@ -64,7 +70,7 @@ private:
 		// Check that you're ISO compliant and ignore the defects... Yes, really...
 		_Iterator& operator--()		{ _node = _node->prev; return *this; }
 		_Iterator operator--(int)	{ _Iterator tmp = *this; _node = _node->prev; return tmp; }
-	}
+	};
 
 public:
 	// types:
@@ -135,8 +141,8 @@ public:
 	void		insert(iterator position, size_type n, const T& x);
 	template <class InputIt>
 	void		insert(iterator position, InputIt first, InputIt last);
-	iterator	erase(iterator position);	// TODO
-	iterator	erase(iterator position, iterator last);	// TODO
+	iterator	erase(iterator position);
+	iterator	erase(iterator position, iterator last);
 	void		swap(list<T,Allocator> &other);
 	void		clear();
 
@@ -186,7 +192,7 @@ bool operator> (const list<T,Allocator>& x, const list<T,Allocator>& y)
 template <class T, class Allocator>
 bool operator>=(const list<T,Allocator>& x, const list<T,Allocator>& y)
 {
-	return !(x < y)
+	return !(x < y);
 }
 
 template <class T, class Allocator>

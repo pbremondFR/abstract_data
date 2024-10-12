@@ -4,7 +4,7 @@
 using namespace ft;
 
 template <class T, class Allocator>
-list<T, Allocator>::list(size_type n, const T& value = T(), const Allocator& alloc = Allocator())
+list<T, Allocator>::list(size_type n, const T& value, const Allocator& alloc)
 	: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
 {
 	// TESTME: Exception guarantee?
@@ -23,7 +23,7 @@ list<T, Allocator>::list(size_type n, const T& value = T(), const Allocator& all
 
 template <class T, class Allocator>
 template <class InputIterator>
-list<T, Allocator>::list(InputIterator first, InputIterator last, const Allocator& alloc = Allocator())
+list<T, Allocator>::list(InputIterator first, InputIterator last, const Allocator& alloc)
 	: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
 {
 	for (; first != last; ++first)
@@ -39,7 +39,7 @@ list<T, Allocator>::list(const list<T, Allocator>& x)
 }
 
 template <class T, class Allocator>
-void	list<T, Allocator>::resize(size_type sz, T value = T())
+void	list<T, Allocator>::resize(size_type sz, T value)
 {
 	// XXX: Standard doesn't require exception guarantee. I choose to apply Strong Exception Guarantee.
 	if (sz > _size)
@@ -133,7 +133,8 @@ void	list<T, Allocator>::pop_back()
 }
 
 template <class T, class Allocator>
-list<T, Allocator>::iterator	list<T, Allocator>::insert(iterator position, const T& value)
+typename list<T, Allocator>::iterator
+	list<T, Allocator>::insert(iterator position, const T& value)
 {
 	_Node *new_node = _allocator.allocate(1);
 	try
@@ -169,7 +170,8 @@ void	list<T, Allocator>::insert(iterator position, InputIt first, InputIt last)
 }
 
 template <class T, class Allocator>
-list<T, Allocator>::iterator	list<T, Allocator>::erase(iterator position)
+typename list<T, Allocator>::iterator
+	list<T, Allocator>::erase(iterator position)
 {
 	_Node *to_erase = position._node;
 
@@ -178,14 +180,34 @@ list<T, Allocator>::iterator	list<T, Allocator>::erase(iterator position)
 	else
 		to_erase->prev->next = to_erase->next;
 	to_erase->next->prev = to_erase->prev;
+
+	_allocator.destroy(to_erase->data);
+	_allocator.deallocate(to_erase, 1);
 }
 
 template <class T, class Allocator>
-list<T, Allocator>::iterator	list<T, Allocator>::erase(iterator position, iterator last)
+typename list<T, Allocator>::iterator
+	list<T, Allocator>::erase(iterator range_begin, iterator range_end)
 {
-	// TODO
-}
+	_Node *first_node = range_begin._node;
+	_Node *last_node = range_end._node->prev;
 
+	if (first_node == _front)
+		_front = last_node->next;
+	else
+		first_node->prev->next = last_node->next;
+	last_node->next->prev = first_node->prev;
+
+	first_node->prev = nullptr;
+	last_node->next = nullptr;
+	while (first_node != nullptr)
+	{
+		_Node *to_delete = first_node;
+		first_node = first_node->next;
+		_allocator.destroy(to_delete->data);
+		_allocator.deallocate(to_delete, 1);
+	}
+}
 
 template <class T, class Allocator>
 void	list<T, Allocator>::swap(list<T, Allocator> &other)
@@ -394,10 +416,11 @@ template <class Compare>
 void	list<T, Allocator>::merge(list<T, Allocator>& other, Compare comp)
 {
 	// Standard allows us to assume both lists are sorted
-	iterator it = begin();
+	iterator it = this->begin();
 	while (it != end() && comp(*it))
-		++it;
-	this->splice(it, other);
+		++it;	// Advance to first spot for merge
+	// TODO
+	splice(it, other, other.begin());
 }
 
 template <class T, class Allocator>
@@ -412,6 +435,16 @@ void	list<T, Allocator>::sort(Compare comp)
 {
 	// Only Basic Exception Guarantee
 	// TODO
+	// XXX: Standard specifies "approximately O(N log(N))"
+	if (_size <=1)
+		return;
+
+	list<T, Allocator> output_list;
+	_Node *p = _front;
+	while (p != _end)
+	{
+
+	}
 }
 
 template <class T, class Allocator>
