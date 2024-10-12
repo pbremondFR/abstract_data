@@ -1,7 +1,9 @@
+#pragma once
+
 #include "iterator.hpp"
 #include <memory>
 #include <cstddef>
-#include <list>
+#include "algorithm.hpp"
 
 namespace ft
 {
@@ -131,11 +133,11 @@ public:
 	void		pop_back();
 	iterator	insert(iterator position, const T& x);
 	void		insert(iterator position, size_type n, const T& x);
-	template <class InputIterator>
-	void		insert(iterator position, InputIterator first, InputIterator last);
-	iterator	erase(iterator position);
-	iterator	erase(iterator position, iterator last);
-	void		swap(list<T,Allocator> &other);	 // XXX: Check idiomatic swap implementation?
+	template <class InputIt>
+	void		insert(iterator position, InputIt first, InputIt last);
+	iterator	erase(iterator position);	// TODO
+	iterator	erase(iterator position, iterator last);	// TODO
+	void		swap(list<T,Allocator> &other);
 	void		clear();
 
 	// 23.2.2.4 list operations:
@@ -158,25 +160,48 @@ public:
 };
 
 template <class T, class Allocator>
-bool operator==(const list<T,Allocator>& x, const list<T,Allocator>& y);
+bool operator==(const list<T,Allocator>& x, const list<T,Allocator>& y)
+{
+	return x.size() == y.size() && equal(x.begin(), x.end(), y.begin());
+}
 
 template <class T, class Allocator>
-bool operator< (const list<T,Allocator>& x, const list<T,Allocator>& y);
+bool operator< (const list<T,Allocator>& x, const list<T,Allocator>& y)
+{
+	return lexicographical_compare(x.begin(), x.end(), y.begin(), y.end());
+}
 
 template <class T, class Allocator>
-bool operator!=(const list<T,Allocator>& x, const list<T,Allocator>& y);
+bool operator!=(const list<T,Allocator>& x, const list<T,Allocator>& y)
+{
+	return !(x == y);
+}
 
 template <class T, class Allocator>
-bool operator> (const list<T,Allocator>& x, const list<T,Allocator>& y);
+bool operator> (const list<T,Allocator>& x, const list<T,Allocator>& y)
+{
+	return y < x;
+}
 
 template <class T, class Allocator>
-bool operator>=(const list<T,Allocator>& x, const list<T,Allocator>& y);
+bool operator>=(const list<T,Allocator>& x, const list<T,Allocator>& y)
+{
+	return !(x < y)
+}
 
 template <class T, class Allocator>
-bool operator<=(const list<T,Allocator>& x, const list<T,Allocator>& y);
+bool operator<=(const list<T,Allocator>& x, const list<T,Allocator>& y)
+{
+	return !(x > y);
+}
 
 // specialized algorithms:
 template <class T, class Allocator>
-void swap(list<T,Allocator>& x, list<T,Allocator>& y);
+void swap(list<T,Allocator>& x, list<T,Allocator>& y)
+{
+	x.swap(y);
+}
 
 }	// namespace ft
+
+#include "list.tpp"

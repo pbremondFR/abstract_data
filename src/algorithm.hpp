@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 22:45:28 by pbremond          #+#    #+#             */
-/*   Updated: 2024/07/03 02:51:42 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/10/12 02:33:49 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,5 +187,20 @@ bool	lexicographical_compare(InputIt1 first1, InputIt1 last1,
 	return (first1 == last1 && first2 != last2);
 }
 
+template <class InputIt, class T>
+InputIt	find(InputIt first, InputIt last, const T& value)
+{
+	while (first != last && *first != value)
+		++first;
+	return first;
+}
+
+template <class InputIt, class UnaryPred>
+InputIt	find_if(InputIt first, InputIt last, UnaryPred pred)
+{
+	while (first != last && !pred(*first))
+		++first;
+	return first;
+}
 
 } // namespace ft

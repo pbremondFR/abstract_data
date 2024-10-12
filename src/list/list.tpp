@@ -1,4 +1,5 @@
 #include "list.hpp"
+#include "functional.hpp"
 
 using namespace ft;
 
@@ -157,28 +158,6 @@ void	list<T, Allocator>::insert(iterator position, size_type n, const T& value)
 {
 	list<T, Allocator> sublist(n, value, _allocator);
 	this->splice(position, sublist);
-
-	// _Node *sublist = _allocator.allocate(1);
-	// sublist->prev = nullptr;
-	// sublist->next = nullptr;
-	// try
-	// {
-	// 	// ...
-	// }
-	// catch(const std::exception&)
-	// {
-	// 	_Node *head = sublist;
-	// 	while (head->next)	// Destroy AND deallocate all sublist except last node...
-	// 	{
-	// 		_Node *prev = head;
-	// 		head = head->next;
-	// 		_allocator.destroy(prev->data);
-	// 		_allocator.deallocate(prev, 1);
-	// 	}
-	// 	// ...Last node is just deallocated, not destroyed because constructor threw
-	// 	_allocator.deallocate(head, 1);
-	// }
-
 }
 
 template <class T, class Allocator>
@@ -188,6 +167,25 @@ void	list<T, Allocator>::insert(iterator position, InputIt first, InputIt last)
 	list<T, Allocator> sublist(first, last, _allocator);
 	this->splice(position, sublist);
 }
+
+template <class T, class Allocator>
+list<T, Allocator>::iterator	list<T, Allocator>::erase(iterator position)
+{
+	_Node *to_erase = position._node;
+
+	if (to_erase == _front)
+		_front = to_erase->next;
+	else
+		to_erase->prev->next = to_erase->next;
+	to_erase->next->prev = to_erase->prev;
+}
+
+template <class T, class Allocator>
+list<T, Allocator>::iterator	list<T, Allocator>::erase(iterator position, iterator last)
+{
+	// TODO
+}
+
 
 template <class T, class Allocator>
 void	list<T, Allocator>::swap(list<T, Allocator> &other)
@@ -334,4 +332,99 @@ void	list<T, Allocator>::remove_if(Predicate pred)
 		}
 		head = head->next;
 	}
+}
+
+template <class T, class Allocator>
+void	list<T, Allocator>::unique()
+{
+	if (_size < 2)
+		return;
+
+	// I fucking miss lambdas, man...
+	struct not_equal {
+		T const& value;
+		not_equal(T const& compare_to) : value(compare_to) {}
+		bool operator()(T const& x) const { return x != value; }
+	};
+
+	iterator it = begin();
+	while (it != end())
+	{
+		iterator range_end = find_if(it, end(), not_equal(*it));
+		if (range_end != end())
+			erase(it, range_end);
+		it = range_end;
+	}
+}
+
+template <class T, class Allocator>
+template <class BinaryPredicate>
+void	list<T, Allocator>::unique(BinaryPredicate binary_pred)
+{
+	if (_size < 2)
+		return;
+
+	// I fucking miss lambdas, man...
+	struct not_equal {
+		T const& 		value;
+		BinaryPredicate	&predicate;
+		not_equal(T const& compare_to, BinaryPredicate predicate_)
+			: value(compare_to), predicate(predicate_) {}
+		bool operator()(T const& x) const { return !predicate(x, value); }
+	};
+
+	iterator it = begin();
+	while (it != end())
+	{
+		iterator range_end = find_if(it, end(), not_equal(*it));
+		if (range_end != end())
+			erase(it, range_end);
+		it = range_end;
+	}
+}
+
+template <class T, class Allocator>
+void	list<T, Allocator>::merge(list<T, Allocator>& other)
+{
+	merge(other, less<T>());
+}
+
+template <class T, class Allocator>
+template <class Compare>
+void	list<T, Allocator>::merge(list<T, Allocator>& other, Compare comp)
+{
+	// Standard allows us to assume both lists are sorted
+	iterator it = begin();
+	while (it != end() && comp(*it))
+		++it;
+	this->splice(it, other);
+}
+
+template <class T, class Allocator>
+void	list<T, Allocator>::sort()
+{
+	sort(less<T>());
+}
+
+template <class T, class Allocator>
+template <class Compare>
+void	list<T, Allocator>::sort(Compare comp)
+{
+	// Only Basic Exception Guarantee
+	// TODO
+}
+
+template <class T, class Allocator>
+void	list<T, Allocator>::reverse()
+{
+	if (_size <= 1)
+		return;
+
+	_Node *head = _front->next;
+	while (head != _end)
+	{
+		::ft::swap(head->prev, head->next);
+		head = head->next;
+	}
+	::ft::swap(_front, _end);
 }
