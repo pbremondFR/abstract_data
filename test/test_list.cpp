@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "list/list.hpp"
+#include "list.hpp"
 #include <list>
 
 #include "StupidClass.hpp"
@@ -62,5 +62,13 @@ void	tests_list()
 			foo.push_front(StupidClass(StupidClass::be_stupid()));
 		} catch (std::bad_alloc &) {};
 		foo.push_front(StupidClass());
+	}
+	newtest();
+	{
+		NAMESP::list<int>	foo;
+		foo.push_back(21);
+		foo.push_back(42);
+		bool test = foo.begin() == foo.end();
+		std::cout << std::boolalpha << "test is " << test << '\n';
 	}
 }

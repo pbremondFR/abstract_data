@@ -1,11 +1,12 @@
 
 INCLUDE_PATH := ../include # Path to your headers
 
-CXXFLAGS := -Wall -Werror -Wextra -Wno-deprecated-copy
+CXXFLAGS ?= -Wall -Werror -Wextra -Wno-deprecated-copy
 
 SRCS_DIR = srcs
 
-FILES = $(wildcard ${SRCS_DIR}/*.cpp)
+# FILES = $(wildcard ${SRCS_DIR}/*.cpp)
+FILES = ${SRCS_DIR}/list.cpp
 
 CONTAINERS = $(FILES:${SRCS_DIR}/%.cpp=%)
 

@@ -81,6 +81,7 @@ list<T, Allocator>& list<T, Allocator>::operator=(const list<T, Allocator>& othe
 	this->_allocator = other._allocator;
 	for (const_iterator i = other.begin(); i != other.end(); ++i)
 		push_back(*i);
+	return *this;
 }
 
 template <class T, class Allocator>
@@ -131,7 +132,7 @@ void	list<T, Allocator>::push_back(const T& value)
 		++_size;
 	}
 	catch(const std::exception&)	// Strong exception guarantee
-	{
+	{	// Don't destroy object, because exception was thrown in its constructor
 		_allocator.deallocate(new_node, 1);
 		throw;
 	}
@@ -201,8 +202,10 @@ typename list<T, Allocator>::iterator
 		to_erase->prev->next = to_erase->next;
 	to_erase->next->prev = to_erase->prev;
 
+	iterator retval(to_erase->next);
 	_allocator.destroy(to_erase);
 	_allocator.deallocate(to_erase, 1);
+	return retval;
 }
 
 template <class T, class Allocator>
@@ -218,6 +221,8 @@ typename list<T, Allocator>::iterator
 		first_node->prev->next = last_node->next;
 	last_node->next->prev = first_node->prev;
 
+	iterator retval(last_node->next);
+
 	first_node->prev = nullptr;
 	last_node->next = nullptr;
 	while (first_node != nullptr)
@@ -227,6 +232,7 @@ typename list<T, Allocator>::iterator
 		_allocator.destroy(to_delete);
 		_allocator.deallocate(to_delete, 1);
 	}
+	return retval;
 }
 
 template <class T, class Allocator>
@@ -334,6 +340,7 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 
 	insert_before->prev = range_last;
 	range_last->next = insert_before;
+	other._size -= distance(range_begin, range_end);	// Fuck the ISO, iterators aren't invalidated
 }
 
 // TODO: Replace this implementation with a remove_if(std::identity) or something like that?
@@ -342,7 +349,7 @@ void	list<T, Allocator>::remove(const T& value)
 {
 	_Node *head = _front;
 
-	while (*head->next != _end)
+	while (head->next != _end)
 	{
 		if (head->next->data == value)
 		{
@@ -362,7 +369,7 @@ void	list<T, Allocator>::remove_if(Predicate pred)
 {
 	_Node *head = _front;
 
-	while (*head->next != _end)
+	while (head->next != _end)
 	{
 		if (pred(head->next->data))
 		{
@@ -418,7 +425,7 @@ void	list<T, Allocator>::unique(BinaryPredicate binary_pred)
 	iterator it = begin();
 	while (it != end())
 	{
-		iterator range_end = find_if(it, end(), not_equal(*it));
+		iterator range_end = find_if(it, end(), not_equal(*it, binary_pred));
 		if (range_end != end())
 			erase(it, range_end);
 		it = range_end;
@@ -436,11 +443,16 @@ template <class Compare>
 void	list<T, Allocator>::merge(list<T, Allocator>& other, Compare comp)
 {
 	// Standard allows us to assume both lists are sorted
-	iterator it = this->begin();
-	while (it != end() && comp(*it))
-		++it;	// Advance to first spot for merge
-	// TODO
-	splice(it, other, other.begin());
+	iterator head = this->begin();
+	while (other.size() > 0)
+	{
+		while (head != end() && comp(other.front(), *head))
+			++head;
+		iterator range_end = other.begin();
+		while (range_end != other.end() && comp(*range_end, *head))
+			++range_end;
+		this->splice(head, other, other.begin(), range_end);
+	}
 }
 
 template <class T, class Allocator>

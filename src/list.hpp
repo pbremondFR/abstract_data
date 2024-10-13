@@ -42,6 +42,7 @@ private:
 	class _Iterator
 	{
 	private:
+		friend class list;	// Required for iterator operations
 		_Node	*_node;
 
 	public:
@@ -53,15 +54,16 @@ private:
 
 		// Forward Iterator requirements
 		_Iterator() : _node(nullptr) {}
+		_Iterator(_Node *node) : _node(node) {}
 		_Iterator(_Iterator const& x) : _node(x._node) {}
 		~_Iterator() {}
 		_Iterator& operator=(_Iterator const& x)	{ _node = x._node; return *this; }
 
 		// Allows iterator -> const_iterator convertion
-		inline operator _Iterator<const value_type>() const { return (this->_node); }
+		inline operator _Iterator<const IteratorValueType>() const { return (this->_node); }
 
-		bool	operator==(_Iterator const& x)	{ return _node == x._node; }
-		bool	operator!=(_Iterator const& x)	{ return _node != x._node; }
+		bool	operator==(_Iterator const& x) const	{ return _node == x._node; }
+		bool	operator!=(_Iterator const& x) const	{ return _node != x._node; }
 
 		reference	operator*()		{ return _node->data; }
 		pointer		operator->()	{ return &(_node->data); }
@@ -83,8 +85,8 @@ public:
 	// TESTME: iterators
 	typedef				_Iterator<T>							iterator;		// See 23.1
 	typedef				_Iterator<T>							const_iterator;	// See 23.1
-	typedef				_Iterator<T>							size_type;		// See 23.1
-	typedef				_Iterator<T>							difference_type;// See 23.1
+	typedef				std::size_t								size_type;		// See 23.1
+	typedef				std::ptrdiff_t							difference_type;// See 23.1
 	typedef				T										value_type;
 	typedef				Allocator								allocator_type;
 	typedef typename	Allocator::pointer						pointer;
@@ -112,10 +114,10 @@ public:
 	allocator_type	get_allocator() const					{ return _allocator; }
 
 	// iterators:
-	iterator				begin()			{ return _front; }
-	const_iterator			begin() const	{ return _front; }
-	iterator				end()			{ return _end; }
-	const_iterator			end() const		{ return _end; }
+	iterator				begin()			{ return iterator(_front); }
+	const_iterator			begin() const	{ return iterator(_front); }
+	iterator				end()			{ return iterator(_end); }
+	const_iterator			end() const		{ return iterator(_end); }
 	reverse_iterator		rbegin()		{ return reverse_iterator(_front); }
 	const_reverse_iterator	rbegin() const	{ return reverse_iterator(_front); }
 	reverse_iterator		rend()			{ return reverse_iterator(_end); }
