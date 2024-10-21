@@ -78,11 +78,20 @@ private:
 		_Iterator operator--(int)	{ _Iterator tmp = *this; _node = _node->prev; return tmp; }
 	};
 
+	// I fucking miss lambdas, man...
+	template <class BinaryPredicate>
+	struct not_equal {
+		T const& 		value;
+		BinaryPredicate	&predicate;
+		not_equal(T const& compare_to, BinaryPredicate predicate_)
+			: value(compare_to), predicate(predicate_) {}
+		inline bool operator()(T const& x) const { return !predicate(x, value); }
+	};
+
 public:
 	// types:
 	typedef typename	Allocator::reference					reference;
 	typedef typename	Allocator::const_reference				const_reference;
-	// TESTME: iterators
 	typedef				_Iterator<T>							iterator;		// See 23.1
 	typedef				_Iterator<T>							const_iterator;	// See 23.1
 	typedef				std::size_t								size_type;		// See 23.1
@@ -118,10 +127,10 @@ public:
 	const_iterator			begin() const	{ return iterator(_front); }
 	iterator				end()			{ return iterator(_end); }
 	const_iterator			end() const		{ return iterator(_end); }
-	reverse_iterator		rbegin()		{ return reverse_iterator(_front); }
-	const_reverse_iterator	rbegin() const	{ return reverse_iterator(_front); }
-	reverse_iterator		rend()			{ return reverse_iterator(_end); }
-	const_reverse_iterator	rend() const	{ return reverse_iterator(_end); }
+	reverse_iterator		rbegin()		{ return reverse_iterator(_end); }
+	const_reverse_iterator	rbegin() const	{ return reverse_iterator(_end); }
+	reverse_iterator		rend()			{ return reverse_iterator(_front); }
+	const_reverse_iterator	rend() const	{ return reverse_iterator(_front); }
 
 	// 23.2.2.2 capacity:
 	bool		empty() const		{ return _size == 0; }
@@ -172,13 +181,13 @@ public:
 template <class T, class Allocator>
 bool operator==(const list<T,Allocator>& x, const list<T,Allocator>& y)
 {
-	return x.size() == y.size() && equal(x.begin(), x.end(), y.begin());
+	return x.size() == y.size() && ft::equal(x.begin(), x.end(), y.begin());
 }
 
 template <class T, class Allocator>
 bool operator< (const list<T,Allocator>& x, const list<T,Allocator>& y)
 {
-	return lexicographical_compare(x.begin(), x.end(), y.begin(), y.end());
+	return ft::lexicographical_compare(x.begin(), x.end(), y.begin(), y.end());
 }
 
 template <class T, class Allocator>

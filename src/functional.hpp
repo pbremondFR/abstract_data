@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 18:57:53 by pbremond          #+#    #+#             */
-/*   Updated: 2024/07/23 23:01:36 by pbremond         ###   ########.fr       */
+/*   Updated: 2024/10/21 00:50:31 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,12 @@ template <class T>
 struct less : binary_function<T, T, bool>
 {
 	inline bool	operator()(const T& x, const T& y) const { return x < y; }
+};
+
+template <class T>
+struct equal_to : binary_function<T, T, bool>
+{
+	inline bool	operator()(const T& x, const T& y) const { return x == y; }
 };
 
 template <class T>

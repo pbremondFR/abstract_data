@@ -3,6 +3,8 @@
 #include "list.hpp"
 #include <list>
 
+#include <iterator>
+
 #include "StupidClass.hpp"
 
 #ifndef NAMESP
@@ -26,13 +28,13 @@ static void	newtest(void)
 void	tests_list()
 {
 	std::cout << "Namespace is " STRINGIFY(NAMESP) "\n";
-	{
-		try {
-			StupidClass coucou;
-			StupidClass	foo = StupidClass(StupidClass::be_stupid());
-		} catch (std::bad_alloc &) {}
-		return;
-	}
+	// {
+	// 	try {
+	// 		StupidClass coucou;
+	// 		StupidClass	foo = StupidClass(StupidClass::be_stupid());
+	// 	} catch (std::bad_alloc &) {}
+	// 	return;
+	// }
 	newtest();
 	{
 		NAMESP::list<int>	foo;
@@ -70,5 +72,16 @@ void	tests_list()
 		foo.push_back(42);
 		bool test = foo.begin() == foo.end();
 		std::cout << std::boolalpha << "test is " << test << '\n';
+	}
+	newtest();
+	{
+		int	list_a[] = {1, 3, 5, 7, 9};
+		int	list_b[] = {0, 2, 4, 6, 8};
+		NAMESP::list<int>	a(list_a, list_a + 5);
+		NAMESP::list<int>	b(list_b, list_b + 5);
+		a.merge(b);
+		for (NAMESP::list<int>::iterator it = a.begin(); it != a.end(); ++it)
+			std::cout << *it << " ";
+		std::cout << '\n';
 	}
 }

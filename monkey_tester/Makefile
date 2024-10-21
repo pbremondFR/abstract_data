@@ -1,14 +1,14 @@
-INCLUDE_PATH=../include
+INCLUDE_PATH=../src
 
 CONTAINERS =list \
-	vector \
-	deque \
-	map \
-	set \
-	multimap \
-	multiset \
-	stack \
-	priority_queue
+	# vector \
+	# deque \
+	# map \
+	# set \
+	# multimap \
+	# multiset \
+	# stack \
+	# priority_queue
 
 OBJ_DIR=.objs
 

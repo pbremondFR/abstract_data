@@ -1,7 +1,9 @@
 #include "list.hpp"
 #include "functional.hpp"
+#include <cassert>
 
-using namespace ft;
+namespace ft
+{
 
 template <class T, class Allocator>
 list<T, Allocator>::list(const Allocator& alloc)
@@ -67,7 +69,7 @@ void	list<T, Allocator>::resize(size_type sz, T value)
 	else if (sz < _size)
 	{
 		iterator start = begin();
-		advance(start, sz);
+		ft::advance(start, sz);
 		erase(start, end());
 	}
 	// Else do nothing
@@ -78,6 +80,7 @@ list<T, Allocator>& list<T, Allocator>::operator=(const list<T, Allocator>& othe
 {
 	// XXX: Basic Exception Guarantee: a rollback to the state before function call is not required
 	clear();
+	// TESTME: Is allocator change OK here? Should I free _end before changing the allocator and reallocate it afterwards?
 	this->_allocator = other._allocator;
 	for (const_iterator i = other.begin(); i != other.end(); ++i)
 		push_back(*i);
@@ -205,6 +208,7 @@ typename list<T, Allocator>::iterator
 	iterator retval(to_erase->next);
 	_allocator.destroy(to_erase);
 	_allocator.deallocate(to_erase, 1);
+	--this->_size;
 	return retval;
 }
 
@@ -231,6 +235,7 @@ typename list<T, Allocator>::iterator
 		first_node = first_node->next;
 		_allocator.destroy(to_delete);
 		_allocator.deallocate(to_delete, 1);
+		--this->_size;
 	}
 	return retval;
 }
@@ -238,10 +243,10 @@ typename list<T, Allocator>::iterator
 template <class T, class Allocator>
 void	list<T, Allocator>::swap(list<T, Allocator> &other)
 {
-	::ft::swap(_front,		other._front);
-	::ft::swap(_end,		other._end);
-	::ft::swap(_allocator,	other._allocator);
-	::ft::swap(_size,		other._size);
+	ft::swap(_front,		other._front);
+	ft::swap(_end,			other._end);
+	ft::swap(_allocator,	other._allocator);
+	ft::swap(_size,			other._size);
 }
 
 template <class T, class Allocator>
@@ -254,8 +259,10 @@ void	list<T, Allocator>::clear()
 		head = head->next;
 		_allocator.destroy(prev);
 		_allocator.deallocate(prev, 1);
-		--_size;
 	}
+	_end->prev = nullptr;
+	_front = _end;
+	_size = 0;
 }
 
 // Descriptions of function semantics contain the following elements (as appropriate):148)
@@ -276,7 +283,7 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other)
 	_Node *insert_before = position._node;		// ...and before this node
 	_Node *other_last = other._end->prev;		// Last node of other list
 
-	if (insert_before)
+	if (this->size() > 0)	// insert_before/after are not null if size > 0
 		insert_after->next = other._front;
 	else
 		_front = other._front;
@@ -287,6 +294,7 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other)
 
 	other._end->prev = nullptr;
 	other._front = other._end;
+	this->_size += other._size;
 	other._size = 0;
 }
 
@@ -313,6 +321,7 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 
 	target._node->prev = insert_after;
 	target._node->next = insert_before;
+	++this->_size;
 	--other._size;
 }
 
@@ -324,23 +333,33 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 	if (other.empty())
 		return;
 
-	_Node *other_before = range_begin._node->prev;	// Node from other list that's before range_begin
-	if (range_begin == other.begin())
-		other._front = range_end._node;
-	else
-		other_before->next = range_end._node;
-	range_end._node->prev = other_before;
+	// FIXME: This should be able to be called at the end of the function
+	// because iterators are not invalidated in my implementation (and per DR)
+	// Yet it doesn't so something is fucked up somewhere.
+	size_t num_spliced = ft::distance(range_begin, range_end);	// Fuck the ISO, iterators aren't invalidated
 
 	_Node *insert_after = position._node->prev;	// Insert splice after this node...
 	_Node *insert_before = position._node;		// ...and before this node
 	_Node *range_last = range_end._node->prev;
 
-	insert_after->next = range_begin._node;
+	_Node *other_before = range_begin._node->prev;	// Node from other list that's before range_begin
+	if (range_begin == other.begin())	// If we're slicing from beginning of other list
+		other._front = range_end._node;
+	else
+		other_before->next = range_end._node;
+	range_end._node->prev = other_before;
+
+	if (this->size() > 0)
+		insert_after->next = range_begin._node;
+	else
+		_front = range_begin._node;
 	range_begin._node->prev = insert_after;
 
 	insert_before->prev = range_last;
 	range_last->next = insert_before;
-	other._size -= distance(range_begin, range_end);	// Fuck the ISO, iterators aren't invalidated
+
+	other._size -= num_spliced;
+	this->_size += num_spliced;
 }
 
 // TODO: Replace this implementation with a remove_if(std::identity) or something like that?
@@ -355,9 +374,10 @@ void	list<T, Allocator>::remove(const T& value)
 		{
 			_Node *to_delete = head->next;
 			head->next = to_delete->next;
-			head->next->prev = head;
+			to_delete->next->prev = head;
 			_allocator.destroy(to_delete);
 			_allocator.deallocate(to_delete, 1);
+			--this->_size;
 		}
 		head = head->next;
 	}
@@ -378,6 +398,7 @@ void	list<T, Allocator>::remove_if(Predicate pred)
 			head->next->prev = head;
 			_allocator.destroy(to_delete);
 			_allocator.deallocate(to_delete, 1);
+			--this->_size;
 		}
 		head = head->next;
 	}
@@ -389,17 +410,11 @@ void	list<T, Allocator>::unique()
 	if (_size < 2)
 		return;
 
-	// I fucking miss lambdas, man...
-	struct not_equal {
-		T const& value;
-		not_equal(T const& compare_to) : value(compare_to) {}
-		bool operator()(T const& x) const { return x != value; }
-	};
-
 	iterator it = begin();
+	not_equal<ft::equal_to<T> >	comp(*it, ft::equal_to<T>());
 	while (it != end())
 	{
-		iterator range_end = find_if(it, end(), not_equal(*it));
+		iterator range_end = ft::find_if(it, end(), comp);
 		if (range_end != end())
 			erase(it, range_end);
 		it = range_end;
@@ -413,19 +428,10 @@ void	list<T, Allocator>::unique(BinaryPredicate binary_pred)
 	if (_size < 2)
 		return;
 
-	// I fucking miss lambdas, man...
-	struct not_equal {
-		T const& 		value;
-		BinaryPredicate	&predicate;
-		not_equal(T const& compare_to, BinaryPredicate predicate_)
-			: value(compare_to), predicate(predicate_) {}
-		bool operator()(T const& x) const { return !predicate(x, value); }
-	};
-
 	iterator it = begin();
 	while (it != end())
 	{
-		iterator range_end = find_if(it, end(), not_equal(*it, binary_pred));
+		iterator range_end = ft::find_if(it, end(), not_equal<BinaryPredicate>(*it, binary_pred));
 		if (range_end != end())
 			erase(it, range_end);
 		it = range_end;
@@ -493,3 +499,5 @@ void	list<T, Allocator>::reverse()
 	}
 	::ft::swap(_front, _end);
 }
+
+} // namespace ft
