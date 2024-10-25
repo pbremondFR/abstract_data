@@ -182,7 +182,10 @@ typename list<T, Allocator>::iterator
 		new_node->prev = position._node->prev;
 		new_node->next = position._node;
 		position._node->prev = new_node;
-		_front = position == begin() ? new_node : _front;	// If inserting at the front
+		if (new_node->prev)
+			new_node->prev->next = new_node;
+		else
+			_front = new_node;
 		++_size;
 	}
 	catch(const std::exception&)	// Strong exception guarantee
