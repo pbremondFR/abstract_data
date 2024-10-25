@@ -88,6 +88,8 @@ private:
 		inline bool operator()(T const& x) const { return !predicate(x, value); }
 	};
 
+	void	_check_list_integrity() const;
+
 public:
 	// types:
 	typedef typename	Allocator::reference					reference;

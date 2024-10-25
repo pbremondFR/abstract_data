@@ -6,6 +6,20 @@ namespace ft
 {
 
 template <class T, class Allocator>
+void	list<T, Allocator>::_check_list_integrity() const
+{
+	assert(_front->prev == nullptr);
+	assert(_end->next == nullptr);
+	for (_Node const *head = _front; head; head = head->next)
+	{
+		if (head->next)
+			assert(head->next->prev == head);
+		if (head->prev)
+			assert(head->prev->next == head);
+	}
+}
+
+template <class T, class Allocator>
 list<T, Allocator>::list(const Allocator& alloc)
 		: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
 {
@@ -175,6 +189,7 @@ typename list<T, Allocator>::iterator
 		_allocator.deallocate(new_node, 1);
 		throw;
 	}
+	_check_list_integrity();
 	return iterator(new_node);
 }
 
@@ -182,6 +197,7 @@ template <class T, class Allocator>
 void	list<T, Allocator>::insert(iterator position, size_type n, const T& value)
 {
 	list<T, Allocator> sublist(n, value, _allocator);
+	_check_list_integrity();
 	this->splice(position, sublist);
 }
 
@@ -190,6 +206,7 @@ template <class InputIt>
 void	list<T, Allocator>::insert(iterator position, InputIt first, InputIt last)
 {
 	list<T, Allocator> sublist(first, last, _allocator);
+	_check_list_integrity();
 	this->splice(position, sublist);
 }
 
@@ -296,6 +313,7 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other)
 	other._front = other._end;
 	this->_size += other._size;
 	other._size = 0;
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
@@ -323,6 +341,7 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 	target._node->next = insert_before;
 	++this->_size;
 	--other._size;
+	_check_list_integrity();
 }
 
 
@@ -349,7 +368,7 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 		other_before->next = range_end._node;
 	range_end._node->prev = other_before;
 
-	if (this->size() > 0)
+	if (position != this->begin())
 		insert_after->next = range_begin._node;
 	else
 		_front = range_begin._node;
@@ -360,6 +379,7 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 
 	other._size -= num_spliced;
 	this->_size += num_spliced;
+	_check_list_integrity();
 }
 
 // TODO: Replace this implementation with a remove_if(std::identity) or something like that?
@@ -381,6 +401,7 @@ void	list<T, Allocator>::remove(const T& value)
 		}
 		head = head->next;
 	}
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
@@ -402,6 +423,7 @@ void	list<T, Allocator>::remove_if(Predicate pred)
 		}
 		head = head->next;
 	}
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
@@ -419,6 +441,7 @@ void	list<T, Allocator>::unique()
 			erase(it, range_end);
 		it = range_end;
 	}
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
@@ -436,6 +459,7 @@ void	list<T, Allocator>::unique(BinaryPredicate binary_pred)
 			erase(it, range_end);
 		it = range_end;
 	}
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
@@ -452,13 +476,15 @@ void	list<T, Allocator>::merge(list<T, Allocator>& other, Compare comp)
 	iterator head = this->begin();
 	while (other.size() > 0)
 	{
-		while (head != end() && comp(other.front(), *head))
+		while (head != end() && comp(*head, other.front()))
 			++head;
 		iterator range_end = other.begin();
+		++range_end;	// Increment at least once, otherwise iterator range is invalid
 		while (range_end != other.end() && comp(*range_end, *head))
 			++range_end;
 		this->splice(head, other, other.begin(), range_end);
 	}
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
@@ -498,6 +524,7 @@ void	list<T, Allocator>::reverse()
 		head = head->next;
 	}
 	::ft::swap(_front, _end);
+	_check_list_integrity();
 }
 
 } // namespace ft

@@ -79,6 +79,33 @@ void	tests_list()
 		int	list_b[] = {0, 2, 4, 6, 8};
 		NAMESP::list<int>	a(list_a, list_a + 5);
 		NAMESP::list<int>	b(list_b, list_b + 5);
+		a.splice(a.begin(), b, b.begin(), b.end());
+		for (NAMESP::list<int>::iterator it = a.begin(); it != a.end(); ++it)
+			std::cout << *it << " ";
+		std::cout << '\n';
+	}
+	newtest();
+	{
+		int	list_a[] = {1, 3, 5, 7, 9};
+		int	list_b[] = {0, 2, 4, 6, 8};
+		NAMESP::list<int>	a(list_a, list_a + 5);
+		NAMESP::list<int>	b(list_b, list_b + 5);
+
+		NAMESP::list<int>::iterator range_end = b.begin();
+		range_end++;
+
+		a.splice(a.begin(), b, b.begin(), range_end);
+		for (NAMESP::list<int>::iterator it = a.begin(); it != a.end(); ++it)
+			std::cout << *it << " ";
+		std::cout << '\n';
+
+	}
+	newtest();
+	{
+		int	list_a[] = {1, 3, 5, 7, 9};
+		int	list_b[] = {0, 2, 4, 6, 8};
+		NAMESP::list<int>	a(list_a, list_a + 5);
+		NAMESP::list<int>	b(list_b, list_b + 5);
 		a.merge(b);
 		for (NAMESP::list<int>::iterator it = a.begin(); it != a.end(); ++it)
 			std::cout << *it << " ";
