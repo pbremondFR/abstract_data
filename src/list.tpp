@@ -397,20 +397,16 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 template <class T, class Allocator>
 void	list<T, Allocator>::remove(const T& value)
 {
-	_Node *head = _front;
-
-	while (head->next != _end)
+	for (iterator it = begin(); it != end();)
 	{
-		if (head->next->data == value)
+		if (*it == value)
 		{
-			_Node *to_delete = head->next;
-			head->next = to_delete->next;
-			to_delete->next->prev = head;
-			_allocator.destroy(to_delete);
-			_allocator.deallocate(to_delete, 1);
-			--this->_size;
+			iterator to_delete = it;
+			++it;
+			erase(to_delete);
 		}
-		head = head->next;
+		else
+			++it;
 	}
 	_check_list_integrity();
 }
@@ -419,20 +415,16 @@ template <class T, class Allocator>
 template <class Predicate>
 void	list<T, Allocator>::remove_if(Predicate pred)
 {
-	_Node *head = _front;
-
-	while (head->next != _end)
+	for (iterator it = begin(); it != end();)
 	{
-		if (pred(head->next->data))
+		if (pred(*it))
 		{
-			_Node *to_delete = head->next;
-			head->next = to_delete->next;
-			head->next->prev = head;
-			_allocator.destroy(to_delete);
-			_allocator.deallocate(to_delete, 1);
-			--this->_size;
+			iterator to_delete = it;
+			++it;
+			erase(to_delete);
 		}
-		head = head->next;
+		else
+			++it;
 	}
 	_check_list_integrity();
 }
