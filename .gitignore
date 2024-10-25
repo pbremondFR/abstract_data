@@ -5,3 +5,5 @@ ft_containers_test
 std_output
 std_containers_test
 subject-abstract-data.pdf
+monkey_tester/ft_*
+monkey_tester/std_*
