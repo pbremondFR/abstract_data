@@ -164,6 +164,7 @@ void	list<T, Allocator>::pop_back()
 	if (popped->prev)
 		popped->prev->next = _end;
 	_end = popped->prev;
+	_end->next = nullptr;
 	_front = _size == 1 ? _end : _front;	// If removing last node
 	--_size;
 	_allocator.destroy(popped);
@@ -254,6 +255,7 @@ typename list<T, Allocator>::iterator
 		_allocator.deallocate(to_delete, 1);
 		--this->_size;
 	}
+	_check_list_integrity();
 	return retval;
 }
 
@@ -264,6 +266,7 @@ void	list<T, Allocator>::swap(list<T, Allocator> &other)
 	ft::swap(_end,			other._end);
 	ft::swap(_allocator,	other._allocator);
 	ft::swap(_size,			other._size);
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
@@ -322,14 +325,15 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 	if (other.empty())
 		return;
 
+	_check_list_integrity();
 	_Node *insert_after = position._node->prev;	// Insert splice after this node...
 	_Node *insert_before = position._node;		// ...and before this node
 
-	insert_after->next = target._node;
-	if (insert_before)
-		insert_before->prev = target._node;
+	if (position != begin())
+		insert_after->next = target._node;
 	else
 		_front = target._node;	// If inserting at beginning of the list
+	insert_before->prev = target._node;
 
 	if (target != other.begin())
 		target._node->prev->next = target._node->next;
@@ -498,6 +502,7 @@ template <class Compare>
 void	list<T, Allocator>::sort(Compare comp)
 {
 	// Only Basic Exception Guarantee
+	return;
 	// TODO
 	// XXX: Standard specifies "approximately O(N log(N))"
 	if (_size <=1)
@@ -517,13 +522,22 @@ void	list<T, Allocator>::reverse()
 	if (_size <= 1)
 		return;
 
-	_Node *head = _front->next;
+	_check_list_integrity();
+	_Node *prev = nullptr;
+	_Node *future_last = _front;
+	_Node *head = _front;
 	while (head != _end)
 	{
-		::ft::swap(head->prev, head->next);
-		head = head->next;
+		prev = head->prev;
+		head->prev = head->next;
+		head->next = prev;
+		head = head->prev;
 	}
-	::ft::swap(_front, _end);
+	_front = head->prev;
+	_front->prev = nullptr;
+
+	_end->prev = future_last;
+	future_last->next = _end;
 	_check_list_integrity();
 }
 

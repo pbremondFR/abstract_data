@@ -111,4 +111,21 @@ void	tests_list()
 			std::cout << *it << " ";
 		std::cout << '\n';
 	}
+	newtest();
+	{
+		int	list_a[] = {1, 3, 5, 7, 9};
+		int	list_b[] = {0, 2, 4, 6, 8};
+		NAMESP::list<int>	a(list_a, list_a + 5);
+		NAMESP::list<int>	b(list_b, list_b + 5);
+		a.merge(b);
+		a.reverse();
+		for (NAMESP::list<int>::iterator it = a.begin(); it != a.end(); ++it)
+			std::cout << "[" << *it << "] ";
+		std::cout << '\n';
+
+		for (NAMESP::list<int>::reverse_iterator it = a.rbegin(); it != a.rend(); ++it)
+			std::cout << "[" << *it << "] ";
+		std::cout << '\n';
+
+	}
 }
