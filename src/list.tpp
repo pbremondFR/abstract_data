@@ -227,6 +227,7 @@ typename list<T, Allocator>::iterator
 	_allocator.destroy(to_erase);
 	_allocator.deallocate(to_erase, 1);
 	--this->_size;
+	_check_list_integrity();
 	return retval;
 }
 
@@ -234,6 +235,9 @@ template <class T, class Allocator>
 typename list<T, Allocator>::iterator
 	list<T, Allocator>::erase(iterator range_begin, iterator range_end)
 {
+	if (range_begin == range_end)
+		return range_end;
+
 	_Node *first_node = range_begin._node;
 	_Node *last_node = range_end._node->prev;
 
@@ -243,7 +247,7 @@ typename list<T, Allocator>::iterator
 		first_node->prev->next = last_node->next;
 	last_node->next->prev = first_node->prev;
 
-	iterator retval(last_node->next);
+	// iterator retval(last_node->next);
 
 	first_node->prev = nullptr;
 	last_node->next = nullptr;
@@ -256,7 +260,7 @@ typename list<T, Allocator>::iterator
 		--this->_size;
 	}
 	_check_list_integrity();
-	return retval;
+	return range_end;
 }
 
 template <class T, class Allocator>
