@@ -10,13 +10,20 @@ void	list<T, Allocator>::_check_list_integrity() const
 {
 	assert(_front->prev == nullptr);
 	assert(_end->next == nullptr);
+	size_t size = 0;
 	for (_Node const *head = _front; head; head = head->next)
 	{
 		if (head->next)
 			assert(head->next->prev == head);
 		if (head->prev)
 			assert(head->prev->next == head);
+		++size;
 	}
+	assert(--size == _size);
+	if (size > 0)
+		assert(_front != _end);
+	else
+		assert(_front == _end);
 }
 
 template <class T, class Allocator>
@@ -104,6 +111,7 @@ list<T, Allocator>& list<T, Allocator>::operator=(const list<T, Allocator>& othe
 template <class T, class Allocator>
 void	list<T, Allocator>::push_front(const T& value)
 {
+	_check_list_integrity();
 	_Node *new_node = _allocator.allocate(1);
 	try
 	{
@@ -113,6 +121,7 @@ void	list<T, Allocator>::push_front(const T& value)
 		_front->prev = new_node;
 		_front = new_node;
 		++_size;
+		_check_list_integrity();
 	}
 	catch(const std::exception&)	// Strong exception guarantee
 	{
@@ -124,6 +133,7 @@ void	list<T, Allocator>::push_front(const T& value)
 template <class T, class Allocator>
 void	list<T, Allocator>::pop_front()
 {
+	_check_list_integrity();
 	_Node *popped = _front;
 	// XXX: UB when list is empty, YAAAAAAYYYYYY
 	_front = popped->next;
@@ -131,11 +141,13 @@ void	list<T, Allocator>::pop_front()
 	--_size;
 	_allocator.destroy(popped);
 	_allocator.deallocate(popped, 1);
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
 void	list<T, Allocator>::push_back(const T& value)
 {
+	_check_list_integrity();
 	_Node *new_node = _allocator.allocate(1);
 	try
 	{
@@ -147,6 +159,7 @@ void	list<T, Allocator>::push_back(const T& value)
 		_end->prev = new_node;
 		_front = _size == 0 ? new_node : _front;	// If size == 0
 		++_size;
+		_check_list_integrity();
 	}
 	catch(const std::exception&)	// Strong exception guarantee
 	{	// Don't destroy object, because exception was thrown in its constructor
@@ -159,22 +172,24 @@ void	list<T, Allocator>::push_back(const T& value)
 template <class T, class Allocator>
 void	list<T, Allocator>::pop_back()
 {
+	_check_list_integrity();
 	_Node *popped = _end->prev;
 	// XXX: UB when list is empty, YAAAAAAYYYYYY
 	if (popped->prev)
 		popped->prev->next = _end;
-	_end = popped->prev;
-	_end->next = nullptr;
+	_end->prev = popped->prev;
 	_front = _size == 1 ? _end : _front;	// If removing last node
 	--_size;
 	_allocator.destroy(popped);
 	_allocator.deallocate(popped, 1);
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
 typename list<T, Allocator>::iterator
 	list<T, Allocator>::insert(iterator position, const T& value)
 {
+	_check_list_integrity();
 	_Node *new_node = _allocator.allocate(1);
 	try
 	{
@@ -200,24 +215,29 @@ typename list<T, Allocator>::iterator
 template <class T, class Allocator>
 void	list<T, Allocator>::insert(iterator position, size_type n, const T& value)
 {
-	list<T, Allocator> sublist(n, value, _allocator);
 	_check_list_integrity();
+	list<T, Allocator> sublist(n, value, _allocator);
+	sublist._check_list_integrity();
 	this->splice(position, sublist);
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
 template <class InputIt>
 void	list<T, Allocator>::insert(iterator position, InputIt first, InputIt last)
 {
-	list<T, Allocator> sublist(first, last, _allocator);
 	_check_list_integrity();
+	list<T, Allocator> sublist(first, last, _allocator);
+	sublist._check_list_integrity();
 	this->splice(position, sublist);
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
 typename list<T, Allocator>::iterator
 	list<T, Allocator>::erase(iterator position)
 {
+	_check_list_integrity();
 	_Node *to_erase = position._node;
 
 	if (to_erase == _front)
@@ -238,6 +258,7 @@ template <class T, class Allocator>
 typename list<T, Allocator>::iterator
 	list<T, Allocator>::erase(iterator range_begin, iterator range_end)
 {
+	_check_list_integrity();
 	if (range_begin == range_end)
 		return range_end;
 
@@ -269,6 +290,7 @@ typename list<T, Allocator>::iterator
 template <class T, class Allocator>
 void	list<T, Allocator>::swap(list<T, Allocator> &other)
 {
+	_check_list_integrity();
 	ft::swap(_front,		other._front);
 	ft::swap(_end,			other._end);
 	ft::swap(_allocator,	other._allocator);
@@ -279,6 +301,7 @@ void	list<T, Allocator>::swap(list<T, Allocator> &other)
 template <class T, class Allocator>
 void	list<T, Allocator>::clear()
 {
+	_check_list_integrity();
 	_Node *head = _front;
 	while (head != _end)
 	{
@@ -290,6 +313,7 @@ void	list<T, Allocator>::clear()
 	_end->prev = nullptr;
 	_front = _end;
 	_size = 0;
+	_check_list_integrity();
 }
 
 // Descriptions of function semantics contain the following elements (as appropriate):148)
@@ -303,6 +327,7 @@ void	list<T, Allocator>::clear()
 template <class T, class Allocator>
 void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other)
 {
+	_check_list_integrity();
 	if (other.empty())
 		return;
 
@@ -329,10 +354,10 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other)
 template <class T, class Allocator>
 void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, iterator target)
 {
+	_check_list_integrity();
 	if (other.empty())
 		return;
 
-	_check_list_integrity();
 	_Node *insert_after = position._node->prev;	// Insert splice after this node...
 	_Node *insert_before = position._node;		// ...and before this node
 
@@ -360,6 +385,7 @@ template <class T, class Allocator>
 void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, iterator range_begin,
 	iterator range_end)
 {
+	_check_list_integrity();
 	if (other.empty())
 		return;
 
@@ -397,6 +423,7 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 template <class T, class Allocator>
 void	list<T, Allocator>::remove(const T& value)
 {
+	_check_list_integrity();
 	for (iterator it = begin(); it != end();)
 	{
 		if (*it == value)
@@ -415,6 +442,7 @@ template <class T, class Allocator>
 template <class Predicate>
 void	list<T, Allocator>::remove_if(Predicate pred)
 {
+	_check_list_integrity();
 	for (iterator it = begin(); it != end();)
 	{
 		if (pred(*it))
@@ -432,6 +460,7 @@ void	list<T, Allocator>::remove_if(Predicate pred)
 template <class T, class Allocator>
 void	list<T, Allocator>::unique()
 {
+	_check_list_integrity();
 	if (_size < 2)
 		return;
 
@@ -451,6 +480,7 @@ template <class T, class Allocator>
 template <class BinaryPredicate>
 void	list<T, Allocator>::unique(BinaryPredicate binary_pred)
 {
+	_check_list_integrity();
 	if (_size < 2)
 		return;
 
@@ -475,9 +505,11 @@ template <class T, class Allocator>
 template <class Compare>
 void	list<T, Allocator>::merge(list<T, Allocator>& other, Compare comp)
 {
+	_check_list_integrity();
 	if (this->empty())
 	{
 		this->splice(this->begin(), other);
+		_check_list_integrity();
 		return;
 	}
 	// Standard allows us to assume both lists are sorted
@@ -491,6 +523,7 @@ void	list<T, Allocator>::merge(list<T, Allocator>& other, Compare comp)
 		while (range_end != other.end() && comp(*range_end, *head))
 			++range_end;
 		this->splice(head, other, other.begin(), range_end);
+		_check_list_integrity();
 	}
 	_check_list_integrity();
 }
@@ -505,6 +538,7 @@ template <class T, class Allocator>
 template <class Compare>
 void	list<T, Allocator>::sort(Compare comp)
 {
+	_check_list_integrity();
 	// Only Basic Exception Guarantee
 	// TODO
 	// XXX: Standard specifies "approximately O(N log(N))"
@@ -520,15 +554,16 @@ void	list<T, Allocator>::sort(Compare comp)
 	b.sort(comp);
 	a.merge(b, comp);
 	this->splice(this->begin(), a);
+	_check_list_integrity();
 }
 
 template <class T, class Allocator>
 void	list<T, Allocator>::reverse()
 {
+	_check_list_integrity();
 	if (_size <= 1)
 		return;
 
-	_check_list_integrity();
 	_Node *prev = nullptr;
 	_Node *future_last = _front;
 	_Node *head = _front;

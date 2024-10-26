@@ -132,6 +132,8 @@ void	tests_list()
 		int	list_a[] = {5, 4, 3, 2, 1};
 		NAMESP::list<int>	a(list_a, list_a + 5);
 		a.sort();
+		a.reverse();
+		a.sort();
 		for (NAMESP::list<int>::iterator it = a.begin(); it != a.end(); ++it)
 			std::cout << "[" << *it << "] ";
 		std::cout << '\n';
