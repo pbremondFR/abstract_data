@@ -389,11 +389,6 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 	if (other.empty())
 		return;
 
-	// FIXME: This should be able to be called at the end of the function
-	// because iterators are not invalidated in my implementation (and per DR)
-	// Yet it doesn't so something is fucked up somewhere.
-	size_t num_spliced = ft::distance(range_begin, range_end);	// Fuck the ISO, iterators aren't invalidated
-
 	_Node *insert_after = position._node->prev;	// Insert splice after this node...
 	_Node *insert_before = position._node;		// ...and before this node
 	_Node *range_last = range_end._node->prev;
@@ -414,8 +409,16 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 	insert_before->prev = range_last;
 	range_last->next = insert_before;
 
-	other._size -= num_spliced;
-	this->_size += num_spliced;
+	if (&other != this)	// Complexity: Constant time if &x == this; otherwise, linear time
+	{
+		// FIXME: This should be able to be called at the end of the function
+		// because iterators are not invalidated in my implementation (and per DR)
+		// Yet it doesn't so something is fucked up somewhere.
+		size_t num_spliced = ft::distance(range_begin, iterator(range_last->next));	// Fuck the ISO, iterators aren't invalidated
+
+		other._size -= num_spliced;
+		this->_size += num_spliced;
+	}
 	_check_list_integrity();
 }
 
@@ -465,11 +468,17 @@ void	list<T, Allocator>::unique()
 		return;
 
 	iterator it = begin();
-	not_equal<ft::equal_to<T> >	comp(*it, ft::equal_to<T>());
 	while (it != end())
 	{
-		iterator range_end = ft::find_if(it, end(), comp);
-		if (range_end != end())
+		bool do_delete = false;
+		iterator range_end = it;
+		++range_end;
+		while (*range_end == *it && range_end != end())
+		{
+			do_delete = true;
+			++range_end;
+		}
+		if (do_delete)
 			erase(it, range_end);
 		it = range_end;
 	}
@@ -487,8 +496,15 @@ void	list<T, Allocator>::unique(BinaryPredicate binary_pred)
 	iterator it = begin();
 	while (it != end())
 	{
-		iterator range_end = ft::find_if(it, end(), not_equal<BinaryPredicate>(*it, binary_pred));
-		if (range_end != end())
+		bool do_delete = false;
+		iterator range_end = it;
+		++range_end;
+		while (binary_pred(*range_end, *it) && range_end != end())
+		{
+			do_delete = true;
+			++range_end;
+		}
+		if (do_delete)
 			erase(it, range_end);
 		it = range_end;
 	}
