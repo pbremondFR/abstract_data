@@ -5,6 +5,8 @@
 #include <cstddef>
 #include "algorithm.hpp"
 
+#include <cassert>
+
 #if __cplusplus < 201103L
 # ifndef nullptr
 #  define nullptr NULL
@@ -142,10 +144,10 @@ public:
 
 	// element access:
 	// XXX: LMAO, UB if list is empty. Isn't that so funny?!?!?!?!
-	reference		front()			{ return _front->data; }
-	const_reference	front() const	{ return _front->data; }
-	reference		back()			{ return _end->data; }
-	const_reference	back() const	{ return _end->data; }
+	reference		front()			{ assert(_size); return _front->data; }
+	const_reference	front() const	{ assert(_size); return _front->data; }
+	reference		back()			{ assert(_size); return _end->prev->data; }
+	const_reference	back() const	{ assert(_size); return _end->prev->data; }
 
 	// 23.2.2.3 modifiers:
 	void		push_front(const T& x);

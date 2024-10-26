@@ -59,6 +59,7 @@ template <class InputIterator>
 list<T, Allocator>::list(InputIterator first, InputIterator last, const Allocator& alloc)
 	: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
 {
+	// assert(first != last);
 	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy. Can I do that?
 	_end->prev = nullptr;
 	_end->next = nullptr;
@@ -226,7 +227,10 @@ template <class T, class Allocator>
 template <class InputIt>
 void	list<T, Allocator>::insert(iterator position, InputIt first, InputIt last)
 {
+	// assert(first != last);
 	_check_list_integrity();
+	if (first == last)
+		return;
 	list<T, Allocator> sublist(first, last, _allocator);
 	sublist._check_list_integrity();
 	this->splice(position, sublist);
@@ -386,7 +390,8 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 	iterator range_end)
 {
 	_check_list_integrity();
-	if (other.empty())
+	// assert(range_begin != range_end);
+	if (other.empty() || range_begin == range_end)
 		return;
 
 	_Node *insert_after = position._node->prev;	// Insert splice after this node...
@@ -558,8 +563,12 @@ void	list<T, Allocator>::sort(Compare comp)
 	// Only Basic Exception Guarantee
 	// TODO
 	// XXX: Standard specifies "approximately O(N log(N))"
-	if (_size <=1)
+	if (_size <= 2)
+	{
+		if (_size == 2 && comp(back(), front()))
+			reverse();
 		return;
+	}
 
 	iterator middle = begin();
 	ft::advance(middle, _size / 2);
