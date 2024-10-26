@@ -475,6 +475,11 @@ template <class T, class Allocator>
 template <class Compare>
 void	list<T, Allocator>::merge(list<T, Allocator>& other, Compare comp)
 {
+	if (this->empty())
+	{
+		this->splice(this->begin(), other);
+		return;
+	}
 	// Standard allows us to assume both lists are sorted
 	iterator head = this->begin();
 	while (other.size() > 0)
@@ -501,18 +506,20 @@ template <class Compare>
 void	list<T, Allocator>::sort(Compare comp)
 {
 	// Only Basic Exception Guarantee
-	return;
 	// TODO
 	// XXX: Standard specifies "approximately O(N log(N))"
 	if (_size <=1)
 		return;
 
-	list<T, Allocator> output_list;
-	_Node *p = _front;
-	while (p != _end)
-	{
-
-	}
+	iterator middle = begin();
+	ft::advance(middle, _size / 2);
+	list<T, Allocator> a, b;
+	a.splice(a.begin(), *this, this->begin(), middle);
+	b.splice(b.begin(), *this);
+	a.sort(comp);
+	b.sort(comp);
+	a.merge(b, comp);
+	this->splice(this->begin(), a);
 }
 
 template <class T, class Allocator>
