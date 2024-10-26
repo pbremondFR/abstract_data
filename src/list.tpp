@@ -335,7 +335,7 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other)
 	_Node *insert_before = position._node;		// ...and before this node
 	_Node *other_last = other._end->prev;		// Last node of other list
 
-	if (this->size() > 0)	// insert_before/after are not null if size > 0
+	if (position != begin())	// insert_before/after are not null if size > 0
 		insert_after->next = other._front;
 	else
 		_front = other._front;
