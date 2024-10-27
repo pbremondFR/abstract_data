@@ -416,11 +416,7 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 
 	if (&other != this)	// Complexity: Constant time if &x == this; otherwise, linear time
 	{
-		// FIXME: This should be able to be called at the end of the function
-		// because iterators are not invalidated in my implementation (and per DR)
-		// Yet it doesn't so something is fucked up somewhere.
-		size_t num_spliced = ft::distance(range_begin, iterator(range_last->next));	// Fuck the ISO, iterators aren't invalidated
-
+		size_t num_spliced = ft::distance(range_begin, iterator(range_last->next));
 		other._size -= num_spliced;
 		this->_size += num_spliced;
 	}
@@ -468,50 +464,26 @@ void	list<T, Allocator>::remove_if(Predicate pred)
 template <class T, class Allocator>
 void	list<T, Allocator>::unique()
 {
-	_check_list_integrity();
-	if (_size < 2)
-		return;
-
-	iterator it = begin();
-	while (it != end())
-	{
-		bool do_delete = false;
-		iterator range_end = it;
-		++range_end;
-		while (range_end != end() && *range_end == *it)
-		{
-			do_delete = true;
-			++range_end;
-		}
-		if (do_delete)
-			erase(it, range_end);
-		it = range_end;
-	}
-	_check_list_integrity();
+	unique(ft::equal_to<T>());
 }
 
 template <class T, class Allocator>
 template <class BinaryPredicate>
-void	list<T, Allocator>::unique(BinaryPredicate binary_pred)
+void	list<T, Allocator>::unique(BinaryPredicate is_equal)
 {
 	_check_list_integrity();
 	if (_size < 2)
 		return;
 
-	iterator it = begin();
-	while (it != end())
+	_Node *head = _front;
+	while (head != _end)
 	{
-		bool do_delete = false;
-		iterator range_end = it;
-		++range_end;
-		while (range_end != end() && binary_pred(*range_end, *it))
-		{
-			do_delete = true;
-			++range_end;
-		}
-		if (do_delete)
-			erase(it, range_end);
-		it = range_end;
+		_Node *range_end = head->next;
+		while (range_end != _end && is_equal(range_end->data, head->data))
+			range_end = range_end->next;
+		if (head->next != range_end)
+			erase(iterator(head->next), iterator(range_end));
+		head = range_end;
 	}
 	_check_list_integrity();
 }
