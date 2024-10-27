@@ -478,7 +478,7 @@ void	list<T, Allocator>::unique()
 		bool do_delete = false;
 		iterator range_end = it;
 		++range_end;
-		while (*range_end == *it && range_end != end())
+		while (range_end != end() && *range_end == *it)
 		{
 			do_delete = true;
 			++range_end;
@@ -504,7 +504,7 @@ void	list<T, Allocator>::unique(BinaryPredicate binary_pred)
 		bool do_delete = false;
 		iterator range_end = it;
 		++range_end;
-		while (binary_pred(*range_end, *it) && range_end != end())
+		while (range_end != end() && binary_pred(*range_end, *it))
 		{
 			do_delete = true;
 			++range_end;
@@ -534,16 +534,18 @@ void	list<T, Allocator>::merge(list<T, Allocator>& other, Compare comp)
 		return;
 	}
 	// Standard allows us to assume both lists are sorted
-	iterator head = this->begin();
+	_Node *head = _front;
 	while (other.size() > 0)
 	{
-		while (head != end() && comp(*head, other.front()))
-			++head;
-		iterator range_end = other.begin();
-		++range_end;	// Increment at least once, otherwise iterator range is invalid
-		while (range_end != other.end() && comp(*range_end, *head))
-			++range_end;
-		this->splice(head, other, other.begin(), range_end);
+		// Find place to insert front of other list (first element greater than other.front)
+		while (head->next != _end && comp(head->data, other.front()))
+			head = head->next;
+		// Find out the range of the other list to insert (all elements smaller than head)
+		_Node *range_end = other._front->next;
+		while (range_end != other._end && comp(range_end->data, head->data))
+			range_end = range_end->next;
+		// Perform a splice-insert of that section
+		this->splice(iterator(head), other, other.begin(), iterator(range_end));
 		_check_list_integrity();
 	}
 	_check_list_integrity();
