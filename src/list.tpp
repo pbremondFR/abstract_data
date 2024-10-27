@@ -538,16 +538,23 @@ void	list<T, Allocator>::merge(list<T, Allocator>& other, Compare comp)
 	while (other.size() > 0)
 	{
 		// Find place to insert front of other list (first element greater than other.front)
-		while (head->next != _end && comp(head->data, other.front()))
+		while (head != _end && comp(head->data, other.front()))
 			head = head->next;
 		// Find out the range of the other list to insert (all elements smaller than head)
 		_Node *range_end = other._front->next;
-		while (range_end != other._end && comp(range_end->data, head->data))
-			range_end = range_end->next;
+		if (head != _end)
+		{
+			while (range_end != other._end && comp(range_end->data, head->data))
+				range_end = range_end->next;
+		}
+		else	// If head is end, don't dereference it! Just insert everything else
+			range_end = other._end;
 		// Perform a splice-insert of that section
 		this->splice(iterator(head), other, other.begin(), iterator(range_end));
 		_check_list_integrity();
 	}
+	for (_Node *head = _front; head->next != _end; head = head->next)
+		assert(head->data <= head->next->data);
 	_check_list_integrity();
 }
 
@@ -582,6 +589,8 @@ void	list<T, Allocator>::sort(Compare comp)
 	a.merge(b, comp);
 	this->splice(this->begin(), a);
 	_check_list_integrity();
+	for (_Node *head = _front; head->next != _end; head = head->next)
+		assert(head->data <= head->next->data);
 }
 
 template <class T, class Allocator>
