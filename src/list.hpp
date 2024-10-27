@@ -91,6 +91,7 @@ private:
 	};
 
 	void	_check_list_integrity() const;
+	void	_check_list_sorted() const;
 
 public:
 	// types:

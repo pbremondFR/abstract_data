@@ -5,6 +5,10 @@
 namespace ft
 {
 
+#ifdef _DEBUG
+/*
+ * Checks that all of the list's links are valid. Aborts with an assertion otherwise.
+ */
 template <class T, class Allocator>
 void	list<T, Allocator>::_check_list_integrity() const
 {
@@ -25,6 +29,26 @@ void	list<T, Allocator>::_check_list_integrity() const
 	else
 		assert(_front == _end);
 }
+
+/*
+ * Checks if the list is correctly sorted. Aborts with an assertion if it's not the case.
+ */
+template <class T, class Allocator>
+void	list<T, Allocator>::_check_list_integrity() const
+{
+	for (_Node *head = _front; head->next != _end; head = head->next)
+		assert(head->data <= head->next->data);
+}
+#else
+/* In release mode, these are no-ops and should be optimized away. */
+template <class T, class Allocator>
+void	list<T, Allocator>::_check_list_integrity() const
+{}
+
+template <class T, class Allocator>
+void	list<T, Allocator>::_check_list_sorted() const
+{}
+#endif
 
 template <class T, class Allocator>
 list<T, Allocator>::list(const Allocator& alloc)
@@ -59,7 +83,6 @@ template <class InputIterator>
 list<T, Allocator>::list(InputIterator first, InputIterator last, const Allocator& alloc)
 	: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
 {
-	// assert(first != last);
 	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy. Can I do that?
 	_end->prev = nullptr;
 	_end->next = nullptr;
@@ -227,7 +250,6 @@ template <class T, class Allocator>
 template <class InputIt>
 void	list<T, Allocator>::insert(iterator position, InputIt first, InputIt last)
 {
-	// assert(first != last);
 	_check_list_integrity();
 	if (first == last)
 		return;
@@ -390,7 +412,6 @@ void	list<T, Allocator>::splice(iterator position, list<T, Allocator> &other, it
 	iterator range_end)
 {
 	_check_list_integrity();
-	// assert(range_begin != range_end);
 	if (other.empty() || range_begin == range_end)
 		return;
 
@@ -523,11 +544,9 @@ void	list<T, Allocator>::merge(list<T, Allocator>& other, Compare comp)
 			range_end = other._end;
 		// Perform a splice-insert of that section
 		this->splice(iterator(head), other, other.begin(), iterator(range_end));
-		_check_list_integrity();
 	}
-	for (_Node *head = _front; head->next != _end; head = head->next)
-		assert(head->data <= head->next->data);
 	_check_list_integrity();
+	_check_list_sorted();
 }
 
 template <class T, class Allocator>
@@ -542,7 +561,6 @@ void	list<T, Allocator>::sort(Compare comp)
 {
 	_check_list_integrity();
 	// Only Basic Exception Guarantee
-	// TODO
 	// XXX: Standard specifies "approximately O(N log(N))"
 	if (_size <= 2)
 	{
@@ -561,8 +579,7 @@ void	list<T, Allocator>::sort(Compare comp)
 	a.merge(b, comp);
 	this->splice(this->begin(), a);
 	_check_list_integrity();
-	for (_Node *head = _front; head->next != _end; head = head->next)
-		assert(head->data <= head->next->data);
+	_check_list_sorted();
 }
 
 template <class T, class Allocator>
