@@ -38,6 +38,7 @@ private:
 	_Node	*_front;
 	_Node	*_end;		// End "dummy" node, corresponds to end iterator
 	_Alloc	_allocator;
+	// TODO: Use size_type typedef instead of directly size_t?
 	size_t	_size;
 
 	template <class IteratorValueType>
@@ -78,16 +79,6 @@ private:
 		// Check that you're ISO compliant and ignore the defects... Yes, really...
 		_Iterator& operator--()		{ _node = _node->prev; return *this; }
 		_Iterator operator--(int)	{ _Iterator tmp = *this; _node = _node->prev; return tmp; }
-	};
-
-	// I fucking miss lambdas, man...
-	template <class BinaryPredicate>
-	struct not_equal {
-		T const& 		value;
-		BinaryPredicate	&predicate;
-		not_equal(T const& compare_to, BinaryPredicate predicate_)
-			: value(compare_to), predicate(predicate_) {}
-		inline bool operator()(T const& x) const { return !predicate(x, value); }
 	};
 
 	void	_check_list_integrity() const;
