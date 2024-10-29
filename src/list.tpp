@@ -54,7 +54,8 @@ template <class T, class Allocator>
 list<T, Allocator>::list(const Allocator& alloc)
 		: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
 {
-	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy. Can I do that?
+	// XXX: No need to catch exception, object state is still valid if allocator throws
+	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy.
 	_end->prev = nullptr;
 	_end->next = nullptr;
 	_front = _end;
@@ -70,7 +71,7 @@ list<T, Allocator>::list(size_type n, const T& value, const Allocator& alloc)
 	// before the push_back call that threw.
 	// XXX: In C++, throwing from a constructor does not call the destructor. BUT the destructor
 	// will still be called when the object is destructed (out-of-scope or manually...)
-	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy. Can I do that?
+	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy.
 	_end->prev = nullptr;
 	_end->next = nullptr;
 	_front = _end;
@@ -83,7 +84,7 @@ template <class InputIterator>
 list<T, Allocator>::list(InputIterator first, InputIterator last, const Allocator& alloc)
 	: _front(nullptr), _end(nullptr), _allocator(alloc), _size(0)
 {
-	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy. Can I do that?
+	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy.
 	_end->prev = nullptr;
 	_end->next = nullptr;
 	_front = _end;
@@ -95,7 +96,7 @@ template <class T, class Allocator>
 list<T, Allocator>::list(const list<T, Allocator>& x)
 	: _front(nullptr), _end(nullptr), _allocator(x._allocator), _size(0)
 {
-	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy. Can I do that?
+	_end = _allocator.allocate(1);	// XXX: Don't construct, it's just a dummy.
 	_end->prev = nullptr;
 	_end->next = nullptr;
 	_front = _end;
@@ -106,7 +107,7 @@ list<T, Allocator>::list(const list<T, Allocator>& x)
 template <class T, class Allocator>
 void	list<T, Allocator>::resize(size_type sz, T value)
 {
-	// XXX: Standard doesn't require exception guarantee. I choose to apply Strong Exception Guarantee.
+	// XXX: Standard doesn't guarantee beyond Basic Exception Guarantee.
 	if (sz > _size)
 	{
 		insert(end(), sz - _size, value);
@@ -136,9 +137,10 @@ template <class T, class Allocator>
 void	list<T, Allocator>::push_front(const T& value)
 {
 	_check_list_integrity();
-	_Node *new_node = _allocator.allocate(1);
+	_Node *new_node = nullptr;
 	try
 	{
+		new_node = _allocator.allocate(1);
 		_allocator.construct(new_node, _Node(value));
 		new_node->prev = nullptr;
 		new_node->next = _front;
@@ -149,7 +151,13 @@ void	list<T, Allocator>::push_front(const T& value)
 	}
 	catch(const std::exception&)	// Strong exception guarantee
 	{
-		_allocator.deallocate(new_node, 1);
+		// If new_node is null, allocate() threw, so no actions are necessary
+		if (new_node)
+		{
+			// TESTME: If constructor threw, destructor should not be called, right?
+			// _allocator.destroy(new_node);
+			_allocator.deallocate(new_node, 1);
+		}
 		throw;
 	}
 }
@@ -172,9 +180,10 @@ template <class T, class Allocator>
 void	list<T, Allocator>::push_back(const T& value)
 {
 	_check_list_integrity();
-	_Node *new_node = _allocator.allocate(1);
+	_Node *new_node = nullptr;
 	try
 	{
+		new_node = _allocator.allocate(1);
 		_allocator.construct(new_node, _Node(value));
 		new_node->prev = _end->prev;
 		new_node->next = _end;
@@ -186,8 +195,13 @@ void	list<T, Allocator>::push_back(const T& value)
 		_check_list_integrity();
 	}
 	catch(const std::exception&)	// Strong exception guarantee
-	{	// Don't destroy object, because exception was thrown in its constructor
-		_allocator.deallocate(new_node, 1);
+	{
+		if (new_node)
+		{
+			// TESTME: Don't destroy object, because exception was thrown in its constructor, right?
+			// _allocator.destroy(new_node);
+			_allocator.deallocate(new_node, 1);
+		}
 		throw;
 	}
 }
@@ -214,9 +228,10 @@ typename list<T, Allocator>::iterator
 	list<T, Allocator>::insert(iterator position, const T& value)
 {
 	_check_list_integrity();
-	_Node *new_node = _allocator.allocate(1);
+	_Node *new_node = nullptr;
 	try
 	{
+		new_node = _allocator.allocate(1);
 		_allocator.construct(new_node, _Node(value));
 		new_node->prev = position._node->prev;
 		new_node->next = position._node;
@@ -229,7 +244,9 @@ typename list<T, Allocator>::iterator
 	}
 	catch(const std::exception&)	// Strong exception guarantee
 	{
-		_allocator.deallocate(new_node, 1);
+		// TESTME: Don't destroy object because exception thrown inside constructor
+		if (new_node)
+			_allocator.deallocate(new_node, 1);
 		throw;
 	}
 	_check_list_integrity();
