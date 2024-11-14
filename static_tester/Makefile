@@ -1,5 +1,5 @@
 
-INCLUDE_PATH := ../include # Path to your headers
+INCLUDE_PATH := ../src # Path to your headers
 
 CXXFLAGS ?= -Wall -Werror -Wextra -Wno-deprecated-copy
 

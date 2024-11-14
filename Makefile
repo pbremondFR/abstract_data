@@ -6,7 +6,7 @@
 #    By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/25 15:25:19 by pbremond          #+#    #+#              #
-#    Updated: 2024/10/12 19:11:35 by pbremond         ###   ########.fr        #
+#    Updated: 2024/11/14 19:58:04 by pbremond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -51,7 +51,7 @@ OBJ_DIR = objs
 # ============================================================================ #
 
 # Source files common to mandatory and bonus parts
-SRC_COMMON =	main.cpp	test.cpp	test_list.cpp
+SRC_COMMON =	main.cpp	test.cpp	test_list.cpp	test_deque.cpp
 
 # ============================================================================ #
 # ============================================================================ #
