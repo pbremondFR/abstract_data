@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2024/06/07 21:15:49 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 14:59:25 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,6 @@ ft::vector<T, Allocator>::vector(const Allocator& alloc): _allocator(alloc)
 	_init_size = 0;
 	_size = 0;
 	_capacity = 0;
-	_itrBegin = _array;
-	_itrEnd = _array;
 }
 
 template < class T, class Allocator >
@@ -43,8 +41,6 @@ ft::vector<T, Allocator>::vector(size_type count,
 	_capacity = count;
 	_size = count;
 	_array = _allocator.allocate(_init_size);
-	_itrBegin = _array;
-	_itrEnd = _array + _size;
 	for (size_type i = 0; i < count; ++i)
 		_allocator.construct(_array + i, value);
 }
@@ -61,8 +57,6 @@ ft::vector<T, Allocator>::vector(InputIt first,
 	_capacity = _init_size;
 	_size = 0;
 	_array = _allocator.allocate(_init_size);
-	_itrBegin = _array;
-	_itrEnd = _array + _size;
 
 	this->assign(first, last);
 }
@@ -75,8 +69,6 @@ ft::vector<T, Allocator>::vector(const ft::vector<T, Allocator>& src)
 	_capacity = src._size;
 	_array = _allocator.allocate(_init_size);
 	_size = 0;
-	_itrBegin = _array;
-	_itrEnd = _array;
 	this->assign(src.begin(), src.end());
 }
 
@@ -92,7 +84,6 @@ ft::vector<T, Allocator>	&ft::vector<T, Allocator>::operator=(const ft::vector<T
 	{
 		_allocator.deallocate(_array, _init_size);
 		_array = _allocator.allocate(rhs._size);
-		_recalcIterators(true, true);
 		_capacity = rhs._size;
 		_init_size = rhs._size;
 	}
@@ -119,7 +110,6 @@ void	ft::vector<T, Allocator>::assign(size_type count, const T& value)
 		_allocator.construct(_array + i, value);
 	}
 	_size = count;
-	_recalcIterators(false, true);
 }
 
 template < class T, class Allocator >
@@ -167,7 +157,6 @@ void	ft::vector<T, Allocator>::_do_assign(ForwardIt first, ForwardIt last,
 	for (ForwardIt itr = first; itr != last; ++itr, ++i)
 		_allocator.construct(_array + i, *itr);
 	_size = newSize;
-	_recalcIterators(false, true);
 }
 
 /* ************************************************************************** */
@@ -178,7 +167,7 @@ template < class T, class Allocator >
 typename ft::vector<T, Allocator>::reference	ft::vector<T, Allocator>::at(size_type n)
 {
 	if (n >= _size)
-		throw (std::out_of_range("std::out_of_range"));
+		throw (ft::out_of_range("ft::out_of_range"));
 	return (_array[n]);
 }
 
@@ -186,7 +175,7 @@ template < class T, class Allocator >
 typename ft::vector<T, Allocator>::const_reference	ft::vector<T, Allocator>::at(size_type n) const
 {
 	if (n >= _size)
-		throw (std::out_of_range("std::out_of_range"));
+		throw (ft::out_of_range("ft::out_of_range"));
 	return (_array[n]);
 }
 
@@ -198,9 +187,9 @@ void	ft::vector<T, Allocator>::reserve(size_type newCapacity)
 	if (newCapacity > _allocator.max_size())
 	{ // Pointless preproc directives to mimic current OS error messages.
 		#ifdef __linux__
-			throw (std::length_error("vector::reserve"));
+			throw (ft::length_error("vector::reserve"));
 		#else
-			throw (std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size"));
+			throw (ft::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size"));
 		#endif
 	}
 
@@ -215,7 +204,6 @@ void	ft::vector<T, Allocator>::reserve(size_type newCapacity)
 	_init_size = newCapacity;
 	_capacity = newCapacity;
 	_array = newArray;
-	_recalcIterators(true, true);
 }
 
 /* ************************************************************************** */
@@ -228,7 +216,6 @@ void	ft::vector<T, Allocator>::clear()
 	for (size_type i = 0; i < _size; ++i)
 		_allocator.destroy(_array + i);
 	_size = 0;
-	_recalcIterators(false, true);
 }
 
 template < class T, class Allocator >
@@ -237,22 +224,21 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::insert(ite
 {
 	if (_size + 1 > _capacity)
 	{
-		size_type	pos_index = pos - _itrBegin;
+		size_type	pos_index = pos - begin();
 		this->_doubleCapacity();
-		pos = _itrBegin + pos_index;
+		pos = _array + pos_index;
 	}
-	if (pos == _itrEnd)
+	if (pos == end())
 		_allocator.construct(pos.operator->(), value);
 	else
 	{
 		pointer src = pos.operator->();
 		pointer dest = src + 1;
-		_moveElements(src, dest, _itrEnd - pos,
+		_moveElements(src, dest, end() - pos,
 			ft::integral_constant< bool, _hasSwapMethod::value>());
 		*pos = value;
 	}
 	++_size;
-	_recalcIterators(false, true);
 	return (pos);
 }
 
@@ -263,13 +249,13 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 		return ;
 	if (_size + count > _capacity)
 	{
-		size_type	pos_index = pos - _itrBegin;
+		size_type	pos_index = pos - begin();
 		_reserveOrDouble(_size + count);
-		pos = _itrBegin + pos_index;
+		pos = _array + pos_index;
 	}
 	pointer src = pos.operator->();
 	pointer dest = src + count;
-	_moveElements(src, dest, _itrEnd - pos,
+	_moveElements(src, dest, end() - pos,
 		ft::integral_constant< bool, _hasSwapMethod::value>());
 
 	for (size_type i = 0; i < count; ++i, ++pos)
@@ -280,7 +266,6 @@ void	ft::vector<T, Allocator>::insert(iterator pos, size_type count, const T& va
 			_allocator.construct(pos.operator->(), value);
 	}
 	_size += count;
-	_recalcIterators(false, true);
 }
 
 template < class T, class Allocator >
@@ -306,7 +291,6 @@ void	ft::vector<T, Allocator>::_do_insert(iterator pos, InputIt first, InputIt l
 
 	for (; first != last; ++first, ++pos)
 		this->insert(pos, *first);
-	_recalcIterators(false, true);
 }
 
 template < class T, class Allocator >
@@ -321,13 +305,13 @@ void	ft::vector<T, Allocator>::_do_insert(iterator pos, ForwardIt first, Forward
 	difference_type	count = std::distance(first, last);
 	if (_size + count > _capacity)
 	{
-		size_type	pos_index = pos.operator->() - _itrBegin.operator->();
+		size_type	pos_index = pos - begin();
 		_reserveOrDouble(_size + count);
-		pos = _itrBegin.operator->() + pos_index;
+		pos = _array + pos_index;
 	}
 	pointer src = pos.operator->();
 	pointer dest = src + count;
-	_moveElements(src, dest, _itrEnd - pos,
+	_moveElements(src, dest, end() - pos,
 		ft::integral_constant< bool, _hasSwapMethod::value >());
 
 	for (; first != last; ++first, ++pos)
@@ -338,7 +322,6 @@ void	ft::vector<T, Allocator>::_do_insert(iterator pos, ForwardIt first, Forward
 			_allocator.construct(pos.operator->(), *first);
 	}
 	_size += count;
-	_recalcIterators(false, true);
 }
 
 template < class T, class Allocator >
@@ -346,13 +329,12 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iter
 {
 	pointer src = (pos + 1).operator->();
 	pointer dest = pos.operator->();
-	_moveElements(src, dest, _itrEnd - src,
+	_moveElements(src, dest, end() - src,
 		ft::integral_constant< bool, _hasSwapMethod::value >());
 
 	_allocator.destroy(_array + --_size);
-	_recalcIterators(false, true);
-	if (pos > _itrEnd)
-		return (_itrEnd);
+	if (pos > end())
+		return (end());
 	else
 		return (pos);
 }
@@ -364,13 +346,12 @@ typename ft::vector<T, Allocator>::iterator	ft::vector<T, Allocator>::erase(iter
 
 	pointer src = last.operator->();
 	pointer dest = first.operator->();
-	_moveElements(src, dest, _itrEnd - src,
+	_moveElements(src, dest, end() - src,
 		ft::integral_constant< bool, _hasSwapMethod::value >());
 
-	for (difference_type i = _itrEnd - last; dest + i < _array + _size; ++i)
+	for (difference_type i = end() - last; dest + i < _array + _size; ++i)
 		_allocator.destroy(dest + i);
 	_size -= n_erased;
-	_recalcIterators(false, true);
 	return (first);
 }
 
@@ -380,14 +361,12 @@ void	ft::vector<T, Allocator>::push_back(const T& value)
 	if (_size + 1 > _capacity)
 		this->_doubleCapacity();
 	_allocator.construct(_array + _size++, value);
-	_recalcIterators(false, true);
 }
 
 template < class T, class Allocator >
 void	ft::vector<T, Allocator>::pop_back()
 {
 	_allocator.destroy(_array + --_size);
-	_recalcIterators(false, true);
 }
 
 template < class T, class Allocator >
@@ -400,7 +379,6 @@ void	ft::vector<T, Allocator>::resize(size_type count, T value)
 		for (size_type i = _size; i < count; ++i)
 			_allocator.construct(_array + i, value);
 		_size = count;
-		_recalcIterators(false, true);
 	}
 	else if (count < _size)
 	{
@@ -419,8 +397,6 @@ void	ft::vector<T, Allocator>::swap(vector& other)
 	std::swap(this->_array, other._array);
 	std::swap(this->_capacity, other._capacity);
 	std::swap(this->_size, other._size);
-	std::swap(this->_itrBegin, other._itrBegin);
-	std::swap(this->_itrEnd, other._itrEnd);
 }
 
 // namespace ft
@@ -465,15 +441,6 @@ void	ft::vector<T, Allocator>::_doubleCapacity()
 }
 
 template < class T, class Allocator >
-void	ft::vector<T, Allocator>::_recalcIterators(bool begin, bool end)
-{
-	if (begin)
-		_itrBegin = _array;
-	if (end)
-		_itrEnd = _array + _size;
-}
-
-template < class T, class Allocator >
 void	ft::vector<T, Allocator>::_moveElements(pointer src, pointer dest, size_type n, ft::false_type)
 {
 	#if VEC_DEBUG_VERBOSE == true
@@ -492,7 +459,7 @@ void	ft::vector<T, Allocator>::_moveElements(pointer src, pointer dest, size_typ
 	}
 	else
 	{
-		for (difference_type i = 0; i < _itrEnd - src; ++i)
+		for (difference_type i = 0; i < end() - src; ++i)
 			dest[i] = src[i];
 	}
 }
@@ -517,7 +484,7 @@ void	ft::vector<T, Allocator>::_moveElements(pointer src, pointer dest, size_typ
 	}
 	else
 	{
-		for (difference_type i = 0; i < _itrEnd - src; ++i)
+		for (difference_type i = 0; i < end() - src; ++i)
 			dest[i].swap(src[i]);
 	}
 }

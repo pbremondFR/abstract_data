@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2024/06/07 21:06:02 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 14:58:41 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include "random_access_iterator.hpp"
 #include "iterator.hpp"
 #include "algorithm.hpp"
+#include "exception.hpp"
 
 #ifndef VEC_DEBUG_VERBOSE
 # define VEC_DEBUG_VERBOSE	false
@@ -95,15 +96,15 @@ class vector
 		void		reserve(size_type new_cap);
 		size_type	capacity()	const { return (_capacity);				};
 
-		inline iterator			begin()		  { return _itrBegin; };
-		inline const_iterator	begin() const { return const_iterator(_itrBegin); };
-		inline iterator			end()	    { return _itrEnd; };
-		inline const_iterator	end() const { return const_iterator(_itrEnd); };
+		inline iterator			begin()		  { return iterator(_array); };
+		inline const_iterator	begin() const { return const_iterator(_array); };
+		inline iterator			end()	    { return iterator(_array + _size); };
+		inline const_iterator	end() const { return const_iterator(_array + _size); };
 
 		inline reverse_iterator			rbegin()	   { return reverse_iterator(end()); };
-		inline const_reverse_iterator	rbegin() const { return reverse_iterator(end()); };
+		inline const_reverse_iterator	rbegin() const { return const_reverse_iterator(end()); };
 		inline reverse_iterator			rend()	     { return reverse_iterator(begin()); };
-		inline const_reverse_iterator	rend() const { return reverse_iterator(begin()); };
+		inline const_reverse_iterator	rend() const { return const_reverse_iterator(begin()); };
 
 		void		clear();
 		iterator	insert(iterator pos, const T& value);
@@ -130,9 +131,6 @@ class vector
 		size_type	_capacity;
 		size_type	_size;
 
-		iterator	_itrBegin;
-		iterator	_itrEnd;
-
 	private:
 		void	_doubleCapacity();
 		void	_reserveOrDouble(size_type capacity)
@@ -142,7 +140,6 @@ class vector
 			else
 				this->reserve(capacity);
 		}
-		void	_recalcIterators(bool begin, bool end);
 
 		template<class InputIt>
 		void	_do_insert(iterator pos, InputIt first, InputIt last, std::input_iterator_tag);
@@ -167,7 +164,8 @@ class vector
 			template <typename U>
 				static int Test(...);
 
-			static const bool value = ( sizeof(Test<value_type>(0)) == sizeof(char) );
+			// static const bool value = ( sizeof(Test<value_type>(0)) == sizeof(char) );
+			static const bool value = false;
 		};
 
 		// Shifts elements in the underlying array, using operator= for those already constructed,

@@ -1,7 +1,7 @@
 INCLUDE_PATH=../src
 
 CONTAINERS =list \
-	# vector \
+	vector \
 	# deque \
 	# map \
 	# set \
@@ -25,7 +25,7 @@ remove_ns=$(shell echo $(1) | sed 's/[^_]*_//')
 all: $(CONTAINERS)
 
 $(USER_CONTAINERS): ${OBJ_DIR}
-	c++ srcs/main.cpp -D TEST_$(call to_upper, $(call remove_ns, $@)) -MMD -MF ${OBJ_DIR}/$@.d -MT $@ -g3 -std=c++98 -I ${INCLUDE_PATH}  -D TEST_FT -o $@
+	c++ srcs/main.cpp -D TEST_$(call to_upper, $(call remove_ns, $@)) -MMD -MF ${OBJ_DIR}/$@.d -MT $@ -g3 -std=c++98 -fsanitize=address -I ${INCLUDE_PATH}  -D TEST_FT -o $@
 
 $(STD_CONTAINERS):
 	c++ srcs/main.cpp -D TEST_$(call to_upper, $(call remove_ns, $@)) -std=c++98 -D TEST_STD -o $(@)

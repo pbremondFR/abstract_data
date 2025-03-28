@@ -26,6 +26,14 @@ deque<T, Allocator>::deque(Allocator const& alloc)
 }
 
 template <class T, class Allocator>
+deque<T, Allocator>::~deque()
+{
+	this->clear();
+	_value_alloc.deallocate(_get_block(_front_idx), ELEMS_PER_BLOCK);
+	_ptr_alloc.deallocate(_map, _map_size);
+}
+
+template <class T, class Allocator>
 void	deque<T, Allocator>::resize(size_type new_size, T value)
 {
 	if (new_size > size())
