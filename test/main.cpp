@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2024/10/12 18:16:49 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 17:17:32 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,9 +59,24 @@ int	main(void)
 {
 	std::srand(1337);
 
-	tests_list();
-	return 0;
+	// tests_list();
+	// return 0;
 
+	newtest();
+	{
+		NAMESP::map<std::string, std::string>	map;
+		map["iupfx"];
+		map["tcfir"];
+		map["amigo de la tornada"];
+		map["la pantera"];
+
+		NAMESP::map<std::string, std::string>::iterator it = map.end();
+		--it;
+		printMap("map", map);
+		map.erase(it);
+		printMap("map", map);
+	}
+	return 0;
 	newtest();
 	try
 	{

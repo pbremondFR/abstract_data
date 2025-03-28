@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 16:32:14 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 17:33:56 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 #include <functional> // std::less
 #include <memory> // std::allocator
 
-#define MAP_DEBUG_VERBOSE	false
+#define MAP_DEBUG_VERBOSE	true
 
 #if MAP_DEBUG_VERBOSE == true
 # include "ansi_color.h"
@@ -85,7 +85,7 @@ class map
 			void	rotateLeft(__s_node **treeRoot)
 			{
 #if MAP_DEBUG_VERBOSE == true
-					logstream << BBLU"DEBUG: "BRED"left rotate (" << this->val.first << ")"RESET << std::endl;
+					logstream << BBLU "DEBUG: " BRED "left rotate (" << this->val.first << ")" RESET << std::endl;
 #endif
 				__s_node	*son = this->right;
 				if (son == NULL)
@@ -107,7 +107,7 @@ class map
 			void	rotateRight(__s_node **treeRoot)
 			{
 #if MAP_DEBUG_VERBOSE == true
-					logstream << BBLU"DEBUG: "BGRN"right rotate (" << this->val.first << ")"RESET << std::endl;
+					logstream << BBLU "DEBUG: " BGRN "right rotate (" << this->val.first << ")" RESET << std::endl;
 #endif
 				__s_node	*son = this->left;
 				if (son == NULL)
@@ -422,7 +422,7 @@ namespace std
 				 ft::map<Key, T, Compare, Alloc>& rhs)
 	{
 #if MAP_DEBUG_VERBOSE == true
-			std::cout << _BLU"DEBUG: map: std::swap is specialized"RESET << std::endl;
+			std::cout << _BLU "DEBUG: map: std::swap is specialized" RESET << std::endl;
 #endif
 		lhs.swap(rhs);
 	}

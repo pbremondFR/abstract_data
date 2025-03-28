@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 16:48:16 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 17:39:48 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,7 +212,7 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 	ft::map<Key, T, Compare, Allocator>::insert(iterator hint, value_type const& val)
 {
 #if MAP_DEBUG_VERBOSE == true
-		logstream << BCYN"Entering insert() hint overload."RESET << std::endl;
+		logstream << BCYN "Entering insert() hint overload." RESET << std::endl;
 #endif
 	if (hint == this->end())
 		return (this->insert(val).first);
@@ -225,7 +225,7 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 		&& (next == _endLeaf || _compare(val.first, (next)->first) == true)) // hintedKey < val.first < nextKey
 	{
 #if MAP_DEBUG_VERBOSE == true
-			logstream << BCYN"Hint looks correct, trying to find slot..."RESET << std::endl;
+			logstream << BCYN "Hint looks correct, trying to find slot..." RESET << std::endl;
 #endif
 		__s_node	*hintNode = hint._node;
 		__s_node	*nextNode = next._node;
@@ -247,7 +247,7 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 		}
 	}
 #if MAP_DEBUG_VERBOSE == true
-		logstream << BRED"No insertion optimisation could be done."RESET << std::endl;
+		logstream << BRED "No insertion optimisation could be done." RESET << std::endl;
 #endif
 	return (this->insert(val).first);
 }
@@ -273,14 +273,14 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 	__s_node	*node = pos._node;
 
 #if MAP_DEBUG_VERBOSE == true
-		logstream << BBLU"DEBUG: Erasing node " << node->val.first << RESET << std::endl;
+		logstream << BBLU "DEBUG: Erasing node " << node->val.first << RESET << std::endl;
 		debug_printByLevel();
 #endif
 
 	if (!_isLeaf(node->left) && !_isLeaf(node->right))
 	{
 #if MAP_DEBUG_VERBOSE == true
-			logstream << BYEL"Node has two children, replacing with predecessor...\n"RESET;
+			logstream << BYEL"Node has two children, replacing with predecessor...\n" RESET;
 #endif
 		__s_node	*src = node->left;
 		while (!_isLeaf(src->right)) // Get the direct in-order predecessor
@@ -292,7 +292,7 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 	__s_node	*child = _isLeaf(node->left) ? node->right : node->left;
 	if (child == NULL) {
 #if MAP_DEBUG_VERBOSE == true
-			logstream << BYEL"Found node with no children\n"RESET;
+			logstream << BYEL"Found node with no children\n" RESET;
 #endif
 		if (_getColour(node) == __s_node::BLACK)
 		{
@@ -308,7 +308,7 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 	if (_getColour(node) == __s_node::RED)
 	{
 #if MAP_DEBUG_VERBOSE == true
-			logstream << UCYN"Targeted node is red, remove it and don't fix tree"RESET << std::endl;
+			logstream << UCYN"Targeted node is red, remove it and don't fix tree" RESET << std::endl;
 #endif
 		_removeNodeWithSingleChild(node, child);
 	}
@@ -359,7 +359,7 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 	{
 		if (_getColour(node) == __s_node::RED) { // Went far enough up the tree, found red node
 #if MAP_DEBUG_VERBOSE == true
-				logstream << UCYN"In case 1 (red node)"RESET << std::endl;
+				logstream << UCYN"In case 1 (red node)" RESET << std::endl;
 #endif
 			node->colour = __s_node::BLACK;
 			return ;
@@ -367,7 +367,7 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 		else if (_getColour(node->brother()) == __s_node::RED) // case 2: red brother
 		{
 #if MAP_DEBUG_VERBOSE == true
-				logstream << UCYN"In case 2 (red brother)"RESET << std::endl;
+				logstream << UCYN"In case 2 (red brother)" RESET << std::endl;
 #endif
 			node->brother()->colour = __s_node::BLACK; // swap parent and brother's colours
 			node->parent->colour = __s_node::RED;
@@ -380,7 +380,7 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 			&& _getColour(node->brother()->right) == __s_node::BLACK)
 		{
 #if MAP_DEBUG_VERBOSE == true
-				logstream << UCYN"In case 3 (black brother and black nephews)"RESET << std::endl;
+				logstream << UCYN"In case 3 (black brother and black nephews)" RESET << std::endl;
 #endif
 			node->brother()->colour = __s_node::RED;
 			node = node->parent;
@@ -388,7 +388,7 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 		else // case 4: black brother, at least one red nephew
 		{
 #if MAP_DEBUG_VERBOSE == true
-				logstream << UCYN"In case 4 (black brother, at least one red nephew)"RESET << std::endl;
+				logstream << UCYN"In case 4 (black brother, at least one red nephew)" RESET << std::endl;
 #endif
 			if (node->isLeftChild()) // left symetry
 			{
@@ -396,7 +396,7 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 				if (_getColour(node->brother()->right) == __s_node::BLACK) // subcase: If far nephew isn't red
 				{
 #if MAP_DEBUG_VERBOSE == true
-						logstream << UCYN"In subcase 1, far nephew isn't red"RESET << std::endl;
+						logstream << UCYN"In subcase 1, far nephew isn't red" RESET << std::endl;
 #endif
 					node->brother()->rotateRight(&_root);
 					node->brother()->colour = __s_node::BLACK;
@@ -414,7 +414,7 @@ void	ft::map<Key, T, Compare, Allocator>::_eraseTreeFix(__s_node *node)
 				if (_getColour(node->brother()->left) == __s_node::BLACK) // If far nephew isn't red
 				{
 #if MAP_DEBUG_VERBOSE == true
-						logstream << UCYN"In subcase 1, far nephew isn't red"RESET << std::endl;
+						logstream << UCYN"In subcase 1, far nephew isn't red" RESET << std::endl;
 #endif
 					node->brother()->rotateLeft(&_root);
 					node->brother()->colour = __s_node::BLACK;
@@ -577,7 +577,7 @@ void	ft::map<Key, T, Compare, Allocator>::_postfix_dealloc(__s_node *root)
 	_postfix_dealloc(root->left);
 	_postfix_dealloc(root->right);
 #if MAP_DEBUG_VERBOSE == true
-		logstream << BBLU"DEBUG: _postfix_dealloc(): "RESET
+		logstream << BBLU "DEBUG: _postfix_dealloc(): " RESET
 			<< root->val.first << '\t' << root->val.second << std::endl;
 #endif
 	_allocator.destroy(root);
@@ -611,23 +611,23 @@ ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
 	{
 		case CORRECT_ROOT:
 #if MAP_DEBUG_VERBOSE == true
-				logstream << _BLU"DEBUG: insert case 1 for node " << node->val.first
-					<< " (recolor root)"RESET << std::endl;
+				logstream << _BLU "DEBUG: insert case 1 for node " << node->val.first
+					<< " (recolor root)" RESET << std::endl;
 #endif
 			node->colour = __s_node::BLACK;
 			return (ft::pair<iterator, bool>(retval, true));
 
 		case CORRECT_NOTHING:
 #if MAP_DEBUG_VERBOSE == true
-				logstream << _BLU"DEBUG: insert case 2 for node " << node->val.first
-					<< " (do nothing)"RESET << std::endl;
+				logstream << _BLU "DEBUG: insert case 2 for node " << node->val.first
+					<< " (do nothing)" RESET << std::endl;
 #endif
 			return (ft::pair<iterator, bool>(retval, true));
 
 		case CORRECT_COLOR:
 #if MAP_DEBUG_VERBOSE == true
-				logstream << _BLU"DEBUG: insert case 3 for node " << node->val.first
-					<< " (recolor parent, uncle and grandparent)"RESET << std::endl;
+				logstream << _BLU "DEBUG: insert case 3 for node " << node->val.first
+					<< " (recolor parent, uncle and grandparent)" RESET << std::endl;
 #endif
 			node->parent->colour = __s_node::BLACK;
 			node->uncle()->colour = __s_node::BLACK;
@@ -636,8 +636,8 @@ ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
 
 		case CORRECT_ROTATE:
 #if MAP_DEBUG_VERBOSE == true
-				logstream << _BLU"DEBUG: insert case 4 for node " << node->val.first
-					<< " (rotations and stuff)"RESET << std::endl;
+				logstream << _BLU "DEBUG: insert case 4 for node " << node->val.first
+					<< " (rotations and stuff)" RESET << std::endl;
 #endif
 			_correctInsertion_rotate(node);
 			return (ft::pair<iterator, bool>(retval, true));
@@ -701,10 +701,10 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 	{
 		std::queue<__s_node *>	queue;
 		queue.push(_root);
-		logstream << BLUB"  "RESET BBLU"DEBUG: Print by level"RESET << std::endl;
+		logstream << BLUB "  " RESET BBLU "DEBUG: Print by level" RESET << std::endl;
 		while (!queue.empty())
 		{
-			logstream << BLUB" "RESET" "
+			logstream << BLUB " " RESET " "
 				<< (queue.front()->colour == __s_node::RED ? REDB : BLKB)
 				<< queue.front()->val.first << " | " << queue.front()->val.second
 				<< RESET << std::endl;
@@ -720,13 +720,13 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 	{
 		std::queue<__s_node *>	queue;
 		queue.push(_root);
-		logstream << BLUB"  "RESET BBLU"DEBUG: Print by level"RESET << std::endl;
+		logstream << BLUB "  " RESET BBLU "DEBUG: Print by level" RESET << std::endl;
 		while (!queue.empty())
 		{
-			logstream << BLUB" "RESET" "
+			logstream << BLUB " " RESET " "
 				<< (queue.front()->colour == __s_node::RED ? REDB : BLKB)
 				<< queue.front()->val.first << " | " << queue.front()->val.second
-				<< RESET << (queue.front()->val.first == highlight_key ? BGRN"*"RESET : "")
+				<< RESET << (queue.front()->val.first == highlight_key ? BGRN"*" RESET : "")
 				<< std::endl;
 			if (!_isLeaf(queue.front()->left))
 				queue.push(queue.front()->left);
@@ -741,30 +741,30 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 		const_iterator	target = this->find(key);
 		if (target == this->end())
 			throw (std::logic_error("DEBUG: debug_printFamily: invalid key"));
-		logstream << BBLU"DEBUG: Family of node " << key << ": \n"RESET
-			<< _YEL"Parent: "RESET
+		logstream << BBLU "DEBUG: Family of node " << key << ": \n" RESET
+			<< _YEL"Parent: " RESET
 				<< (target._node->parent ? target._node->parent->val.first : 99999)
-				<< (_getColour(target._node->parent) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << '\n'
-			<< _RED"Left: "RESET
+				<< (_getColour(target._node->parent) == __s_node::BLACK ? " (B)" : " " REDB "(R)" RESET) << '\n'
+			<< _RED"Left: " RESET
 				<< (target._node->left ? target._node->left->val.first : 99999) << '\n'
-				<< (_getColour(target._node->left) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << '\n'
-			<< _GRN"Right: "RESET
+				<< (_getColour(target._node->left) == __s_node::BLACK ? " (B)" : " " REDB "(R)" RESET) << '\n'
+			<< _GRN"Right: " RESET
 				<< (target._node->right ? target._node->right->val.first : 99999)
-				<< (_getColour(target._node->right) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << std::endl;
+				<< (_getColour(target._node->right) == __s_node::BLACK ? " (B)" : " " REDB "(R)" RESET) << std::endl;
 	}
 	template <class Key, class T, class Compare, class Allocator>
 	void	ft::map<Key, T, Compare, Allocator>::debug_printFamily(__s_node const *node) const
 	{
-		logstream << BBLU"DEBUG: Family of node " << node->val.first << ": \n"RESET
-			<< _YEL"Parent: "RESET
+		logstream << BBLU "DEBUG: Family of node " << node->val.first << ": \n" RESET
+			<< _YEL "Parent: " RESET
 				<< (node->parent ? node->parent->val.first : 99999)
-				<< (_getColour(node->parent) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << '\n'
-			<< _RED"Left: "RESET
+				<< (_getColour(node->parent) == __s_node::BLACK ? " (B)" : " " REDB "(R)" RESET) << '\n'
+			<< _RED "Left: " RESET
 				<< (node->left ? node->left->val.first : 99999)
-				<< (_getColour(node->left) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << '\n'
-			<< _GRN"Right: "RESET
+				<< (_getColour(node->left) == __s_node::BLACK ? " (B)" : " " REDB "(R)" RESET) << '\n'
+			<< _GRN "Right: " RESET
 				<< (node->right ? node->right->val.first : 99999)
-				<< (_getColour(node->right) == __s_node::BLACK ? " (B)" : " "REDB"(R)"RESET) << std::endl;
+				<< (_getColour(node->right) == __s_node::BLACK ? " (B)" : " " REDB "(R)" RESET) << std::endl;
 	}
 
 #endif
