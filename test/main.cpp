@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 17:17:32 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 18:09:57 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,9 +72,9 @@ int	main(void)
 
 		NAMESP::map<std::string, std::string>::iterator it = map.end();
 		--it;
-		printMap("map", map);
+		map.debug_printTree();
 		map.erase(it);
-		printMap("map", map);
+		map.debug_printTree();
 	}
 	return 0;
 	newtest();

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 17:33:56 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 17:54:23 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,6 +307,8 @@ class map
 		void	debug_printByLevel(Key const& key) const;
 		void	debug_printFamily(Key const& key) const;
 		void	debug_printFamily(const __s_node *node) const;
+		void	debug_printTree(const __s_node *node, std::string prefix) const;
+		void	debug_printTree() const;
 #endif
 
 	private:
@@ -326,7 +328,7 @@ class map
 			_endLeaf->parent = newNode;
 		}
 		// NOTE: Leafs are considered to be NULL nodes or the _endLeaf marker
-		inline bool	_isLeaf(__s_node *node) const { return (node == NULL || node == _endLeaf || node == _dummy); }
+		inline bool	_isLeaf(const __s_node *node) const { return (node == NULL || node == _endLeaf || node == _dummy); }
 		inline typename __s_node::e_colour	_getColour(__s_node *node) const
 		{
 			return (_isLeaf(node) ? __s_node::BLACK : node->colour);

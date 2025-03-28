@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 17:39:48 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 18:07:02 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -765,6 +765,38 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 			<< _GRN "Right: " RESET
 				<< (node->right ? node->right->val.first : 99999)
 				<< (_getColour(node->right) == __s_node::BLACK ? " (B)" : " " REDB "(R)" RESET) << std::endl;
+	}
+
+	template <class Key, class T, class Compare, class Allocator>
+	void	ft::map<Key, T, Compare, Allocator>::debug_printTree(const __s_node *node, std::string prefix) const
+	{
+		if (_isLeaf(node))
+		{
+			if (node == _endLeaf)
+				logstream << prefix << (node->isLeftChild() ? "├──" : "└──" )
+					<< (node->colour == __s_node::RED ? REDB : BLKB)
+					<< "END LEAF" RESET << std::endl;
+			// else
+			// 	logstream << prefix << BLKB << "LEAF" RESET << std::endl;
+			return;
+		}
+
+        logstream << prefix << (node->isLeftChild() ? "├──" : "└──" );
+
+        // print the value of the node
+        logstream << (node->colour == __s_node::RED ? REDB : BLKB)
+			<< node->val.first << "," << node->val.second << RESET "\n";
+
+        // enter the next tree level - left and right branch
+        debug_printTree(node->left, prefix + (node->isLeftChild() ? "│   " : "    "));
+        debug_printTree(node->right, prefix + (node->isLeftChild() ? "│   " : "    "));
+	}
+
+	template <class Key, class T, class Compare, class Allocator>
+	void	ft::map<Key, T, Compare, Allocator>::debug_printTree() const
+	{
+		logstream << BLUB "  " RESET " " BBLU "DEBUG: Print tree" RESET << std::endl;
+		debug_printTree(_root, BLUB " " RESET " ");
 	}
 
 #endif

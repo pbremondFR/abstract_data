@@ -6,7 +6,7 @@
 #    By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/25 15:25:19 by pbremond          #+#    #+#              #
-#    Updated: 2024/11/14 19:58:04 by pbremond         ###   ########.fr        #
+#    Updated: 2025/03/28 17:32:50 by pbremond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -95,7 +95,7 @@ STD_NAME = std_containers_test
 ifdef BONUS
 	CXXFLAGS = -Wall -Wextra -Werror -Isrc -g -std=c++98 -D BONUS
 else
-	CXXFLAGS = -Wall -Wextra -Werror -Isrc -g -std=c++98
+	CXXFLAGS = -Wall -Wextra -Werror -Isrc -g3 -Og -std=c++98 -fsanitize=address,undefined
 endif
 
 all : $(FT_NAME) $(STD_NAME)
