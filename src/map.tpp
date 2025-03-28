@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 18:29:36 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 20:01:39 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,7 +308,7 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 	if (_getColour(node) == __s_node::RED)
 	{
 #if MAP_DEBUG_VERBOSE == true
-			logstream << UCYN "Targeted node is red, remove it and don't fix tree. Child is " << child << RESET << std::endl;
+			logstream << UCYN "Targeted node is red, remove it and don't fix tree" << RESET << std::endl;
 #endif
 		_removeNodeWithSingleChild(node, child);
 	}
@@ -319,6 +319,9 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 #endif
 		_removeNodeWithSingleChild(node, child);
 		_eraseTreeFix(child);
+		// In case root has a single red child & is removed, recolor it black
+		// otherwise the tree gets corrupted
+		_root->colour = __s_node::BLACK;
 	}
 	if (child == _dummy) {
 		if (child->isLeftChild())

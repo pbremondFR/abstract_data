@@ -8,3 +8,5 @@ subject-abstract-data.pdf
 monkey_tester/ft_*
 monkey_tester/std_*
 monkey_tester/monkey_says
+monkey_tester/.objs
+monkey_tester/*.txt
