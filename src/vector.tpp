@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 17:14:34 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 14:59:25 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 15:09:22 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,13 +141,13 @@ void	ft::vector<T, Allocator>::_do_assign(InputIt first, InputIt last,
 template < class T, class Allocator >
 template < class ForwardIt >
 void	ft::vector<T, Allocator>::_do_assign(ForwardIt first, ForwardIt last,
-	forward_iterator_tag)
+	random_access_iterator_tag)
 {
 	#if VEC_DEBUG_VERBOSE == true
 		std::cerr << _BLU"vector: assign: In forward iterator specialization"RESET << std::endl;
 	#endif
 
-	difference_type	newSize = ft::distance<ForwardIt>(first, last);
+	difference_type	newSize = ft::distance(first, last);
 
 	if (static_cast<size_type>(newSize) > _capacity)
 		this->reserve(newSize);
@@ -283,26 +283,30 @@ ft::vector<T, Allocator>::insert(iterator pos, InputIt first, InputIt last)
 template < class T, class Allocator >
 template < class InputIt >
 void	ft::vector<T, Allocator>::_do_insert(iterator pos, InputIt first, InputIt last,
-	std::input_iterator_tag)
+	input_iterator_tag)
 {
 	#if VEC_DEBUG_VERBOSE == true
 		std::cerr << _BLU"vector: insert: In input iterator specialization"RESET << std::endl;
 	#endif
 
-	for (; first != last; ++first, ++pos)
-		this->insert(pos, *first);
+	size_type pos_index = pos - begin();
+	for (; first != last; ++first)
+	{
+		this->insert(iterator(_array + pos_index), *first);
+		++pos_index;
+	}
 }
 
 template < class T, class Allocator >
 template < class ForwardIt >
 void	ft::vector<T, Allocator>::_do_insert(iterator pos, ForwardIt first, ForwardIt last,
-	std::forward_iterator_tag)
+	random_access_iterator_tag)
 {
 	#if VEC_DEBUG_VERBOSE == true
-		std::cerr << _BLU"vector: insert: In forward iterator specialization"RESET << std::endl;
+		std::cerr << _BLU"vector: insert: In random access iterator specialization"RESET << std::endl;
 	#endif
 
-	difference_type	count = std::distance(first, last);
+	difference_type	count = ft::distance(first, last);
 	if (_size + count > _capacity)
 	{
 		size_type	pos_index = pos - begin();

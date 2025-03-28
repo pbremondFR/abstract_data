@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:46:05 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 14:58:41 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 15:11:38 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,12 +144,12 @@ class vector
 		template<class InputIt>
 		void	_do_insert(iterator pos, InputIt first, InputIt last, std::input_iterator_tag);
 		template<class ForwardIt>
-		void	_do_insert(iterator pos, ForwardIt first, ForwardIt last, std::forward_iterator_tag);
+		void	_do_insert(iterator pos, ForwardIt first, ForwardIt last, std::random_access_iterator_tag);
 
 		template<class InputIt>
 		void	_do_assign(InputIt first, InputIt last, std::input_iterator_tag);
 		template<class ForwardIt>
-		void	_do_assign(ForwardIt first, ForwardIt last, std::forward_iterator_tag);
+		void	_do_assign(ForwardIt first, ForwardIt last, std::random_access_iterator_tag);
 
 		// SFINAE trick to know at compile time whether or not value_type has got
 		// a `void T.swap(T& other)` method. This allows optimizations further down the line.
@@ -163,9 +163,11 @@ class vector
 
 			template <typename U>
 				static int Test(...);
-
-			// static const bool value = ( sizeof(Test<value_type>(0)) == sizeof(char) );
+#ifdef VECTOR_SWAP_OPTIMIZE
+			static const bool value = ( sizeof(Test<value_type>(0)) == sizeof(char) );
+#else
 			static const bool value = false;
+#endif
 		};
 
 		// Shifts elements in the underlying array, using operator= for those already constructed,
