@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 20:01:26 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 22:33:11 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,14 +46,14 @@ class map
 	private:
 		struct __s_node
 		{
-			typedef typename	ft::pair<const Key, T>	value_type;
+			typedef typename	ft::pair<Key, T>	value_type;
 
 			__s_node	*parent;
 			__s_node	*left;
 			__s_node	*right;
 
 			value_type	val;
-			enum e_colour { RED, BLACK }	colour;
+			enum e_colour { RED, BLACK }	colour; // lmao we BRITISH around these parts my lad
 
 			__s_node() : parent(NULL), left(NULL), right(NULL), val(value_type()), colour(BLACK) {}
 
@@ -64,6 +64,16 @@ class map
 			val(src.val), colour(src.colour) {}
 
 			~__s_node() {}
+
+			__s_node& operator=(__s_node const& src)
+			{
+				this->parent = src.parent;
+				this->left = src.left;
+				this->right = src.right;
+				this->val = src.val;
+				this->colour = src.colour;
+				return *this;
+			}
 
 			inline void		toggleColour() { colour = (colour == RED ? BLACK : RED); }
 
@@ -165,8 +175,8 @@ class map
 
 				inline operator __map_iterator<const U>() const { return (this->_node); }
 
-				inline reference	operator*()  const { return(_node->val);  }
-				inline pointer		operator->() const { return(&_node->val); }
+				inline pointer		operator->() const	{ return reinterpret_cast<pointer>(&_node->val); }
+				inline reference	operator*()  const	{ return *operator->(); }
 
 				__map_iterator&	operator++();
 				__map_iterator	operator++(int);
