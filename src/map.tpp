@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 18:07:02 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 18:29:36 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,10 +274,10 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 
 #if MAP_DEBUG_VERBOSE == true
 		logstream << BBLU "DEBUG: Erasing node " << node->val.first << RESET << std::endl;
-		debug_printByLevel();
+		debug_printTree();
 #endif
 
-	if (!_isLeaf(node->left) && !_isLeaf(node->right))
+	if (!_isLeaf(node->left) && (!_isLeaf(node->right) || node->right == _endLeaf))
 	{
 #if MAP_DEBUG_VERBOSE == true
 			logstream << BYEL"Node has two children, replacing with predecessor...\n" RESET;
@@ -308,12 +308,15 @@ void	ft::map<Key, T, Compare, Allocator>::erase(iterator pos)
 	if (_getColour(node) == __s_node::RED)
 	{
 #if MAP_DEBUG_VERBOSE == true
-			logstream << UCYN"Targeted node is red, remove it and don't fix tree" RESET << std::endl;
+			logstream << UCYN "Targeted node is red, remove it and don't fix tree. Child is " << child << RESET << std::endl;
 #endif
 		_removeNodeWithSingleChild(node, child);
 	}
 	else
 	{
+#if MAP_DEBUG_VERBOSE == true
+			logstream << UCYN "Targeted node is black, remove it & DO fix tree" RESET << std::endl;
+#endif
 		_removeNodeWithSingleChild(node, child);
 		_eraseTreeFix(child);
 	}
@@ -793,10 +796,10 @@ void	ft::map<Key, T, Compare, Allocator>::_correctInsertion_rotate(__s_node *nod
 	}
 
 	template <class Key, class T, class Compare, class Allocator>
-	void	ft::map<Key, T, Compare, Allocator>::debug_printTree() const
+	void	ft::map<Key, T, Compare, Allocator>::debug_printTree(std::string prefix) const
 	{
-		logstream << BLUB "  " RESET " " BBLU "DEBUG: Print tree" RESET << std::endl;
-		debug_printTree(_root, BLUB " " RESET " ");
+		logstream << prefix << prefix << BBLU "DEBUG: Print tree" RESET << std::endl;
+		debug_printTree(_root, prefix);
 	}
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 17:54:23 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 18:30:24 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 #include <functional> // std::less
 #include <memory> // std::allocator
 
-#define MAP_DEBUG_VERBOSE	true
+#define MAP_DEBUG_VERBOSE	false
 
 #if MAP_DEBUG_VERBOSE == true
 # include "ansi_color.h"
@@ -308,7 +308,7 @@ class map
 		void	debug_printFamily(Key const& key) const;
 		void	debug_printFamily(const __s_node *node) const;
 		void	debug_printTree(const __s_node *node, std::string prefix) const;
-		void	debug_printTree() const;
+		void	debug_printTree(std::string prefix = BLUB " " RESET) const;
 #endif
 
 	private:
