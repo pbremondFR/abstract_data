@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2024/07/03 02:55:17 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 16:22:00 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,10 @@
 
 #include "map.hpp"
 
+#if MAP_DEBUG_VERBOSE == true
 template <class Key, class T, class Compare, class Allocator>
 std::ostream&	ft::map<Key, T, Compare, Allocator>::logstream = std::cerr;
+#endif
 
 // ============================================================================================== //
 // ------------------------------------------ ITERATOR ------------------------------------------ //

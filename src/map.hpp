@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2024/07/03 02:55:46 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 16:26:07 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #if MAP_DEBUG_VERBOSE == true
 # include "ansi_color.h"
 # include <queue>
+# include <iostream>
 #endif
 
 namespace ft
@@ -171,8 +172,8 @@ class map
 				__map_iterator&	operator--();
 				__map_iterator	operator--(int);
 
-				inline bool	operator==(__map_iterator const& rhs) { return (this->_node == rhs._node); }
-				inline bool	operator!=(__map_iterator const& rhs) { return (this->_node != rhs._node); }
+				inline bool	operator==(__map_iterator const& rhs) const { return (this->_node == rhs._node); }
+				inline bool	operator!=(__map_iterator const& rhs) const { return (this->_node != rhs._node); }
 		};
 
 	private:
@@ -184,7 +185,9 @@ class map
 		__s_node	*_dummy;
 		std::size_t	_size;
 
+#if MAP_DEBUG_VERBOSE == true
 		static std::ostream&	logstream; // Defined in map.tpp
+#endif
 
 	public:
 		typedef				Key										key_type;
@@ -287,14 +290,14 @@ class map
 		value_compare	value_comp() const { return (value_compare(_compare)); }
 
 		inline iterator			begin()		  { return (iterator(_root).goto_begin()); }
-		inline const_iterator	begin() const { return (iterator(_root).goto_begin()); }
+		inline const_iterator	begin() const { return (const_iterator(_root).goto_begin()); }
 		inline iterator			end()		{ return (iterator(_endLeaf)); }
-		inline const_iterator	end() const { return (iterator(_endLeaf)); }
+		inline const_iterator	end() const { return (const_iterator(_endLeaf)); }
 
 		inline reverse_iterator			rbegin()	   { return reverse_iterator(end()); }
-		inline const_reverse_iterator	rbegin() const { return reverse_iterator(end()); }
+		inline const_reverse_iterator	rbegin() const { return const_reverse_iterator(end()); }
 		inline reverse_iterator			rend()		 { return reverse_iterator(begin()); }
-		inline const_reverse_iterator	rend() const { return reverse_iterator(begin()); }
+		inline const_reverse_iterator	rend() const { return const_reverse_iterator(begin()); }
 
 #if MAP_DEBUG_VERBOSE == true
 		void	debug_leftRotate(Key const& key);
