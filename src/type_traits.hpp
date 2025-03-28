@@ -6,11 +6,13 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 06:44:44 by pbremond          #+#    #+#             */
-/*   Updated: 2024/06/07 16:19:29 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 16:49:51 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include "iterator.hpp"
 
 namespace ft
 {
@@ -77,46 +79,46 @@ template <>			struct is_floating_point<long double>	: public true_type {};
 
 template < class T >
 struct is_fundamental
-	: ft::integral_constant
+	: integral_constant
 	<
 		bool,
-		ft::is_integral<T>::value
-		|| ft::is_floating_point<T>::value
+		is_integral<T>::value
+		|| is_floating_point<T>::value
 	>
 {};
 
 template < class I >
 struct is_input_iterator
-	: ft::integral_constant
+	: integral_constant
 	<
 		bool,
-		ft::is_same<typename I::iterator_category, std::input_iterator_tag>::value
-		|| ft::is_same<typename I::iterator_category, std::forward_iterator_tag>::value
-		|| ft::is_same<typename I::iterator_category, std::bidirectional_iterator_tag>::value
-		|| ft::is_same<typename I::iterator_category, std::random_access_iterator_tag>::value
+		is_same<typename I::iterator_category, input_iterator_tag>::value
+		|| is_same<typename I::iterator_category, forward_iterator_tag>::value
+		|| is_same<typename I::iterator_category, bidirectional_iterator_tag>::value
+		|| is_same<typename I::iterator_category, random_access_iterator_tag>::value
 	>
 {};
 
 template < class I >
 struct is_output_iterator
-	: ft::integral_constant
+	: integral_constant
 	<
 		bool,
-		ft::is_same<typename I::iterator_category, std::output_iterator_tag>::value
-		|| ft::is_same<typename I::iterator_category, std::forward_iterator_tag>::value
-		|| ft::is_same<typename I::iterator_category, std::bidirectional_iterator_tag>::value
-		|| ft::is_same<typename I::iterator_category, std::random_access_iterator_tag>::value
+		is_same<typename I::iterator_category, output_iterator_tag>::value
+		|| is_same<typename I::iterator_category, forward_iterator_tag>::value
+		|| is_same<typename I::iterator_category, bidirectional_iterator_tag>::value
+		|| is_same<typename I::iterator_category, random_access_iterator_tag>::value
 	>
 {};
 
 template < class I >
 struct is_forward_iterator
-	: ft::integral_constant
+	: integral_constant
 	<
 		bool,
-		ft::is_same<typename I::iterator_category, std::forward_iterator_tag>::value
-		|| ft::is_same<typename I::iterator_category, std::bidirectional_iterator_tag>::value
-		|| ft::is_same<typename I::iterator_category, std::random_access_iterator_tag>::value
+		is_same<typename I::iterator_category, forward_iterator_tag>::value
+		|| is_same<typename I::iterator_category, bidirectional_iterator_tag>::value
+		|| is_same<typename I::iterator_category, random_access_iterator_tag>::value
 	>
 {};
 

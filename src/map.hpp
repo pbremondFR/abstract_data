@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 16:26:07 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 16:32:14 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "type_traits.hpp"
 #include "iterator.hpp"
 #include "algorithm.hpp"
+#include "exception.hpp"
 
 #include <cassert>
 #include <functional> // std::less
@@ -274,11 +275,11 @@ class map
 
 		ft::pair<iterator,iterator>				equal_range(Key const& key)
 		{
-			return (make_pair(lower_bound(key), upper_bound(key)));
+			return (ft::make_pair(lower_bound(key), upper_bound(key)));
 		}
 		ft::pair<const_iterator,const_iterator>	equal_range(Key const& key) const
 		{
-			return (make_pair(lower_bound(key), upper_bound(key)));
+			return (ft::make_pair(lower_bound(key), upper_bound(key)));
 		}
 
 		iterator		lower_bound(Key const& key);

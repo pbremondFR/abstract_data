@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 16:22:00 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/28 16:48:16 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,8 +211,6 @@ template <class Key, class T, class Compare, class Allocator>
 typename ft::map<Key, T, Compare, Allocator>::iterator
 	ft::map<Key, T, Compare, Allocator>::insert(iterator hint, value_type const& val)
 {
-	iterator	next = hint;
-
 #if MAP_DEBUG_VERBOSE == true
 		logstream << BCYN"Entering insert() hint overload."RESET << std::endl;
 #endif
@@ -220,10 +218,11 @@ typename ft::map<Key, T, Compare, Allocator>::iterator
 		return (this->insert(val).first);
 
 	Key	hintedKey = (hint)->first;
-	Key	nextKey   = (++next)->first;
+	iterator next = hint;
+	++next;
 
 	if (_compare(hintedKey, val.first) == true
-		&& (next == _endLeaf || _compare(val.first, nextKey) == true)) // hintedKey < val.first < nextKey
+		&& (next == _endLeaf || _compare(val.first, (next)->first) == true)) // hintedKey < val.first < nextKey
 	{
 #if MAP_DEBUG_VERBOSE == true
 			logstream << BCYN"Hint looks correct, trying to find slot..."RESET << std::endl;
@@ -448,7 +447,7 @@ T&	ft::map<Key, T, Compare, Allocator>::at(Key const& key)
 	if (target != this->end())
 		return (target->second);
 	else
-		throw (std::out_of_range("map::at: key not found"));
+		throw (ft::out_of_range("map::at: key not found"));
 }
 
 template <class Key, class T, class Compare, class Allocator>
@@ -458,7 +457,7 @@ T const&	ft::map<Key, T, Compare, Allocator>::at(Key const& key) const
 	if (target != this->end())
 		return (target->second);
 	else
-		throw (std::out_of_range("map::at: key not found"));
+		throw (ft::out_of_range("map::at: key not found"));
 }
 
 template <class Key, class T, class Compare, class Allocator>
