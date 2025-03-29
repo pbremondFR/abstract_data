@@ -6,7 +6,7 @@ CXXFLAGS ?= -Wall -Werror -Wextra -Wno-deprecated-copy
 SRCS_DIR = srcs
 
 # FILES = $(wildcard ${SRCS_DIR}/*.cpp)
-FILES = ${SRCS_DIR}/list.cpp ${SRCS_DIR}/vector.cpp ${SRCS_DIR}/map.cpp
+FILES = ${SRCS_DIR}/list.cpp ${SRCS_DIR}/vector.cpp ${SRCS_DIR}/map.cpp ${SRCS_DIR}/multimap.cpp
 
 CONTAINERS = $(FILES:${SRCS_DIR}/%.cpp=%)
 

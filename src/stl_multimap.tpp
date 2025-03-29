@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/29 11:01:47 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 14:50:01 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ ft::multimap<Key, T, Compare, Allocator>&
 }
 
 template <class Key, class T, class Compare, class Allocator>
-ft::pair<typename ft::multimap<Key, T, Compare, Allocator>::iterator, bool>
+typename ft::multimap<Key, T, Compare, Allocator>::iterator
 	ft::multimap<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: value_type is a key/value pair!!!
 {
 	__s_node	*tree = _root;
@@ -194,7 +194,8 @@ ft::pair<typename ft::multimap<Key, T, Compare, Allocator>::iterator, bool>
 			go_left = false;
 		}
 		else // If two keys are equal, unable to insert
-			return (ft::make_pair(iterator(tree), false));
+			// TODO: Temporary just to check compile-time validity, implementation needs to change!!!
+			return (ft::make_pair(iterator(tree), false).first);
 	}
 	++_size;
 	if (go_left) {
@@ -219,7 +220,7 @@ typename ft::multimap<Key, T, Compare, Allocator>::iterator
 		logstream << BCYN "Entering insert() hint overload." RESET << std::endl;
 #endif
 	if (hint == this->end())
-		return (this->insert(val).first);
+		return (this->insert(val));
 
 	Key	hintedKey = (hint)->first;
 	iterator next = hint;
@@ -240,20 +241,20 @@ typename ft::multimap<Key, T, Compare, Allocator>::iterator
 			if (_endLeaf->parent == hintNode)
 				_repositionEndLeaf(hintNode->right);
 			++_size;
-			return (_correctInsertion(hintNode->right, iterator(hintNode->right)).first);
+			return (_correctInsertion(hintNode->right, iterator(hintNode->right)));
 		}
 		else if (nextNode->left == NULL)
 		{
 			nextNode->left = _allocator.allocate(1);
 			_allocator.construct(nextNode->left, __s_node(val, nextNode));
 			++_size;
-			return (_correctInsertion(nextNode->left, iterator(nextNode->left)).first);
+			return (_correctInsertion(nextNode->left, iterator(nextNode->left)));
 		}
 	}
 #if MULTIMAP_DEBUG_VERBOSE == true
 		logstream << BRED "No insertion optimisation could be done." RESET << std::endl;
 #endif
-	return (this->insert(val).first);
+	return (this->insert(val));
 }
 
 template <class Key, class T, class Compare, class Allocator>
@@ -623,7 +624,7 @@ int	ft::multimap<Key, T, Compare, Allocator>::_checkInsertValidity(__s_node *nod
 // &retval is the value to be returned, which may not be an iterator to the same node at *node,
 // due to function recursiveness.
 template <class Key, class T, class Compare, class Allocator>
-ft::pair<typename ft::multimap<Key, T, Compare, Allocator>::iterator, bool>
+typename ft::multimap<Key, T, Compare, Allocator>::iterator
 	ft::multimap<Key, T, Compare, Allocator>::_correctInsertion(__s_node *node, iterator const& retval)
 {
 #if MULTIMAP_DEBUG_VERBOSE == true
@@ -638,14 +639,14 @@ ft::pair<typename ft::multimap<Key, T, Compare, Allocator>::iterator, bool>
 					<< " (recolor root)" RESET << std::endl;
 #endif
 			node->colour = __s_node::BLACK;
-			return (ft::pair<iterator, bool>(retval, true));
+			return (retval);
 
 		case CORRECT_NOTHING:
 #if MULTIMAP_DEBUG_VERBOSE == true
 				logstream << _BLU "DEBUG: insert case 2 for node " << node->val.first
 					<< " (do nothing)" RESET << std::endl;
 #endif
-			return (ft::pair<iterator, bool>(retval, true));
+			return (retval);
 
 		case CORRECT_COLOR:
 #if MULTIMAP_DEBUG_VERBOSE == true
@@ -663,9 +664,9 @@ ft::pair<typename ft::multimap<Key, T, Compare, Allocator>::iterator, bool>
 					<< " (rotations and stuff)" RESET << std::endl;
 #endif
 			_correctInsertion_rotate(node);
-			return (ft::pair<iterator, bool>(retval, true));
+			return (retval);
 	}
-	throw (std::logic_error("multimap: insert: _correctInsertion: unexpected fatal logic error"));
+	throw (ft::logic_error("multimap: insert: _correctInsertion: unexpected fatal logic error"));
 }
 
 template <class Key, class T, class Compare, class Allocator>

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/29 11:01:18 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 11:11:38 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,13 +265,13 @@ class multimap
 
 		void		clear();
 
-		ft::pair<iterator, bool>	insert(value_type const& val);
-		iterator					insert(iterator hint, value_type const& val);
+		iterator	insert(value_type const& val);
+		iterator	insert(iterator hint, value_type const& val);
 		template<class InputIt>
 		typename ft::enable_if <
 			!ft::is_fundamental<InputIt>::value,
 			void
-		>::type						insert(InputIt first, InputIt last);
+		>::type		insert(InputIt first, InputIt last);
 
 		void		erase(iterator pos);
 		void		erase(iterator first, iterator last);
@@ -319,10 +319,10 @@ class multimap
 #endif
 
 	private:
-		void	_postfix_dealloc(__s_node *root);
-		int		_checkInsertValidity(__s_node *node) const;
-		ft::pair<iterator, bool>	_correctInsertion(__s_node *node, iterator const& retval);
-		void	_correctInsertion_rotate(__s_node *node);
+		void		_postfix_dealloc(__s_node *root);
+		int			_checkInsertValidity(__s_node *node) const;
+		iterator	_correctInsertion(__s_node *node, iterator const& retval);
+		void		_correctInsertion_rotate(__s_node *node);
 		enum _e_correctAction {
 			CORRECT_ROOT,
 			CORRECT_NOTHING,
