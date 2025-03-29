@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 16:44:17 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/29 10:33:14 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 16:17:34 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ static void	newtest(void)
 
 void	lmartin_main(void);	// Never forget
 void	tests_list();
+void	tests_multimap();
 
 int	main(void)
 {
@@ -61,6 +62,8 @@ int	main(void)
 
 	// tests_list();
 	// return 0;
+	tests_multimap();
+	return 0;
 
 	newtest();
 	try

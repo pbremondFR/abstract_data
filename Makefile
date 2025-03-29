@@ -6,7 +6,7 @@
 #    By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/25 15:25:19 by pbremond          #+#    #+#              #
-#    Updated: 2025/03/28 17:32:50 by pbremond         ###   ########.fr        #
+#    Updated: 2025/03/29 16:17:53 by pbremond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -51,7 +51,8 @@ OBJ_DIR = objs
 # ============================================================================ #
 
 # Source files common to mandatory and bonus parts
-SRC_COMMON =	main.cpp	test.cpp	test_list.cpp	test_deque.cpp
+SRC_COMMON =	main.cpp	test.cpp	test_list.cpp	test_deque.cpp \
+	test_multimap.cpp
 
 # ============================================================================ #
 # ============================================================================ #

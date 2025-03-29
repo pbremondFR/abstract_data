@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/29 14:50:01 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 16:48:10 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,13 +189,10 @@ typename ft::multimap<Key, T, Compare, Allocator>::iterator
 			tree = tree->left;
 			go_left = true;
 		}
-		else if (this->_compare(tree->val.first, val.first) == true) {
+		else {
 			tree = tree->right;
 			go_left = false;
 		}
-		else // If two keys are equal, unable to insert
-			// TODO: Temporary just to check compile-time validity, implementation needs to change!!!
-			return (ft::make_pair(iterator(tree), false).first);
 	}
 	++_size;
 	if (go_left) {
@@ -226,8 +223,8 @@ typename ft::multimap<Key, T, Compare, Allocator>::iterator
 	iterator next = hint;
 	++next;
 
-	if (_compare(hintedKey, val.first) == true
-		&& (next == _endLeaf || _compare(val.first, (next)->first) == true)) // hintedKey < val.first < nextKey
+	if (!_compare(val.first, hintedKey) == true
+		&& (next == _endLeaf || !_compare(next->first, val.first) == true)) // hintedKey <= val.first <= nextKey
 	{
 #if MULTIMAP_DEBUG_VERBOSE == true
 			logstream << BCYN "Hint looks correct, trying to find slot..." RESET << std::endl;
@@ -350,13 +347,17 @@ template <class Key, class T, class Compare, class Allocator>
 typename ft::multimap<Key, T, Compare, Allocator>::size_type
 	ft::multimap<Key, T, Compare, Allocator>::erase(Key const& key)
 {
-	iterator target = find(key);
-	if (target == this->end())
-		return (0);
-	else {
-		erase(target);
-		return (1);
+	ft::pair<iterator, iterator>	range = equal_range(key);
+	size_type	count = 0;
+	if (range.first == end())
+		return 0;
+	while (range.first != range.second)
+	{
+		++count;
+		++range.first;
+		erase(ft::prev(range.first));
 	}
+	return count;
 }
 
 // https://www.cs.usfca.edu/~galles/visualization/RedBlack.html

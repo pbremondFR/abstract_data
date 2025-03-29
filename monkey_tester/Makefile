@@ -3,9 +3,9 @@ INCLUDE_PATH=../src
 CONTAINERS =list \
 	vector \
 	map \
+	multimap \
 	# deque \
 	# set \
-	# multimap \
 	# multiset \
 	# stack \
 	# priority_queue
