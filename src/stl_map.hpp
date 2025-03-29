@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/29 10:51:20 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 17:17:24 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,28 +44,27 @@ template <
 class map
 {
 	private:
+		template <class ValueType>
 		struct __s_node
 		{
-			typedef typename	ft::pair<Key, T>	value_type;
+			__s_node<ValueType>	*parent;
+			__s_node<ValueType>	*left;
+			__s_node<ValueType>	*right;
 
-			__s_node	*parent;
-			__s_node	*left;
-			__s_node	*right;
-
-			value_type	val;
+			ValueType	val;
 			enum e_colour { RED, BLACK }	colour; // lmao we BRITISH around these parts my lad
 
-			__s_node() : parent(NULL), left(NULL), right(NULL), val(value_type()), colour(BLACK) {}
+			__s_node() : parent(NULL), left(NULL), right(NULL), val(ValueType()), colour(BLACK) {}
 
-			__s_node(value_type const& value, __s_node *_parent) : parent(_parent), left(NULL),
+			__s_node(ValueType const& value, __s_node<ValueType> *_parent) : parent(_parent), left(NULL),
 			right(NULL), val(value), colour(RED) {}
 
-			__s_node(__s_node const& src) : parent(src.parent), left(src.left), right(src.right),
+			__s_node(__s_node<ValueType> const& src) : parent(src.parent), left(src.left), right(src.right),
 			val(src.val), colour(src.colour) {}
 
 			~__s_node() {}
 
-			__s_node& operator=(__s_node const& src)
+			__s_node<ValueType>& operator=(__s_node<ValueType> const& src)
 			{
 				this->parent = src.parent;
 				this->left = src.left;
@@ -77,13 +76,13 @@ class map
 
 			inline void		toggleColour() { colour = (colour == RED ? BLACK : RED); }
 
-			inline __s_node	*brother()
+			inline __s_node<ValueType>	*brother()
 			{
 				if (parent == NULL)
 					return (NULL);
 				return (this == parent->left ? parent->right : parent->left);
 			}
-			inline __s_node	*uncle()
+			inline __s_node<ValueType>	*uncle()
 			{
 				if (parent == NULL || parent->parent == NULL)
 					return (NULL);
@@ -92,12 +91,12 @@ class map
 
 			inline bool	isLeftChild() const { return (parent != NULL && this == parent->left); }
 
-			void	rotateLeft(__s_node **treeRoot)
+			void	rotateLeft(__s_node<ValueType> **treeRoot)
 			{
 #if MAP_DEBUG_VERBOSE == true
 					logstream << BBLU "DEBUG: " BRED "left rotate (" << this->val.first << ")" RESET << std::endl;
 #endif
-				__s_node	*son = this->right;
+				__s_node<ValueType>	*son = this->right;
 				if (son == NULL)
 					throw (std::logic_error("map: attempted to left-rotate with no right child"));
 				this->right = son->left;
@@ -114,12 +113,12 @@ class map
 				this->parent = son;
 			}
 
-			void	rotateRight(__s_node **treeRoot)
+			void	rotateRight(__s_node<ValueType> **treeRoot)
 			{
 #if MAP_DEBUG_VERBOSE == true
 					logstream << BBLU "DEBUG: " BGRN "right rotate (" << this->val.first << ")" RESET << std::endl;
 #endif
-				__s_node	*son = this->left;
+				__s_node<ValueType>	*son = this->left;
 				if (son == NULL)
 					throw (std::logic_error("map: attempted to right-rotate with no left child"));
 				this->left = son->right;
@@ -147,7 +146,7 @@ class map
 
 				typedef __map_iterator<U>	self;
 
-				__s_node	*_node;
+				__s_node< ft::pair<Key, T> >	*_node;
 
 				inline self& goto_begin()
 				{
@@ -167,7 +166,7 @@ class map
 				typedef U*								pointer;
 				typedef U&								reference;
 
-				__map_iterator(__s_node *node = NULL, bool goto_begin = false) : _node(node)
+				__map_iterator(__s_node< ft::pair<Key, T> > *node = NULL, bool goto_begin = false) : _node(node)
 				{
 					if (goto_begin == true && node != NULL)
 						this->goto_begin();
@@ -188,12 +187,13 @@ class map
 		};
 
 	private:
-		typedef typename	Allocator::template rebind<__s_node>::other	_Alloc;
+		typedef				__s_node< ft::pair<Key, T> >				_Node_t;
+		typedef typename	Allocator::template rebind<_Node_t>::other	_Alloc;
 		Compare		_compare;
 		_Alloc		_allocator;
-		__s_node	*_endLeaf;
-		__s_node	*_root;
-		__s_node	*_dummy;
+		_Node_t		*_endLeaf;
+		_Node_t		*_root;
+		_Node_t		*_dummy;
 		std::size_t	_size;
 
 #if MAP_DEBUG_VERBOSE == true
@@ -313,39 +313,39 @@ class map
 		void	debug_printByLevel() const;
 		void	debug_printByLevel(Key const& key) const;
 		void	debug_printFamily(Key const& key) const;
-		void	debug_printFamily(const __s_node *node) const;
-		void	debug_printTree(const __s_node *node, std::string prefix) const;
+		void	debug_printFamily(const _Node_t *node) const;
+		void	debug_printTree(const _Node_t *node, std::string prefix) const;
 		void	debug_printTree(std::string prefix = BLUB " " RESET) const;
 #endif
 
 	private:
-		void	_postfix_dealloc(__s_node *root);
-		int		_checkInsertValidity(__s_node *node) const;
-		ft::pair<iterator, bool>	_correctInsertion(__s_node *node, iterator const& retval);
-		void	_correctInsertion_rotate(__s_node *node);
+		void	_postfix_dealloc(_Node_t *root);
+		int		_checkInsertValidity(_Node_t *node) const;
+		ft::pair<iterator, bool>	_correctInsertion(_Node_t *node, iterator const& retval);
+		void	_correctInsertion_rotate(_Node_t *node);
 		enum _e_correctAction {
 			CORRECT_ROOT,
 			CORRECT_NOTHING,
 			CORRECT_COLOR,
 			CORRECT_ROTATE
 		};
-		inline void	_repositionEndLeaf(__s_node *newNode)
+		inline void	_repositionEndLeaf(_Node_t *newNode)
 		{
 			newNode->right = _endLeaf;
 			_endLeaf->parent = newNode;
 		}
 		// NOTE: Leafs are considered to be NULL nodes or the _endLeaf marker
-		inline bool	_isLeaf(const __s_node *node) const { return (node == NULL || node == _endLeaf || node == _dummy); }
-		inline typename __s_node::e_colour	_getColour(__s_node *node) const
+		inline bool	_isLeaf(const _Node_t *node) const { return (node == NULL || node == _endLeaf || node == _dummy); }
+		inline typename _Node_t::e_colour	_getColour(_Node_t *node) const
 		{
-			return (_isLeaf(node) ? __s_node::BLACK : node->colour);
+			return (_isLeaf(node) ? _Node_t::BLACK : node->colour);
 		}
-		__s_node	*_getBrotherOrDummy(__s_node *node)
+		_Node_t	*_getBrotherOrDummy(_Node_t *node)
 		{
-			__s_node	*bro = node->brother();
+			_Node_t	*bro = node->brother();
 			if (bro == NULL)
 			{
-				_dummy->colour = __s_node::BLACK;
+				_dummy->colour = _Node_t::BLACK;
 				_dummy->left = NULL;
 				_dummy->right = NULL;
 				_dummy->parent = (node->parent == NULL ? NULL : node->parent);
@@ -353,14 +353,14 @@ class map
 			}
 			return (bro);
 		}
-		inline __s_node *_brother(__s_node *node) { return (_getBrotherOrDummy(node)); }
+		inline _Node_t *_brother(_Node_t *node) { return (_getBrotherOrDummy(node)); }
 
 		// NOTE: Must NOT be called if node has more than one child!!!
-		void	_removeNodeWithSingleChild(__s_node *toDelete, __s_node *child = NULL)
+		void	_removeNodeWithSingleChild(_Node_t *toDelete, _Node_t *child = NULL)
 		{
 			if (child == NULL)
 				child = (_isLeaf(toDelete->left) ? toDelete->right : toDelete->left);
-			__s_node	*parent = toDelete->parent;
+			_Node_t	*parent = toDelete->parent;
 			if (child != NULL)
 				child->parent = parent;
 			if (parent != NULL) {
@@ -375,7 +375,7 @@ class map
 			_allocator.deallocate(toDelete, 1);
 		}
 
-		void	_eraseTreeFix(__s_node *);
+		void	_eraseTreeFix(_Node_t *);
 };
 
 template <class Key, class T, class Compare, class Alloc>
