@@ -4,8 +4,8 @@ CONTAINERS =list \
 	vector \
 	map \
 	multimap \
+	set \
 	# deque \
-	# set \
 	# multiset \
 	# stack \
 	# priority_queue

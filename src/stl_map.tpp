@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/29 17:03:24 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 18:11:58 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,6 +211,8 @@ ft::pair<typename ft::map<Key, T, Compare, Allocator>::iterator, bool>
 	}
 }
 
+// FIXME: Probably returns something wrong when inserting an already existing key
+// TESTME
 template <class Key, class T, class Compare, class Allocator>
 typename ft::map<Key, T, Compare, Allocator>::iterator
 	ft::map<Key, T, Compare, Allocator>::insert(iterator hint, value_type const& val)

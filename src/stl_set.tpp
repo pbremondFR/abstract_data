@@ -1,36 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   stl_multimap.tpp                                   :+:      :+:    :+:   */
+/*   stl_set.tpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/29 18:09:02 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 18:15:18 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "stl_multimap.hpp"
+#include "stl_set.hpp"
 
-#ifndef STL_MULTIMAP_HPP
-# error "You should never include this file! Instead, include multimap.hpp"
+#ifndef STL_SET_HPP
+# error "You should never include this file! Instead, include set.hpp"
 #endif
 
-#if MULTIMAP_DEBUG_VERBOSE == true
-template <class Key, class T, class Compare, class Allocator>
-std::ostream&	ft::multimap<Key, T, Compare, Allocator>::logstream = std::cerr;
+#if SET_DEBUG_VERBOSE == true
+template <class Key, class Compare, class Allocator>
+std::ostream&	ft::set<Key, Compare, Allocator>::logstream = std::cerr;
 #endif
 
 // ============================================================================================== //
 // ------------------------------------------ ITERATOR ------------------------------------------ //
 // ============================================================================================== //
 
-template <class Key, class T, class Compare, class Allocator>
+template <class Key, class Compare, class Allocator>
 template <class U>
-typename ft::multimap<Key, T, Compare, Allocator>::template __map_iterator<U>&
-	ft::multimap<Key, T, Compare, Allocator>::__map_iterator<U>::operator++()
+typename ft::set<Key, Compare, Allocator>::template __map_iterator<U>&
+	ft::set<Key, Compare, Allocator>::__map_iterator<U>::operator++()
 {
 	if (_node->right != NULL) // NOTE: Keep it like this. It allows to get to end leaf
 	{
@@ -50,20 +50,20 @@ typename ft::multimap<Key, T, Compare, Allocator>::template __map_iterator<U>&
 	return (*this);
 }
 
-template <class Key, class T, class Compare, class Allocator>
+template <class Key, class Compare, class Allocator>
 template <class U>
-typename ft::multimap<Key, T, Compare, Allocator>::template __map_iterator<U>
-	ft::multimap<Key, T, Compare, Allocator>::__map_iterator<U>::operator++(int)
+typename ft::set<Key, Compare, Allocator>::template __map_iterator<U>
+	ft::set<Key, Compare, Allocator>::__map_iterator<U>::operator++(int)
 {
 	__map_iterator<U>	tmp(*this);
 	this->operator++();
 	return (tmp);
 }
 
-template <class Key, class T, class Compare, class Allocator>
+template <class Key, class Compare, class Allocator>
 template <class U>
-typename ft::multimap<Key, T, Compare, Allocator>::template __map_iterator<U>&
-	ft::multimap<Key, T, Compare, Allocator>::__map_iterator<U>::operator--()
+typename ft::set<Key, Compare, Allocator>::template __map_iterator<U>&
+	ft::set<Key, Compare, Allocator>::__map_iterator<U>::operator--()
 {
 	if (_node->left != NULL)
 	{
@@ -83,10 +83,10 @@ typename ft::multimap<Key, T, Compare, Allocator>::template __map_iterator<U>&
 	return (*this);
 }
 
-template <class Key, class T, class Compare, class Allocator>
+template <class Key, class Compare, class Allocator>
 template <class U>
-typename ft::multimap<Key, T, Compare, Allocator>::template __map_iterator<U>
-	ft::multimap<Key, T, Compare, Allocator>::__map_iterator<U>::operator--(int)
+typename ft::set<Key, Compare, Allocator>::template __map_iterator<U>
+	ft::set<Key, Compare, Allocator>::__map_iterator<U>::operator--(int)
 {
 	__map_iterator<U>	tmp(*this);
 	this->operator--();
@@ -97,8 +97,8 @@ typename ft::multimap<Key, T, Compare, Allocator>::template __map_iterator<U>
 // --------------------------------------- PUBLIC METHODS --------------------------------------- //
 // ============================================================================================== //
 
-template <class Key, class T, class Compare, class Allocator>
-ft::multimap<Key, T, Compare, Allocator>::multimap(Compare const& comp, Allocator const& alloc)
+template <class Key, class Compare, class Allocator>
+ft::set<Key, Compare, Allocator>::set(Compare const& comp, Allocator const& alloc)
 	: _compare(comp), _allocator(alloc), _endLeaf(_allocator.allocate(1)), _root(_endLeaf),
 		_dummy(_allocator.allocate(1)), _size(0)
 {
@@ -113,9 +113,9 @@ ft::multimap<Key, T, Compare, Allocator>::multimap(Compare const& comp, Allocato
 	_dummy->right = NULL;
 }
 
-template <class Key, class T, class Compare, class Allocator>
+template <class Key, class Compare, class Allocator>
 template <class InputIt>
-ft::multimap<Key, T, Compare, Allocator>::multimap(InputIt first, InputIt last,
+ft::set<Key, Compare, Allocator>::set(InputIt first, InputIt last,
 										 Compare const& comp,
 										 Allocator const& alloc,
 										 typename enable_if< !is_fundamental<InputIt>::value, int >::type)
@@ -134,8 +134,8 @@ ft::multimap<Key, T, Compare, Allocator>::multimap(InputIt first, InputIt last,
 	this->insert(first, last);
 }
 
-template <class Key, class T, class Compare, class Allocator>
-ft::multimap<Key, T, Compare, Allocator>::multimap(multimap const& src)
+template <class Key, class Compare, class Allocator>
+ft::set<Key, Compare, Allocator>::set(set const& src)
 	: _compare(src._compare), _allocator(src._allocator), _endLeaf(_allocator.allocate(1)), _root(_endLeaf),
 		_dummy(_allocator.allocate(1)), _size(0)
 {
@@ -148,15 +148,15 @@ ft::multimap<Key, T, Compare, Allocator>::multimap(multimap const& src)
 	_dummy->parent = NULL;
 	_dummy->left = NULL;
 	_dummy->right = NULL;
-	for (multimap::const_iterator it = src.begin(); it != src.end(); ++it)
+	for (set::const_iterator it = src.begin(); it != src.end(); ++it)
 	{
 		this->insert(*it);
 	}
 }
 
-template <class Key, class T, class Compare, class Allocator>
-ft::multimap<Key, T, Compare, Allocator>&
-	ft::multimap<Key, T, Compare, Allocator>::operator=(multimap const& src)
+template <class Key, class Compare, class Allocator>
+ft::set<Key, Compare, Allocator>&
+	ft::set<Key, Compare, Allocator>::operator=(set const& src)
 {
 	this->clear();
 	this->_allocator = src._allocator;
@@ -165,9 +165,9 @@ ft::multimap<Key, T, Compare, Allocator>&
 	return (*this);
 }
 
-template <class Key, class T, class Compare, class Allocator>
-typename ft::multimap<Key, T, Compare, Allocator>::iterator
-	ft::multimap<Key, T, Compare, Allocator>::insert(value_type const& val) // NOTE: value_type is a key/value pair!!!
+template <class Key, class Compare, class Allocator>
+ft::pair<typename ft::set<Key, Compare, Allocator>::iterator, bool>
+	ft::set<Key, Compare, Allocator>::insert(value_type const& val) // NOTE: value_type is a key/value pair!!!
 {
 	_Node_t	*tree = _root;
 	_Node_t	*prev = NULL;
@@ -185,14 +185,16 @@ typename ft::multimap<Key, T, Compare, Allocator>::iterator
 	while (!_isLeaf(tree))
 	{
 		prev = tree;
-		if (this->_compare(val.first, tree->val.first) == true) {
+		if (this->_compare(val, tree->val) == true) {
 			tree = tree->left;
 			go_left = true;
 		}
-		else {
+		else if (this->_compare(tree->val, val) == true) {
 			tree = tree->right;
 			go_left = false;
 		}
+		else // If two keys are equal, unable to insert
+			return (ft::make_pair(iterator(tree), false));
 	}
 	++_size;
 	if (go_left) {
@@ -209,24 +211,24 @@ typename ft::multimap<Key, T, Compare, Allocator>::iterator
 	}
 }
 
-template <class Key, class T, class Compare, class Allocator>
-typename ft::multimap<Key, T, Compare, Allocator>::iterator
-	ft::multimap<Key, T, Compare, Allocator>::insert(iterator hint, value_type const& val)
+template <class Key, class Compare, class Allocator>
+typename ft::set<Key, Compare, Allocator>::iterator
+	ft::set<Key, Compare, Allocator>::insert(iterator hint, value_type const& val)
 {
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 		logstream << BCYN "Entering insert() hint overload." RESET << std::endl;
 #endif
 	if (hint == this->end())
-		return (this->insert(val));
+		return (this->insert(val).first);
 
-	Key	hintedKey = (hint)->first;
+	Key	const& hintedKey = *hint;
 	iterator next = hint;
 	++next;
 
-	if (!_compare(val.first, hintedKey) == true
-		&& (next == _endLeaf || !_compare(next->first, val.first) == true)) // hintedKey <= val.first <= nextKey
+	if (_compare(hintedKey, val) == true
+		&& (next == _endLeaf || _compare(val, *next) == true)) // hintedKey < val < nextKey
 	{
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 			logstream << BCYN "Hint looks correct, trying to find slot..." RESET << std::endl;
 #endif
 		_Node_t	*hintNode = hint._node;
@@ -238,30 +240,30 @@ typename ft::multimap<Key, T, Compare, Allocator>::iterator
 			if (_endLeaf->parent == hintNode)
 				_repositionEndLeaf(hintNode->right);
 			++_size;
-			return (_correctInsertion(hintNode->right, iterator(hintNode->right)));
+			return (_correctInsertion(hintNode->right, iterator(hintNode->right)).first);
 		}
 		else if (nextNode->left == NULL)
 		{
 			nextNode->left = _allocator.allocate(1);
 			_allocator.construct(nextNode->left, _Node_t(val, nextNode));
 			++_size;
-			return (_correctInsertion(nextNode->left, iterator(nextNode->left)));
+			return (_correctInsertion(nextNode->left, iterator(nextNode->left)).first);
 		}
 	}
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 		logstream << BRED "No insertion optimisation could be done." RESET << std::endl;
 #endif
-	return (this->insert(val));
+	return (this->insert(val).first);
 }
 
-template <class Key, class T, class Compare, class Allocator>
+template <class Key, class Compare, class Allocator>
 template <class InputIt>
 typename ft::enable_if
 <
 	!ft::is_fundamental<InputIt>::value,
 	void
 >::type
-	ft::multimap<Key, T, Compare, Allocator>::insert(InputIt first, InputIt last)
+	ft::set<Key, Compare, Allocator>::insert(InputIt first, InputIt last)
 {
 	for (; first != last; ++first)
 	{
@@ -269,19 +271,19 @@ typename ft::enable_if
 	}
 }
 
-template <class Key, class T, class Compare, class Allocator>
-void	ft::multimap<Key, T, Compare, Allocator>::erase(iterator pos)
+template <class Key, class Compare, class Allocator>
+void	ft::set<Key, Compare, Allocator>::erase(iterator pos)
 {
 	_Node_t	*node = pos._node;
 
-#if MULTIMAP_DEBUG_VERBOSE == true
-		logstream << BBLU "DEBUG: Erasing node " << node->val.first << RESET << std::endl;
+#if SET_DEBUG_VERBOSE == true
+		logstream << BBLU "DEBUG: Erasing node " << node->val << RESET << std::endl;
 		debug_printTree();
 #endif
 
 	if (!_isLeaf(node->left) && (!_isLeaf(node->right) || node->right == _endLeaf))
 	{
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 			logstream << BYEL"Node has two children, replacing with predecessor...\n" RESET;
 #endif
 		_Node_t	*src = node->left;
@@ -292,7 +294,7 @@ void	ft::multimap<Key, T, Compare, Allocator>::erase(iterator pos)
 	}
 	_Node_t	*child = _isLeaf(node->left) ? node->right : node->left;
 	if (child == NULL) {
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 			logstream << BYEL"Found node with no children\n" RESET;
 #endif
 		if (_getColour(node) == _Node_t::BLACK)
@@ -308,14 +310,14 @@ void	ft::multimap<Key, T, Compare, Allocator>::erase(iterator pos)
 
 	if (_getColour(node) == _Node_t::RED)
 	{
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 			logstream << UCYN "Targeted node is red, remove it and don't fix tree" << RESET << std::endl;
 #endif
 		_removeNodeWithSingleChild(node, child);
 	}
 	else
 	{
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 			logstream << UCYN "Targeted node is black, remove it & DO fix tree" RESET << std::endl;
 #endif
 		_removeNodeWithSingleChild(node, child);
@@ -334,8 +336,8 @@ void	ft::multimap<Key, T, Compare, Allocator>::erase(iterator pos)
 	--_size;
 }
 
-template <class Key, class T, class Compare, class Allocator>
-void	ft::multimap<Key, T, Compare, Allocator>::erase(iterator first, iterator last)
+template <class Key, class Compare, class Allocator>
+void	ft::set<Key, Compare, Allocator>::erase(iterator first, iterator last)
 {
 	while (first != last) {
 		++first;
@@ -343,33 +345,29 @@ void	ft::multimap<Key, T, Compare, Allocator>::erase(iterator first, iterator la
 	}
 }
 
-template <class Key, class T, class Compare, class Allocator>
-typename ft::multimap<Key, T, Compare, Allocator>::size_type
-	ft::multimap<Key, T, Compare, Allocator>::erase(Key const& key)
+template <class Key, class Compare, class Allocator>
+typename ft::set<Key, Compare, Allocator>::size_type
+	ft::set<Key, Compare, Allocator>::erase(Key const& key)
 {
-	ft::pair<iterator, iterator>	range = equal_range(key);
-	size_type	count = 0;
-	if (range.first == end())
-		return 0;
-	while (range.first != range.second)
-	{
-		++count;
-		++range.first;
-		erase(ft::prev(range.first));
+	iterator target = find(key);
+	if (target == this->end())
+		return (0);
+	else {
+		erase(target);
+		return (1);
 	}
-	return count;
 }
 
 // https://www.cs.usfca.edu/~galles/visualization/RedBlack.html
 // https://www.slideshare.net/ISquareIT/red-black-tree-insertion-deletion
 // node is a double black node, which is the child of deleted node
-template <class Key, class T, class Compare, class Allocator>
-void	ft::multimap<Key, T, Compare, Allocator>::_eraseTreeFix(_Node_t *node)
+template <class Key, class Compare, class Allocator>
+void	ft::set<Key, Compare, Allocator>::_eraseTreeFix(_Node_t *node)
 {
 	while (node != _root && node != NULL)
 	{
 		if (_getColour(node) == _Node_t::RED) { // Went far enough up the tree, found red node
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 				logstream << UCYN"In case 1 (red node)" RESET << std::endl;
 #endif
 			node->colour = _Node_t::BLACK;
@@ -377,7 +375,7 @@ void	ft::multimap<Key, T, Compare, Allocator>::_eraseTreeFix(_Node_t *node)
 		}
 		else if (_getColour(node->brother()) == _Node_t::RED) // case 2: red brother
 		{
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 				logstream << UCYN"In case 2 (red brother)" RESET << std::endl;
 #endif
 			node->brother()->colour = _Node_t::BLACK; // swap parent and brother's colours
@@ -390,7 +388,7 @@ void	ft::multimap<Key, T, Compare, Allocator>::_eraseTreeFix(_Node_t *node)
 		if (_getColour(node->brother()->left) == _Node_t::BLACK // case 3: black brother, black nephews
 			&& _getColour(node->brother()->right) == _Node_t::BLACK)
 		{
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 				logstream << UCYN"In case 3 (black brother and black nephews)" RESET << std::endl;
 #endif
 			node->brother()->colour = _Node_t::RED;
@@ -398,7 +396,7 @@ void	ft::multimap<Key, T, Compare, Allocator>::_eraseTreeFix(_Node_t *node)
 		}
 		else // case 4: black brother, at least one red nephew
 		{
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 				logstream << UCYN"In case 4 (black brother, at least one red nephew)" RESET << std::endl;
 #endif
 			if (node->isLeftChild()) // left symetry
@@ -406,7 +404,7 @@ void	ft::multimap<Key, T, Compare, Allocator>::_eraseTreeFix(_Node_t *node)
 				assert(node->brother() != NULL);
 				if (_getColour(node->brother()->right) == _Node_t::BLACK) // subcase: If far nephew isn't red
 				{
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 						logstream << UCYN"In subcase 1, far nephew isn't red" RESET << std::endl;
 #endif
 					node->brother()->rotateRight(&_root);
@@ -424,7 +422,7 @@ void	ft::multimap<Key, T, Compare, Allocator>::_eraseTreeFix(_Node_t *node)
 				assert(node->brother() != NULL);
 				if (_getColour(node->brother()->left) == _Node_t::BLACK) // If far nephew isn't red
 				{
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 						logstream << UCYN"In subcase 1, far nephew isn't red" RESET << std::endl;
 #endif
 					node->brother()->rotateLeft(&_root);
@@ -441,8 +439,8 @@ void	ft::multimap<Key, T, Compare, Allocator>::_eraseTreeFix(_Node_t *node)
 	}
 }
 
-template <class Key, class T, class Compare, class Allocator>
-void	ft::multimap<Key, T, Compare, Allocator>::swap(multimap& other)
+template <class Key, class Compare, class Allocator>
+void	ft::set<Key, Compare, Allocator>::swap(set& other)
 {
 	std::swap(this->_root, other._root);
 	std::swap(this->_allocator, other._allocator);
@@ -451,28 +449,28 @@ void	ft::multimap<Key, T, Compare, Allocator>::swap(multimap& other)
 	std::swap(this->_size, other._size);
 }
 
-// template <class Key, class T, class Compare, class Allocator>
-// T&	ft::multimap<Key, T, Compare, Allocator>::at(Key const& key)
+// template <class Key, class Compare, class Allocator>
+// T&	ft::set<Key, Compare, Allocator>::at(Key const& key)
 // {
 // 	iterator	target = this->find(key);
 // 	if (target != this->end())
 // 		return (target->second);
 // 	else
-// 		throw (ft::out_of_range("multimap::at: key not found"));
+// 		throw (ft::out_of_range("set::at: key not found"));
 // }
 
-// template <class Key, class T, class Compare, class Allocator>
-// T const&	ft::multimap<Key, T, Compare, Allocator>::at(Key const& key) const
+// template <class Key, class Compare, class Allocator>
+// T const&	ft::set<Key, Compare, Allocator>::at(Key const& key) const
 // {
 // 	const_iterator	target = this->find(key);
 // 	if (target != this->end())
 // 		return (target->second);
 // 	else
-// 		throw (ft::out_of_range("multimap::at: key not found"));
+// 		throw (ft::out_of_range("set::at: key not found"));
 // }
 
-// template <class Key, class T, class Compare, class Allocator>
-// T&	ft::multimap<Key, T, Compare, Allocator>::operator[](Key const& key)
+// template <class Key, class Compare, class Allocator>
+// T&	ft::set<Key, Compare, Allocator>::operator[](Key const& key)
 // {
 // 	iterator	target = this->find(key);
 // 	if (target != this->end())
@@ -481,25 +479,24 @@ void	ft::multimap<Key, T, Compare, Allocator>::swap(multimap& other)
 // 		return (this->insert(ft::make_pair(key, T())).first->second);
 // }
 
-template <class Key, class T, class Compare, class Allocator>
-typename ft::multimap<Key, T, Compare, Allocator>::size_type
-	ft::multimap<Key, T, Compare, Allocator>::count(Key const& key) const
+template <class Key, class Compare, class Allocator>
+typename ft::set<Key, Compare, Allocator>::size_type
+	ft::set<Key, Compare, Allocator>::count(Key const& key) const
 {
-	// FIXME: whoops I forgor
 	return (this->find(key) == this->end() ? 0 : 1);
 }
 
-template <class Key, class T, class Compare, class Allocator>
-typename ft::multimap<Key, T, Compare, Allocator>::iterator
-	ft::multimap<Key, T, Compare, Allocator>::find(Key const& key)
+template <class Key, class Compare, class Allocator>
+typename ft::set<Key, Compare, Allocator>::iterator
+	ft::set<Key, Compare, Allocator>::find(Key const& key)
 {
 	_Node_t	*node = _root;
 
 	while (!_isLeaf(node))
 	{
-		if (_compare(key, node->val.first) == true)
+		if (_compare(key, node->val) == true)
 			node = node->left;
-		else if (_compare(node->val.first, key) == true)
+		else if (_compare(node->val, key) == true)
 			node = node->right;
 		else
 			return (iterator(node));
@@ -507,17 +504,17 @@ typename ft::multimap<Key, T, Compare, Allocator>::iterator
 	return (this->end());
 }
 
-template <class Key, class T, class Compare, class Allocator>
-typename ft::multimap<Key, T, Compare, Allocator>::const_iterator
-	ft::multimap<Key, T, Compare, Allocator>::find(Key const& key) const
+template <class Key, class Compare, class Allocator>
+typename ft::set<Key, Compare, Allocator>::const_iterator
+	ft::set<Key, Compare, Allocator>::find(Key const& key) const
 {
 	_Node_t	*node = _root;
 
 	while (!_isLeaf(node))
 	{
-		if (_compare(key, node->val.first) == true)
+		if (_compare(key, node->val) == true)
 			node = node->left;
-		else if (_compare(node->val.first, key) == true)
+		else if (_compare(node->val, key) == true)
 			node = node->right;
 		else
 			return (const_iterator(node));
@@ -525,67 +522,67 @@ typename ft::multimap<Key, T, Compare, Allocator>::const_iterator
 	return (this->end());
 }
 
-template <class Key, class T, class Compare, class Allocator>
-void	ft::multimap<Key, T, Compare, Allocator>::clear(void)
+template <class Key, class Compare, class Allocator>
+void	ft::set<Key, Compare, Allocator>::clear(void)
 {
 	this->_postfix_dealloc(_root);
 	_root = _endLeaf;
 	_size = 0;
 }
 
-template <class Key, class T, class Compare, class Allocator>
+template <class Key, class Compare, class Allocator>
 ft::pair<
-	typename ft::multimap<Key, T, Compare, Allocator>::iterator,
-	typename ft::multimap<Key, T, Compare, Allocator>::iterator
+	typename ft::set<Key, Compare, Allocator>::iterator,
+	typename ft::set<Key, Compare, Allocator>::iterator
 >
-ft::multimap<Key, T, Compare, Allocator>::equal_range(Key const& key)
+ft::set<Key, Compare, Allocator>::equal_range(Key const& key)
 {
 	iterator lower = lower_bound(key);
 	iterator upper = lower;
-	while (upper != _endLeaf && _compare(key, upper->first) == false)
+	while (upper != _endLeaf && _compare(key, *upper) == false)
 		++upper;
 	return (ft::make_pair(lower, upper));
 }
 
-template <class Key, class T, class Compare, class Allocator>
-typename ft::multimap<Key, T, Compare, Allocator>::iterator
-	ft::multimap<Key, T, Compare, Allocator>::lower_bound(Key const& key)
+template <class Key, class Compare, class Allocator>
+typename ft::set<Key, Compare, Allocator>::iterator
+	ft::set<Key, Compare, Allocator>::lower_bound(Key const& key)
 {
 	for (iterator it = this->begin(); it != this->end(); ++it) {
-		if (_compare(it->first, key) == false)
+		if (_compare(*it, key) == false)
 			return (it);
 	}
 	return (this->end());
 }
 
-template <class Key, class T, class Compare, class Allocator>
-typename ft::multimap<Key, T, Compare, Allocator>::const_iterator
-	ft::multimap<Key, T, Compare, Allocator>::lower_bound(Key const& key) const
+template <class Key, class Compare, class Allocator>
+typename ft::set<Key, Compare, Allocator>::const_iterator
+	ft::set<Key, Compare, Allocator>::lower_bound(Key const& key) const
 {
 	for (const_iterator it = this->begin(); it != this->end(); ++it) {
-		if (_compare(it->first, key) == false)
+		if (_compare(*it, key) == false)
 			return (it);
 	}
 	return (this->end());
 }
 
-template <class Key, class T, class Compare, class Allocator>
-typename ft::multimap<Key, T, Compare, Allocator>::iterator
-	ft::multimap<Key, T, Compare, Allocator>::upper_bound(Key const& key)
+template <class Key, class Compare, class Allocator>
+typename ft::set<Key, Compare, Allocator>::iterator
+	ft::set<Key, Compare, Allocator>::upper_bound(Key const& key)
 {
 	for (iterator it = this->begin(); it != this->end(); ++it) {
-		if (_compare(key, it->first) == true)
+		if (_compare(key, *it) == true)
 			return (it);
 	}
 	return (this->end());
 }
 
-template <class Key, class T, class Compare, class Allocator>
-typename ft::multimap<Key, T, Compare, Allocator>::const_iterator
-	ft::multimap<Key, T, Compare, Allocator>::upper_bound(Key const& key) const
+template <class Key, class Compare, class Allocator>
+typename ft::set<Key, Compare, Allocator>::const_iterator
+	ft::set<Key, Compare, Allocator>::upper_bound(Key const& key) const
 {
 	for (const_iterator it = this->begin(); it != this->end(); ++it) {
-		if (_compare(key, it->first) == true)
+		if (_compare(key, *it) == true)
 			return (it);
 	}
 	return (this->end());
@@ -595,23 +592,23 @@ typename ft::multimap<Key, T, Compare, Allocator>::const_iterator
 // ------------------------------------- PRIVATE FUNCTIONS -------------------------------------- //
 // ============================================================================================== //
 
-template <class Key, class T, class Compare, class Allocator>
-void	ft::multimap<Key, T, Compare, Allocator>::_postfix_dealloc(_Node_t *root)
+template <class Key, class Compare, class Allocator>
+void	ft::set<Key, Compare, Allocator>::_postfix_dealloc(_Node_t *root)
 {
 	if (_isLeaf(root))
 		return ;
 	_postfix_dealloc(root->left);
 	_postfix_dealloc(root->right);
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 		logstream << BBLU "DEBUG: _postfix_dealloc(): " RESET
-			<< root->val.first << '\t' << root->val.second << std::endl;
+			<< root->val << '\t' << root->val.second << std::endl;
 #endif
 	_allocator.destroy(root);
 	_allocator.deallocate(root, 1);
 }
 
-template <class Key, class T, class Compare, class Allocator>
-int	ft::multimap<Key, T, Compare, Allocator>::_checkInsertValidity(_Node_t *node) const
+template <class Key, class Compare, class Allocator>
+int	ft::set<Key, Compare, Allocator>::_checkInsertValidity(_Node_t *node) const
 {
 	if (node->parent == NULL)
 		return (CORRECT_ROOT);
@@ -625,34 +622,34 @@ int	ft::multimap<Key, T, Compare, Allocator>::_checkInsertValidity(_Node_t *node
 
 // &retval is the value to be returned, which may not be an iterator to the same node at *node,
 // due to function recursiveness.
-template <class Key, class T, class Compare, class Allocator>
-typename ft::multimap<Key, T, Compare, Allocator>::iterator
-	ft::multimap<Key, T, Compare, Allocator>::_correctInsertion(_Node_t *node, iterator const& retval)
+template <class Key, class Compare, class Allocator>
+ft::pair<typename ft::set<Key, Compare, Allocator>::iterator, bool>
+	ft::set<Key, Compare, Allocator>::_correctInsertion(_Node_t *node, iterator const& retval)
 {
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 		logstream << std::endl;
-		debug_printByLevel(node->val.first);
+		debug_printByLevel(node->val);
 #endif
 	switch (_checkInsertValidity(node))
 	{
 		case CORRECT_ROOT:
-#if MULTIMAP_DEBUG_VERBOSE == true
-				logstream << _BLU "DEBUG: insert case 1 for node " << node->val.first
+#if SET_DEBUG_VERBOSE == true
+				logstream << _BLU "DEBUG: insert case 1 for node " << node->val
 					<< " (recolor root)" RESET << std::endl;
 #endif
 			node->colour = _Node_t::BLACK;
-			return (retval);
+			return (ft::pair<iterator, bool>(retval, true));
 
 		case CORRECT_NOTHING:
-#if MULTIMAP_DEBUG_VERBOSE == true
-				logstream << _BLU "DEBUG: insert case 2 for node " << node->val.first
+#if SET_DEBUG_VERBOSE == true
+				logstream << _BLU "DEBUG: insert case 2 for node " << node->val
 					<< " (do nothing)" RESET << std::endl;
 #endif
-			return (retval);
+			return (ft::pair<iterator, bool>(retval, true));
 
 		case CORRECT_COLOR:
-#if MULTIMAP_DEBUG_VERBOSE == true
-				logstream << _BLU "DEBUG: insert case 3 for node " << node->val.first
+#if SET_DEBUG_VERBOSE == true
+				logstream << _BLU "DEBUG: insert case 3 for node " << node->val
 					<< " (recolor parent, uncle and grandparent)" RESET << std::endl;
 #endif
 			node->parent->colour = _Node_t::BLACK;
@@ -661,18 +658,18 @@ typename ft::multimap<Key, T, Compare, Allocator>::iterator
 			return (_correctInsertion(node->parent->parent, retval));
 
 		case CORRECT_ROTATE:
-#if MULTIMAP_DEBUG_VERBOSE == true
-				logstream << _BLU "DEBUG: insert case 4 for node " << node->val.first
+#if SET_DEBUG_VERBOSE == true
+				logstream << _BLU "DEBUG: insert case 4 for node " << node->val
 					<< " (rotations and stuff)" RESET << std::endl;
 #endif
 			_correctInsertion_rotate(node);
-			return (retval);
+			return (ft::pair<iterator, bool>(retval, true));
 	}
-	throw (ft::logic_error("multimap: insert: _correctInsertion: unexpected fatal logic error"));
+	throw (std::logic_error("set: insert: _correctInsertion: unexpected fatal logic error"));
 }
 
-template <class Key, class T, class Compare, class Allocator>
-void	ft::multimap<Key, T, Compare, Allocator>::_correctInsertion_rotate(_Node_t *node)
+template <class Key, class Compare, class Allocator>
+void	ft::set<Key, Compare, Allocator>::_correctInsertion_rotate(_Node_t *node)
 {
 	_Node_t	*grandparent = node->parent->parent;
 
@@ -702,10 +699,10 @@ void	ft::multimap<Key, T, Compare, Allocator>::_correctInsertion_rotate(_Node_t 
 // -------------------------------------- DEBUG FUNCTIONS --------------------------------------- //
 // ============================================================================================== //
 
-#if MULTIMAP_DEBUG_VERBOSE == true
+#if SET_DEBUG_VERBOSE == true
 
-	template <class Key, class T, class Compare, class Allocator>
-	void	ft::multimap<Key, T, Compare, Allocator>::debug_leftRotate(Key const& key)
+	template <class Key, class Compare, class Allocator>
+	void	ft::set<Key, Compare, Allocator>::debug_leftRotate(Key const& key)
 	{
 		iterator	target = this->find(key);
 		if (target == this->end())
@@ -713,8 +710,8 @@ void	ft::multimap<Key, T, Compare, Allocator>::_correctInsertion_rotate(_Node_t 
 		target._node->rotateLeft(&_root);
 	}
 
-	template <class Key, class T, class Compare, class Allocator>
-	void	ft::multimap<Key, T, Compare, Allocator>::debug_rightRotate(Key const& key)
+	template <class Key, class Compare, class Allocator>
+	void	ft::set<Key, Compare, Allocator>::debug_rightRotate(Key const& key)
 	{
 		iterator	target = this->find(key);
 		if (target == this->end())
@@ -722,8 +719,8 @@ void	ft::multimap<Key, T, Compare, Allocator>::_correctInsertion_rotate(_Node_t 
 		target._node->rotateRight(&_root);
 	}
 
-	template <class Key, class T, class Compare, class Allocator>
-	void	ft::multimap<Key, T, Compare, Allocator>::debug_printByLevel() const
+	template <class Key, class Compare, class Allocator>
+	void	ft::set<Key, Compare, Allocator>::debug_printByLevel() const
 	{
 		std::queue<_Node_t *>	queue;
 		queue.push(_root);
@@ -732,7 +729,7 @@ void	ft::multimap<Key, T, Compare, Allocator>::_correctInsertion_rotate(_Node_t 
 		{
 			logstream << BLUB " " RESET " "
 				<< (queue.front()->colour == _Node_t::RED ? REDB : BLKB)
-				<< queue.front()->val.first << " | " << queue.front()->val.second
+				<< queue.front()->val << " | " << queue.front()->val.second
 				<< RESET << std::endl;
 			if (!_isLeaf(queue.front()->left))
 				queue.push(queue.front()->left);
@@ -741,8 +738,8 @@ void	ft::multimap<Key, T, Compare, Allocator>::_correctInsertion_rotate(_Node_t 
 			queue.pop();
 		}
 	}
-	template <class Key, class T, class Compare, class Allocator>
-	void	ft::multimap<Key, T, Compare, Allocator>::debug_printByLevel(Key const& highlight_key) const
+	template <class Key, class Compare, class Allocator>
+	void	ft::set<Key, Compare, Allocator>::debug_printByLevel(Key const& highlight_key) const
 	{
 		std::queue<_Node_t *>	queue;
 		queue.push(_root);
@@ -751,8 +748,8 @@ void	ft::multimap<Key, T, Compare, Allocator>::_correctInsertion_rotate(_Node_t 
 		{
 			logstream << BLUB " " RESET " "
 				<< (queue.front()->colour == _Node_t::RED ? REDB : BLKB)
-				<< queue.front()->val.first << " | " << queue.front()->val.second
-				<< RESET << (queue.front()->val.first == highlight_key ? BGRN"*" RESET : "")
+				<< queue.front()->val << " | " << queue.front()->val.second
+				<< RESET << (queue.front()->val == highlight_key ? BGRN"*" RESET : "")
 				<< std::endl;
 			if (!_isLeaf(queue.front()->left))
 				queue.push(queue.front()->left);
@@ -761,40 +758,40 @@ void	ft::multimap<Key, T, Compare, Allocator>::_correctInsertion_rotate(_Node_t 
 			queue.pop();
 		}
 	}
-	template <class Key, class T, class Compare, class Allocator>
-	void	ft::multimap<Key, T, Compare, Allocator>::debug_printFamily(Key const& key) const
+	template <class Key, class Compare, class Allocator>
+	void	ft::set<Key, Compare, Allocator>::debug_printFamily(Key const& key) const
 	{
 		const_iterator	target = this->find(key);
 		if (target == this->end())
 			throw (std::logic_error("DEBUG: debug_printFamily: invalid key"));
 		logstream << BBLU "DEBUG: Family of node " << key << ": \n" RESET
 			<< _YEL"Parent: " RESET
-				<< (target._node->parent ? target._node->parent->val.first : 99999)
+				<< (target._node->parent ? target._node->parent->val : 99999)
 				<< (_getColour(target._node->parent) == _Node_t::BLACK ? " (B)" : " " REDB "(R)" RESET) << '\n'
 			<< _RED"Left: " RESET
-				<< (target._node->left ? target._node->left->val.first : 99999) << '\n'
+				<< (target._node->left ? target._node->left->val : 99999) << '\n'
 				<< (_getColour(target._node->left) == _Node_t::BLACK ? " (B)" : " " REDB "(R)" RESET) << '\n'
 			<< _GRN"Right: " RESET
-				<< (target._node->right ? target._node->right->val.first : 99999)
+				<< (target._node->right ? target._node->right->val : 99999)
 				<< (_getColour(target._node->right) == _Node_t::BLACK ? " (B)" : " " REDB "(R)" RESET) << std::endl;
 	}
-	template <class Key, class T, class Compare, class Allocator>
-	void	ft::multimap<Key, T, Compare, Allocator>::debug_printFamily(_Node_t const *node) const
+	template <class Key, class Compare, class Allocator>
+	void	ft::set<Key, Compare, Allocator>::debug_printFamily(_Node_t const *node) const
 	{
-		logstream << BBLU "DEBUG: Family of node " << node->val.first << ": \n" RESET
+		logstream << BBLU "DEBUG: Family of node " << node->val << ": \n" RESET
 			<< _YEL "Parent: " RESET
-				<< (node->parent ? node->parent->val.first : 99999)
+				<< (node->parent ? node->parent->val : 99999)
 				<< (_getColour(node->parent) == _Node_t::BLACK ? " (B)" : " " REDB "(R)" RESET) << '\n'
 			<< _RED "Left: " RESET
-				<< (node->left ? node->left->val.first : 99999)
+				<< (node->left ? node->left->val : 99999)
 				<< (_getColour(node->left) == _Node_t::BLACK ? " (B)" : " " REDB "(R)" RESET) << '\n'
 			<< _GRN "Right: " RESET
-				<< (node->right ? node->right->val.first : 99999)
+				<< (node->right ? node->right->val : 99999)
 				<< (_getColour(node->right) == _Node_t::BLACK ? " (B)" : " " REDB "(R)" RESET) << std::endl;
 	}
 
-	template <class Key, class T, class Compare, class Allocator>
-	void	ft::multimap<Key, T, Compare, Allocator>::debug_printTree(const _Node_t *node, std::string prefix) const
+	template <class Key, class Compare, class Allocator>
+	void	ft::set<Key, Compare, Allocator>::debug_printTree(const _Node_t *node, std::string prefix) const
 	{
 		if (_isLeaf(node))
 		{
@@ -811,15 +808,15 @@ void	ft::multimap<Key, T, Compare, Allocator>::_correctInsertion_rotate(_Node_t 
 
         // print the value of the node
         logstream << (node->colour == _Node_t::RED ? REDB : BLKB)
-			<< node->val.first << "," << node->val.second << RESET "\n";
+			<< node->val << "," << node->val.second << RESET "\n";
 
         // enter the next tree level - left and right branch
         debug_printTree(node->left, prefix + (node->isLeftChild() ? "│   " : "    "));
         debug_printTree(node->right, prefix + (node->isLeftChild() ? "│   " : "    "));
 	}
 
-	template <class Key, class T, class Compare, class Allocator>
-	void	ft::multimap<Key, T, Compare, Allocator>::debug_printTree(std::string prefix) const
+	template <class Key, class Compare, class Allocator>
+	void	ft::set<Key, Compare, Allocator>::debug_printTree(std::string prefix) const
 	{
 		logstream << prefix << prefix << BBLU "DEBUG: Print tree" RESET << std::endl;
 		debug_printTree(_root, prefix);
