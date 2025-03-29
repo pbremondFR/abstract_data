@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 22:33:11 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 02:09:14 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -283,13 +283,10 @@ class map
 		iterator		find(Key const& key);
 		const_iterator	find(Key const& key) const;
 
-		ft::pair<iterator,iterator>				equal_range(Key const& key)
-		{
-			return (ft::make_pair(lower_bound(key), upper_bound(key)));
-		}
+		ft::pair<iterator,iterator>				equal_range(Key const& key);
 		ft::pair<const_iterator,const_iterator>	equal_range(Key const& key) const
 		{
-			return (ft::make_pair(lower_bound(key), upper_bound(key)));
+			return static_cast<ft::pair<const_iterator, const_iterator> >(this->equal_range(key));
 		}
 
 		iterator		lower_bound(Key const& key);

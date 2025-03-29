@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 22:33:30 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 02:08:32 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -524,6 +524,20 @@ void	ft::map<Key, T, Compare, Allocator>::clear(void)
 	this->_postfix_dealloc(_root);
 	_root = _endLeaf;
 	_size = 0;
+}
+
+template <class Key, class T, class Compare, class Allocator>
+ft::pair<
+	typename ft::map<Key, T, Compare, Allocator>::iterator,
+	typename ft::map<Key, T, Compare, Allocator>::iterator
+>
+ft::map<Key, T, Compare, Allocator>::equal_range(Key const& key)
+{
+	iterator lower = lower_bound(key);
+	iterator upper = lower;
+	while (upper != _endLeaf && _compare(key, upper->first) == false)
+		++upper;
+	return (ft::make_pair(lower, upper));
 }
 
 template <class Key, class T, class Compare, class Allocator>
