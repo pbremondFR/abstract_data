@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/29 18:09:02 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 18:20:45 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -451,42 +451,20 @@ void	ft::multimap<Key, T, Compare, Allocator>::swap(multimap& other)
 	std::swap(this->_size, other._size);
 }
 
-// template <class Key, class T, class Compare, class Allocator>
-// T&	ft::multimap<Key, T, Compare, Allocator>::at(Key const& key)
-// {
-// 	iterator	target = this->find(key);
-// 	if (target != this->end())
-// 		return (target->second);
-// 	else
-// 		throw (ft::out_of_range("multimap::at: key not found"));
-// }
-
-// template <class Key, class T, class Compare, class Allocator>
-// T const&	ft::multimap<Key, T, Compare, Allocator>::at(Key const& key) const
-// {
-// 	const_iterator	target = this->find(key);
-// 	if (target != this->end())
-// 		return (target->second);
-// 	else
-// 		throw (ft::out_of_range("multimap::at: key not found"));
-// }
-
-// template <class Key, class T, class Compare, class Allocator>
-// T&	ft::multimap<Key, T, Compare, Allocator>::operator[](Key const& key)
-// {
-// 	iterator	target = this->find(key);
-// 	if (target != this->end())
-// 		return (target->second);
-// 	else
-// 		return (this->insert(ft::make_pair(key, T())).first->second);
-// }
-
 template <class Key, class T, class Compare, class Allocator>
 typename ft::multimap<Key, T, Compare, Allocator>::size_type
 	ft::multimap<Key, T, Compare, Allocator>::count(Key const& key) const
 {
-	// FIXME: whoops I forgor
-	return (this->find(key) == this->end() ? 0 : 1);
+	ft::pair<iterator, iterator>	range = equal_range(key);
+	size_type	count = 0;
+	if (range.first == end())
+		return 0;
+	while (range.first != range.second)
+	{
+		++count;
+		++range.first;
+	}
+	return count;
 }
 
 template <class Key, class T, class Compare, class Allocator>

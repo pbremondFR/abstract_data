@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/29 17:17:06 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 18:20:59 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,10 +255,6 @@ class multimap
 		allocator_type	get_allocator() const { return (_allocator); }
 
 	public:
-		// T&			at(Key const& key);
-		// T const&	at(Key const& key) const;
-		// T&			operator[](Key const& key);
-
 		bool		empty() const { return (_size == 0); }
 		size_type	size() const { return (_size); }
 		size_type	max_size() const { return (_allocator.max_size()); }
