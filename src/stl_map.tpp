@@ -1,18 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map.tpp                                            :+:      :+:    :+:   */
+/*   stl_map.tpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:58:33 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/29 02:08:32 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 10:51:29 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "map.hpp"
+// #include "stl_map.hpp"
+
+#ifndef STL_MAP_HPP
+# error "You should never include this file! Instead, include map.hpp"
+#endif
 
 #if MAP_DEBUG_VERBOSE == true
 template <class Key, class T, class Compare, class Allocator>

@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map.hpp                                            :+:      :+:    :+:   */
+/*   stl_map.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 10:10:28 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/29 02:09:14 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/29 10:51:20 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // #pragma once
-#ifndef MAP_HPP
-#define MAP_HPP
+#ifndef STL_MAP_HPP
+#define STL_MAP_HPP
 
 #include "utility.hpp"
 #include "type_traits.hpp"
@@ -437,6 +437,6 @@ namespace std
 	}
 }
 
-#include "map.tpp"
+#include "stl_map.tpp"
 
 #endif
