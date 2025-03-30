@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   hashmap.hpp                                        :+:      :+:    :+:   */
+/*   Hashtable.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/30 06:18:03 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/30 15:43:04 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,9 @@ private:
 		}
 	};
 
+	/*
+	* Allocate a new node and push it at the front of the given list.
+	*/
 	_Node*	push_node(_Node **list, ValueType const& value)
 	{
 		_Node *new_node = _Node::create(*list, value);
@@ -141,6 +144,21 @@ private:
 			prev->next = node->next;
 		_allocator.destroy(node);
 		_allocator.deallocate(node, 1);
+	}
+	void	remove_node_range(_Node **list, _Node *prev_begin, _Node *end)
+	{
+		_Node *node = prev_begin ? prev_begin->next : *list;
+		while (node && node != end)
+		{
+			_Node *next = node->next;
+			_allocator.destroy(node);
+			_allocator.deallocate(node, 1);
+			node = next;
+		}
+		if (prev_begin == NULL)
+			*list = end;
+		else
+			prev_begin->next = end;
 	}
 
 public:
@@ -226,6 +244,10 @@ public:
 		return new_node;
 	}
 
+	/*
+	* Returns a pointer to the first node matching key, or NULL if none is found.
+	* The returned node is always valid (cannot be _end).
+	*/
 	_Node*	equal_unique(key_type const& key)
 	{
 		size_t idx = _hash_function(key) % _bucket_count;
@@ -239,6 +261,11 @@ public:
 		return NULL;
 	}
 
+	/*
+	* Returns a pair pointers to the range matching given key in format [begin, end)
+	* If the range does not exist, returns {NULL, NULL}. The second pointer may be
+	* the _end node.
+	*/
 	ft::pair<_Node*, _Node*>	equal_range(key_type const& key)
 	{
 		_Node *range_begin = equal_unique(key);
@@ -250,9 +277,51 @@ public:
 		return ft::make_pair(range_begin, range_end);
 	}
 
-	size_type	erase_range(ket_type const& key)
+	/*
+	* Erase a single node. Returns 1 if node was erased, 0 otherwise.
+	*/
+	size_type	erase_unique(key_type const& key)
 	{
+		size_type idx = _hash_function(key) % _bucket_count;
+		_Node *head = _buckets[idx];
+		_Node *prev = NULL;
+		while (head && head != _end)
+		{
+			if (_key_equal(head, key))
+			{
+				remove_node(&_buckets[idx], prev);
+				return 1;
+			}
+			prev = head;
+			head = head->next;
+		}
+		return 0;
+	}
 
+	/*
+	* Erases all nodes matching given key. Returns the amount of nodes erased.
+	*/
+	size_type	erase_range(key_type const& key)
+	{
+		size_type idx = _hash_function(key) % _bucket_count;
+		_Node *head = _buckets[idx];
+		_Node *prev_begin = NULL;
+		while (head && head != _end)
+		{
+			if (_key_equal(head, key))
+				break;
+			prev_begin = head;
+			head = head->next;
+		}
+		size_type count = 0;
+		while (head && head != _end && _key_equal(head->value, key))
+		{
+			head = head->next;
+			++count;
+		}
+		if (count > 0)
+			remove_node_range(&_buckets[idx], prev_begin, head);
+		return count;
 	}
 };
 
