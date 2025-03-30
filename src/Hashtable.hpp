@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/30 23:24:34 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/30 23:49:21 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,13 @@
 #include <cstddef>
 #include <cstring>
 #include <memory>
+
+#if __cplusplus < 201103L
+# define NOEXCEPT throw()
+# define nullptr NULL
+#else
+# define NOEXCEPT noexcept
+#endif
 
 namespace ft { namespace detail {
 
@@ -104,6 +111,7 @@ protected:
 	_NodeAllocator		_allocator;
 	_NodePtrAllocator	_ptr_allocator;
 
+	// TODO: Stuff for const interator
 	class _Iterator
 	{
 	private:
@@ -117,20 +125,20 @@ protected:
 		typedef ValueType*					pointer;
 		typedef ValueType&					reference;
 
-		_Iterator(_Node **buckets, _Node *entry) : _bucket_list(buckets), _bucket(entry) {}
-		_Iterator(const _Iterator& other) : _bucket_list(other._bucket_list), _bucket(other._bucket) {}
-		_Iterator& operator=(const _Iterator& other)
+		_Iterator(_Node **buckets, _Node *entry) : _bucket_list(buckets), _bucket(entry) NOEXCEPT {}
+		_Iterator(const _Iterator& other) : _bucket_list(other._bucket_list), _bucket(other._bucket) NOEXCEPT {}
+		_Iterator& operator=(const _Iterator& other) NOEXCEPT
 		{
 			this->_bucket_list = other._bucket_list;
 			this->_bucket = other._bucket;
 			return *this;
 		}
-		~_Iterator() {}
+		~_Iterator() NOEXCEPT {}
 
-		reference	operator*()		{ return _bucket->value; }
-		pointer		operator->()	{ return &_bucket->value; }
+		reference	operator*() NOEXCEPT	{ return _bucket->value; }
+		pointer		operator->() NOEXCEPT	{ return &_bucket->value; }
 
-		_Iterator&	operator++()
+		_Iterator&	operator++() NOEXCEPT
 		{
 			_bucket = _bucket->next;
 			while (!_bucket)
@@ -139,7 +147,7 @@ protected:
 				_bucket = *_bucket_list;
 			}
 		}
-		_Iterator	operator++(int)
+		_Iterator	operator++(int) NOEXCEPT
 		{
 			_Iterator tmp(*this);
 			this->operator++();
@@ -160,23 +168,23 @@ protected:
 		typedef typename	_Iterator::pointer				pointer;
 		typedef typename	_Iterator::reference			reference;
 
-		_LocalIterator(_Node *entry) : _bucket(entry) {}
-		_LocalIterator(const _LocalIterator& other) : _bucket(other._bucket) {}
-		_LocalIterator& operator=(const _LocalIterator& other)
+		_LocalIterator(_Node *entry) : _bucket(entry) NOEXCEPT {}
+		_LocalIterator(const _LocalIterator& other) : _bucket(other._bucket) NOEXCEPT {}
+		_LocalIterator& operator=(const _LocalIterator& other) NOEXCEPT
 		{
 			this->_bucket = other._bucket;
 			return *this;
 		}
-		~_LocalIterator() {}
+		~_LocalIterator() NOEXCEPT {}
 
-		reference	operator*()		{ return _bucket->value; }
-		pointer		operator->()	{ return &_bucket->value; }
+		reference	operator*() NOEXCEPT	{ return _bucket->value; }
+		pointer		operator->() NOEXCEPT	{ return &_bucket->value; }
 
-		_LocalIterator&	operator++()
+		_LocalIterator&	operator++() NOEXCEPT
 		{
 			_bucket = _bucket->next;
 		}
-		_LocalIterator	operator++(int)
+		_LocalIterator	operator++(int) NOEXCEPT
 		{
 			_LocalIterator tmp(*this);
 			this->operator++();
@@ -258,17 +266,17 @@ public:
 		_ptr_allocator.deallocate(_buckets, _bucket_count);
 	}
 
-	allocator_type	get_allocator() const		{ return _allocator; }
-	allocator_type	get_ptr_allocator() const	{ return _ptr_allocator; }
+	allocator_type	get_allocator() const NOEXCEPT		{ return _allocator; }
+	allocator_type	get_ptr_allocator() const NOEXCEPT	{ return _ptr_allocator; }
 
-	size_type	get_bucket_count() const	{ return _bucket_count; }
-	size_type	max_bucket_count() const	{ return _ptr_allocator.max_size(); }
+	size_type	get_bucket_count() const NOEXCEPT	{ return _bucket_count; }
+	size_type	max_bucket_count() const NOEXCEPT	{ return _ptr_allocator.max_size(); }
 
-	float	get_max_load_factor() const		{ return _max_load_factor; }
-	void	set_max_load_factor(float n)	{ _max_load_factor = n; }
+	float	get_max_load_factor() const NOEXCEPT	{ return _max_load_factor; }
+	void	set_max_load_factor(float n) NOEXCEPT	{ _max_load_factor = n; }
 
-	size_type	size() const		{ return _element_count; }
-	size_type	max_size() const	{ _allocator.max_size(); }
+	size_type	size() const NOEXCEPT		{ return _element_count; }
+	size_type	max_size() const NOEXCEPT	{ _allocator.max_size(); }
 
 	bool		has(key_type const& key) const	{ return equal_unique() != NULL; }
 
@@ -286,6 +294,7 @@ public:
 
 	// TODO
 	void	rehash(size_type n) {}
+	void	clear() NOEXCEPT {}
 
 	std::pair<_Node*, bool> insert_unique(const value_type& value)
 	{
@@ -334,7 +343,8 @@ public:
 	* Returns a pointer to the first node matching key, or NULL if none is found.
 	* The returned node is always valid (cannot be _end).
 	*/
-	_Node*	equal_unique(key_type const& key)
+	// FIXME: Returning NULL instead of _end is inconsitent. Pick one!!!
+	const _Node*	equal_unique(key_type const& key) const
 	{
 		size_t idx = _hash_function(key) % _bucket_count;
 		_Node *node = _buckets[idx];
@@ -345,6 +355,10 @@ public:
 			node = node->next;
 		}
 		return NULL;
+	}
+	_Node*	equal_unique(key_type const& key)
+	{
+		const_cast<_Node*>(static_cast<const _SelfType*>(this)->equal_unique());
 	}
 
 	/*
@@ -416,3 +430,8 @@ public:
 };
 
 }}
+
+#if __cplusplus < 201103L
+# undef nullptr
+#endif
+#undef NOEXCEPT

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:20:09 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/30 23:24:59 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/30 23:51:44 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,10 +99,10 @@ public:
 	template <class InputIterator>
 	void		insert(InputIterator first, InputIterator last);
 	iterator	erase(const_iterator position);
-	size_type	erase(const key_type& k);
+	size_type	erase(const key_type& k)	{ return _ht.erase_unique(k); }
 	iterator	erase(const_iterator first, const_iterator last);
-	void 		clear() NOEXCEPT;
-	void 		swap(unordered_map&);
+	void 		clear() NOEXCEPT			{ _ht.clear(); }
+	void 		swap(unordered_map &other)	{ ft::swap(_ht, other.ht); }
 
 	// observers
 	hasher		hash_function() const	{ return _ht._hash_function.hash; }
@@ -140,8 +140,8 @@ public:
 
 	// hash policy
 	float	load_factor() const NOEXCEPT;
-	float	max_load_factor() const NOEXCEPT;
-	void	max_load_factor(float z);
+	float	max_load_factor() const NOEXCEPT	{ return _ht.get_max_load_factor(); }
+	void	max_load_factor(float z)			{ _ht.set_max_load_factor(z); }
 	void	rehash(size_type n);
 	void	reserve(size_type n);
 };

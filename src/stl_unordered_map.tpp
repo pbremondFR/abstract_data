@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:58:50 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/30 23:23:08 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/30 23:55:11 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,30 @@ typename ft::unordered_map<Key, T, Hash, Pred, Allocator>::const_iterator
 }
 
 template<class Key, class T, class Hash, class Pred, class Allocator>
+ft::pair<
+	typename ft::unordered_map<Key, T, Hash, Pred, Allocator>::iterator,
+	bool
+>
+	ft::unordered_map<Key, T, Hash, Pred, Allocator>::insert(const value_type& obj)
+{
+	// first: pointer to node, second: was inserted -> true, already existed -> false
+	ft::pair<_Node*, bool> insertion = _ht.insert_unique(obj);
+	return {iterator(insertion.first), insertion.second};
+}
+
+template<class Key, class T, class Hash, class Pred, class Allocator>
 typename ft::unordered_map<Key, T, Hash, Pred, Allocator>::iterator
 	ft::unordered_map<Key, T, Hash, Pred, Allocator>::find(const key_type& key)
 {
+	const_cast<iterator&>(static_cast<const _SelfType*>(this)->find());
+}
+
+template<class Key, class T, class Hash, class Pred, class Allocator>
+typename ft::unordered_map<Key, T, Hash, Pred, Allocator>::const_iterator
+	ft::unordered_map<Key, T, Hash, Pred, Allocator>::find(const key_type& key) const
+{
 	_Node *node = _ht.equal_unique(key);
-	return node ? iterator(_ht._buckets, node) : _ht._end;
+	return node ? const_iterator(_ht._buckets, node) : _ht._end;
 }
 
 template<class Key, class T, class Hash, class Pred, class Allocator>
