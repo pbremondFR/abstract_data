@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/30 16:18:54 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/30 17:33:37 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,12 @@ struct _HashPairAdapter
 {
 	Hash	hash;
 
-	_HashPairAdapter(Hash hash_func = KeyEqual()) : hash(hash_func) {}
+	_HashPairAdapter(Hash hash_func = Hash()) : hash(hash_func) {}
 
 	// Customize this struct according to value_type of the container
 	// (in reality, either just key_type or pair<(const) key_type, mapped_type> aka value_type)
-	Hash::result_type	operator()(Key const& a)		{ return hash(a); }
-	Hash::result_type	operator()(ValueType const& a)	{ return hash(a.first); }
+	typename Hash::result_type	operator()(Key const& a)		{ return hash(a); }
+	typename Hash::result_type	operator()(ValueType const& a)	{ return hash(a.first); }
 };
 
 template <class Key, class ValueType, class KeyEqual>
@@ -44,10 +44,10 @@ struct _KeyEqualPairAdapter
 
 	// Customize this struct according to value_type of the container
 	// (in reality, either just key_type or pair<(const) key_type, mapped_type> aka value_type)
-	KeyEqual::result_type	operator()(Key const& a, Key const& b)				{ return key_equal(a, b); }
-	KeyEqual::result_type	operator()(Key const& a, ValueType const& b)		{ return key_equal(a, b.first); }
-	KeyEqual::result_type	operator()(ValueType const& a, Key const& b)		{ return key_equal(a.first, b); }
-	KeyEqual::result_type	operator()(ValueType const& a, ValueType const& b)	{ return key_equal(a.first, b.first); }
+	typename KeyEqual::result_type	operator()(Key const& a, Key const& b)				{ return key_equal(a, b); }
+	typename KeyEqual::result_type	operator()(Key const& a, ValueType const& b)		{ return key_equal(a, b.first); }
+	typename KeyEqual::result_type	operator()(ValueType const& a, Key const& b)		{ return key_equal(a.first, b); }
+	typename KeyEqual::result_type	operator()(ValueType const& a, ValueType const& b)	{ return key_equal(a.first, b.first); }
 };
 
 template<
@@ -59,32 +59,39 @@ template<
 >
 class Hashtable
 {
-private:
+public:
+	typedef Key						key_type;
+	typedef ValueType				value_type;
+	typedef Hash					hasher;
+	typedef KeyEqual				key_equal;
+	typedef Allocator				allocator_type;
+
+	typedef typename Allocator::size_type		size_type;
+	typedef typename Allocator::difference_type	difference_type;
+
+	typedef typename Allocator::pointer			pointer;
+	typedef typename Allocator::const_pointer	const_pointer;
+	typedef typename Allocator::reference		reference;
+	typedef typename Allocator::const_reference	const_reference;
+
+protected:
 	// XXX: Is this the best way? I could also inherit in private & tag everything protected...
-	friend class unordered_map;
-	friend class unordered_set;
-	friend class unordered_multimap;
-	friend class unordered_multiset;
+	template<
+		class Key_,
+		class T_,
+		class Hash_,
+		class Pred_,
+		class Allocator_
+	>
+	friend class ft::unordered_map;
+	// friend class unordered_set;
+	// friend class unordered_multimap;
+	// friend class unordered_multiset;
 
 	struct _Node
 	{
 		_Node		*next;
 		ValueType	value;
-
-		static _Node *create(_Node *next, value_type const& value)
-		{
-			_Node *new_node;
-			try {
-				new_node = _allocator.allocate(1);
-				_allocator.construct(new_node, _Node(next, value));
-				return new_node;
-			}
-			catch (...) { // This is stupid but required by the subject, I'd rather catch an exception
-				if (new_node)
-					_allocator.deallocate(new_node, 1);
-				throw;
-			}
-		}
 	};
 
 	typedef typename Allocator::template rebind<_Node>::other	_NodeAllocator;
@@ -145,12 +152,63 @@ private:
 		}
 	};
 
+
+	class _LocalIterator
+	{
+	private:
+		_Node	*_bucket;
+
+	public:
+		typedef typename	_Iterator::iterator_category	iterator_category;
+		typedef typename	_Iterator::difference_type		difference_type;
+		typedef typename	_Iterator::value_type			value_type;
+		typedef typename	_Iterator::pointer				pointer;
+		typedef typename	_Iterator::reference			reference;
+
+		_LocalIterator(_Node *entry) : _bucket(entry) {}
+		_LocalIterator(const _LocalIterator& other) : _bucket(other._bucket) {}
+		_LocalIterator& operator=(const _LocalIterator& other)
+		{
+			this->_bucket = other._bucket;
+			return *this;
+		}
+		~_LocalIterator() {}
+
+		reference	operator*()		{ return _bucket->value; }
+		pointer		operator->()	{ return &_bucket->value; }
+
+		_LocalIterator&	operator++()
+		{
+			_bucket = _bucket->next;
+		}
+		_LocalIterator	operator++(int)
+		{
+			_LocalIterator tmp(*this);
+			this->operator++();
+			return tmp;
+		}
+	};
+
+	_Node*	create_node(_Node *next, value_type const& value)
+		{
+			_Node *new_node;
+			try {
+				new_node = _allocator.allocate(1);
+				_allocator.construct(new_node, _Node(next, value));
+				return new_node;
+			}
+			catch (...) { // This is stupid but required by the subject, I'd rather catch an exception
+				if (new_node)
+					_allocator.deallocate(new_node, 1);
+				throw;
+			}
+		}
 	/*
 	* Allocate a new node and push it at the front of the given list.
 	*/
 	_Node*	push_node(_Node **list, ValueType const& value)
 	{
-		_Node *new_node = _Node::create(*list, value);
+		_Node *new_node = create_node(*list, value);
 		*list = new_node;
 		return new_node;
 	}
@@ -181,21 +239,6 @@ private:
 	}
 
 public:
-	typedef Key						key_type;
-	typedef ValueType				value_type;
-	typedef Hash					hasher;
-	typedef KeyEqual				key_equal;
-	typedef Allocator				allocator_type;
-
-	typedef typename Allocator::size_type		size_type;
-	typedef typename Allocator::difference_type	difference_type;
-
-	typedef typename Allocator::pointer			pointer;
-	typedef typename Allocator::const_pointer	const_pointer;
-	typedef typename Allocator::reference		reference;
-	typedef typename Allocator::const_reference	const_reference;
-
-public:
 	Hashtable(size_t bucket_count = 10, const Hash& hash = Hash(), const KeyEqual& key_equal = KeyEqual(), const Allocator& alloc = Allocator())
 	: _element_count(0), _max_load_factor(1.0f), _hash_function(hash), _key_equal(key_equal), _allocator(alloc), _ptr_allocator(alloc)
 	{
@@ -206,7 +249,7 @@ public:
 			memset(_buckets, 0, sizeof(*_buckets) * _bucket_count);
 			_end = _allocator.allocate(1);
 			_end->next = NULL;
-			_bucket_count[_bucket_count - 1] = _end;
+			_buckets[_bucket_count - 1] = _end;
 		}
 		catch (...) {
 			if (_buckets)
@@ -216,7 +259,7 @@ public:
 	}
 	~Hashtable()
 	{
-		clear();
+		// clear();
 		_ptr_allocator.deallocate(_buckets, _bucket_count);
 	}
 
@@ -235,14 +278,16 @@ public:
 	size_type	count(key_type const& key)
 	{
 		_Node *node = equal_unique(key);
-		size_type count = 0;
+		size_type n = 0;
 		while (node && node != _end && _key_equal(node->value, key))
 		{
-			node = node->next
-			++count;
+			node = node->next;
+			++n;
 		}
-		return count;
+		return n;
 	}
+
+	void	rehash(size_type n) {}
 
 	std::pair<_Node*, bool> insert_unique(const value_type& value)
 	{
@@ -268,7 +313,7 @@ public:
 		if (static_cast<float>(_element_count + 1) / _bucket_count > _max_load_factor)
 			rehash(_bucket_count * 2); // TODO: Fibonacci thing
 
-		_Node *new_node = _Node::create(NULL, value);
+		_Node *new_node = create_node(NULL, value);
 		size_t idx = _hash_function(value) % _bucket_count;
 		_Node* node = _buckets[idx];
 		if (!node || node == _end)
