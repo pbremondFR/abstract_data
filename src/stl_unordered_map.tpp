@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:58:50 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/30 23:55:11 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/31 00:43:06 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,23 @@ ft::unordered_map<Key, T, Hash, Pred, Allocator>::unordered_map(
 }
 
 template<class Key, class T, class Hash, class Pred, class Allocator>
+typename ft::unordered_map<Key, T, Hash, Pred, Allocator>::iterator
+	ft::unordered_map<Key, T, Hash, Pred, Allocator>::begin() NOEXCEPT
+{
+	_Node **head = _ht._buckets;
+	while (*head == nullptr)
+		++head;
+	return iterator(_ht._buckets, *head);
+}
+
+template<class Key, class T, class Hash, class Pred, class Allocator>
 typename ft::unordered_map<Key, T, Hash, Pred, Allocator>::const_iterator
 	ft::unordered_map<Key, T, Hash, Pred, Allocator>::cbegin() const NOEXCEPT
 {
 	_Node **head = _ht._buckets;
 	while (*head == nullptr)
-		++(*head);
-	return const_iterator(*head);
+		++head;
+	return const_iterator(_ht._buckets, static_cast<const _Node*>(*head));
 }
 
 template<class Key, class T, class Hash, class Pred, class Allocator>
@@ -44,14 +54,14 @@ ft::pair<
 {
 	// first: pointer to node, second: was inserted -> true, already existed -> false
 	ft::pair<_Node*, bool> insertion = _ht.insert_unique(obj);
-	return {iterator(insertion.first), insertion.second};
+	return ft::make_pair(iterator(_ht._buckets, insertion.first), insertion.second);
 }
 
 template<class Key, class T, class Hash, class Pred, class Allocator>
 typename ft::unordered_map<Key, T, Hash, Pred, Allocator>::iterator
 	ft::unordered_map<Key, T, Hash, Pred, Allocator>::find(const key_type& key)
 {
-	const_cast<iterator&>(static_cast<const _SelfType*>(this)->find());
+	const_cast<iterator&>(static_cast<const _SelfType*>(this)->find(key));
 }
 
 template<class Key, class T, class Hash, class Pred, class Allocator>
@@ -76,7 +86,7 @@ template<class Key, class T, class Hash, class Pred, class Allocator>
 typename ft::unordered_map<Key, T, Hash, Pred, Allocator>::mapped_type&
 	ft::unordered_map<Key, T, Hash, Pred, Allocator>::at(const key_type& key)
 {
-	return const_cast<mapped_type&>(static_cast<const _SelfType*>(this)->at());
+	return const_cast<mapped_type&>(static_cast<const _SelfType*>(this)->at(key));
 }
 
 template<class Key, class T, class Hash, class Pred, class Allocator>

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 06:44:44 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/28 16:49:51 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/31 00:51:22 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,5 +121,16 @@ struct is_forward_iterator
 		|| is_same<typename I::iterator_category, random_access_iterator_tag>::value
 	>
 {};
+
+template<class T> struct remove_cv						{ typedef T type; };
+template<class T> struct remove_cv<const T>				{ typedef T type; };
+template<class T> struct remove_cv<volatile T>			{ typedef T type; };
+template<class T> struct remove_cv<const volatile T>	{ typedef T type; };
+
+template<class T> struct remove_const			{ typedef T type; };
+template<class T> struct remove_const<const T>	{ typedef T type; };
+
+template<class T> struct remove_volatile				{ typedef T type; };
+template<class T> struct remove_volatile<volatile T>	{ typedef T type; };
 
 }

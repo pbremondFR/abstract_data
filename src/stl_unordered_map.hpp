@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:20:09 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/30 23:51:44 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/31 00:53:05 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include "utility.hpp"
 #include "functional.hpp"
 #include "exception.hpp"
+#include "algorithm.hpp"
+
 #include <string>
 #include <cstddef>
 
@@ -52,22 +54,22 @@ private:
 
 public:
 	// types
-	typedef				Key								key_type;
-	typedef				ft::pair<const Key, T>			value_type;
-	typedef				T								mapped_type;
-	typedef				Hash							hasher;
-	typedef				Pred							key_equal;
-	typedef				Allocator						allocator_type;
-	typedef typename	allocator_type::pointer			pointer;
-	typedef typename	allocator_type::const_pointer	const_pointer;
-	typedef typename	allocator_type::reference		reference;
-	typedef typename	allocator_type::const_reference	const_reference;
-	typedef				size_t							size_type;
-	typedef				ptrdiff_t						difference_type;
-	typedef typename	_Hashtable::_Iterator			iterator;
-	typedef typename	_Hashtable::_Iterator			const_iterator;
-	typedef typename	_Hashtable::_LocalIterator		local_iterator;
-	typedef typename	_Hashtable::_LocalIterator		const_local_iterator;
+	typedef				Key													key_type;
+	typedef				ft::pair<const Key, T>								value_type;
+	typedef				T													mapped_type;
+	typedef				Hash												hasher;
+	typedef				Pred												key_equal;
+	typedef				Allocator											allocator_type;
+	typedef typename	allocator_type::pointer								pointer;
+	typedef typename	allocator_type::const_pointer						const_pointer;
+	typedef typename	allocator_type::reference							reference;
+	typedef typename	allocator_type::const_reference						const_reference;
+	typedef				size_t												size_type;
+	typedef				ptrdiff_t											difference_type;
+	typedef typename	_Hashtable::template _Iterator<_Node>				iterator;
+	typedef typename	_Hashtable::template _Iterator<const _Node>			const_iterator;
+	typedef typename	_Hashtable::template _LocalIterator<_Node>			local_iterator;
+	typedef typename	_Hashtable::template _LocalIterator<const _Node>	const_local_iterator;
 
 	// construct/destroy/copy
 	explicit unordered_map(size_type n = 10 , const hasher& hf = hasher(), const key_equal& eql = key_equal(), const allocator_type& a = allocator_type());
@@ -86,12 +88,12 @@ public:
 	size_type	max_size() const NOEXCEPT	{ return _ht.max_size(); };
 
 	// iterators
-	iterator		begin() NOEXCEPT			{ return const_cast<iterator>(static_cast<const _SelfType*>(this)->begin()); } // Meyer's pattern
+	iterator		begin() NOEXCEPT;
 	const_iterator	begin() const NOEXCEPT		{ return this->cbegin(); }
-	iterator		end() NOEXCEPT				{ return _ht._end; }
-	const_iterator	end() const NOEXCEPT		{ return _ht._end; }
+	iterator		end() NOEXCEPT				{ return iterator(_ht._buckets, _ht._end); }
+	const_iterator	end() const NOEXCEPT		{ return const_iterator(_ht._buckets, _ht._end); }
 	const_iterator	cbegin() const NOEXCEPT;
-	const_iterator	cend() const NOEXCEPT		{ return _ht._end; }
+	const_iterator	cend() const NOEXCEPT		{ return iterator(_ht._buckets, _ht._end); }
 
 	// modifiers
 	pair<iterator, bool>	insert(const value_type& obj);
@@ -115,11 +117,11 @@ public:
 	ft::pair<iterator, iterator>				equal_range(const key_type& k)
 	{
 		typedef ft::pair<iterator, iterator>	return_type;
-		return const_cast<return_type>(static_cast<const _SelfType*>(this)->equal_range());
+		return const_cast<return_type>(static_cast<const _SelfType*>(this)->equal_range(k));
 	}
 	ft::pair<const_iterator, const_iterator>	equal_range(const key_type& k) const
 	{
-		ft::pair<_Node*, _Node*> range = _ht.equal_range();
+		ft::pair<_Node*, _Node*> range = _ht.equal_range(k);
 		return ft::make_pair(const_iterator(range.first), const_iterator(range.second));
 	}
 	mapped_type&		operator[](const key_type& k);

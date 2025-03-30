@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 22:45:28 by pbremond          #+#    #+#             */
-/*   Updated: 2024/10/12 02:33:49 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/31 00:42:10 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,19 +78,19 @@ void	make_heap(RandomIt first, RandomIt last)
 	make_heap(first, last, less<typename RandomIt::value_type>());
 }
 
-template <class RandomIt, class Compare>
-void	make_heap(RandomIt first, RandomIt last, Compare comp)
-{
-	using namespace __detail::heap;
+// template <class RandomIt, class Compare>
+// void	make_heap(RandomIt first, RandomIt last, Compare comp)
+// {
+// 	using namespace __detail::heap;
 
-	// TODO: That's the wiki version of the algo with std::less, what about general version?
-	RandomIt start = parent(last - 1) + 1;
-	while (start > first)	// Would comp(first, start) work in all cases?
-	{
-		--start;
-		sift_down(start, last - first);
-	}
-}
+// 	// TODO: That's the wiki version of the algo with std::less, what about general version?
+// 	RandomIt start = parent(last - 1) + 1;
+// 	while (start > first)	// Would comp(first, start) work in all cases?
+// 	{
+// 		--start;
+// 		sift_down(start, last - first);
+// 	}
+// }
 
 template <class RandomIt>
 void	push_heap(RandomIt first, RandomIt last)
@@ -98,11 +98,11 @@ void	push_heap(RandomIt first, RandomIt last)
 	push_heap(first, last, less<typename RandomIt::value_type>());
 }
 
-template <class RandomIt, class Compare>
-void	push_heap(RandomIt first, RandomIt last, Compare comp)
-{
+// template <class RandomIt, class Compare>
+// void	push_heap(RandomIt first, RandomIt last, Compare comp)
+// {
 
-}
+// }
 
 template <class RandomIt>
 void	pop_heap(RandomIt first, RandomIt last)
@@ -110,11 +110,11 @@ void	pop_heap(RandomIt first, RandomIt last)
 	pop_heap(first, last, less<typename RandomIt::value_type>());
 }
 
-template <class RandomIt, class Compare>
-void	pop_heap(RandomIt first, RandomIt last, Compare comp)
-{
+// template <class RandomIt, class Compare>
+// void	pop_heap(RandomIt first, RandomIt last, Compare comp)
+// {
 
-}
+// }
 
 template < class InputIt1, class InputIt2 >
 bool	equal(InputIt1 first1, InputIt1 last1, InputIt2 first2)

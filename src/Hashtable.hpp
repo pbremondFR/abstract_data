@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/30 23:49:21 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/31 00:46:02 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "utility.hpp"
 #include "functional.hpp"
 #include "iterator.hpp"
+#include "type_traits.hpp"
 
 #include <cstddef>
 #include <cstring>
@@ -93,6 +94,9 @@ protected:
 	{
 		_Node		*next;
 		ValueType	value;
+
+		_Node() : next(nullptr), value(ValueType()) {}
+		_Node(_Node *next_, ValueType const& value_) : next(next_), value(value_) {}
 	};
 
 	typedef typename	Allocator::template rebind<_Node>::other				_NodeAllocator;
@@ -112,28 +116,32 @@ protected:
 	_NodePtrAllocator	_ptr_allocator;
 
 	// TODO: Stuff for const interator
+	template <class U>
 	class _Iterator
 	{
 	private:
-		_Node	**_bucket_list;
-		_Node	*_bucket;
+		typedef typename	ft::remove_const<U>::type	U_constless;
+		U_constless	**_bucket_list;
+		U			*_bucket;
 
 	public:
 		typedef ft::forward_iterator_tag	iterator_category;
 		typedef ptrdiff_t					difference_type;
-		typedef ValueType					value_type;
-		typedef ValueType*					pointer;
-		typedef ValueType&					reference;
+		typedef U							value_type;
+		typedef U*							pointer;
+		typedef U&							reference;
 
-		_Iterator(_Node **buckets, _Node *entry) : _bucket_list(buckets), _bucket(entry) NOEXCEPT {}
-		_Iterator(const _Iterator& other) : _bucket_list(other._bucket_list), _bucket(other._bucket) NOEXCEPT {}
+		_Iterator(U_constless **buckets, U *entry) : _bucket_list(buckets), _bucket(entry) {}
+		_Iterator(const _Iterator& other) : _bucket_list(other._bucket_list), _bucket(other._bucket) {}
 		_Iterator& operator=(const _Iterator& other) NOEXCEPT
 		{
 			this->_bucket_list = other._bucket_list;
 			this->_bucket = other._bucket;
 			return *this;
 		}
-		~_Iterator() NOEXCEPT {}
+		~_Iterator() {}
+
+		inline operator _Iterator<const U>() const { return _Iterator<const U>(_bucket_list, _bucket); }
 
 		reference	operator*() NOEXCEPT	{ return _bucket->value; }
 		pointer		operator->() NOEXCEPT	{ return &_bucket->value; }
@@ -156,26 +164,29 @@ protected:
 	};
 
 
+	template <class U>
 	class _LocalIterator
 	{
 	private:
-		_Node	*_bucket;
+		U	*_bucket;
 
 	public:
-		typedef typename	_Iterator::iterator_category	iterator_category;
-		typedef typename	_Iterator::difference_type		difference_type;
-		typedef typename	_Iterator::value_type			value_type;
-		typedef typename	_Iterator::pointer				pointer;
-		typedef typename	_Iterator::reference			reference;
+		typedef typename	_Iterator<U>::iterator_category	iterator_category;
+		typedef typename	_Iterator<U>::difference_type	difference_type;
+		typedef typename	_Iterator<U>::value_type		value_type;
+		typedef typename	_Iterator<U>::pointer			pointer;
+		typedef typename	_Iterator<U>::reference			reference;
 
-		_LocalIterator(_Node *entry) : _bucket(entry) NOEXCEPT {}
-		_LocalIterator(const _LocalIterator& other) : _bucket(other._bucket) NOEXCEPT {}
+		_LocalIterator(U *entry) : _bucket(entry) {}
+		_LocalIterator(const _LocalIterator& other) : _bucket(other._bucket) {}
 		_LocalIterator& operator=(const _LocalIterator& other) NOEXCEPT
 		{
 			this->_bucket = other._bucket;
 			return *this;
 		}
-		~_LocalIterator() NOEXCEPT {}
+		~_LocalIterator() {}
+
+		inline operator _Iterator<const U>() const { return _bucket; }
 
 		reference	operator*() NOEXCEPT	{ return _bucket->value; }
 		pointer		operator->() NOEXCEPT	{ return &_bucket->value; }
@@ -276,9 +287,9 @@ public:
 	void	set_max_load_factor(float n) NOEXCEPT	{ _max_load_factor = n; }
 
 	size_type	size() const NOEXCEPT		{ return _element_count; }
-	size_type	max_size() const NOEXCEPT	{ _allocator.max_size(); }
+	size_type	max_size() const NOEXCEPT	{ return _allocator.max_size(); }
 
-	bool		has(key_type const& key) const	{ return equal_unique() != NULL; }
+	bool		has(key_type const& key) const	{ return equal_unique(key) != NULL; }
 
 	size_type	count(key_type const& key) const
 	{
@@ -293,10 +304,10 @@ public:
 	}
 
 	// TODO
-	void	rehash(size_type n) {}
+	void	rehash(size_type n) { (void)n; }
 	void	clear() NOEXCEPT {}
 
-	std::pair<_Node*, bool> insert_unique(const value_type& value)
+	ft::pair<_Node*, bool> insert_unique(const value_type& value)
 	{
 		if (static_cast<float>(_element_count + 1) / _bucket_count > _max_load_factor)
 			rehash(_bucket_count * 2); // TODO: Fibonacci thing
@@ -306,13 +317,13 @@ public:
 		while (node && node != _end)
 		{
 			if (_key_equal(node->value, value))
-				return std::make_pair(node, false); // Key already exists
+				return ft::make_pair(node, false); // Key already exists
 			node = node->next;
 		}
 		// Exception guarantee: No modifications before this point
 		_Node *new_node = push_node(&_buckets[idx], value);
 		++_element_count;
-		return std::make_pair(new_node, true);
+		return ft::make_pair(new_node, true);
 	}
 
 	_Node*	insert_equal(const value_type& value)
@@ -358,7 +369,7 @@ public:
 	}
 	_Node*	equal_unique(key_type const& key)
 	{
-		const_cast<_Node*>(static_cast<const _SelfType*>(this)->equal_unique());
+		const_cast<_Node*>(static_cast<const _SelfType*>(this)->equal_unique(key));
 	}
 
 	/*
@@ -378,7 +389,7 @@ public:
 	}
 	ft::pair<_Node*, _Node*>	equal_range(key_type const& key)
 	{
-		const_cast< ft::pair<_Node*, _Node*> >(static_cast<const _SelfType*>(this)->equal_range());
+		const_cast< ft::pair<_Node*, _Node*> >(static_cast<const _SelfType*>(this)->equal_range(key));
 	}
 
 	/*
