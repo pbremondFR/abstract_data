@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/30 17:33:37 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/30 23:24:34 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@
 #include "functional.hpp"
 #include "iterator.hpp"
 
-#include <cstdint>
+#include <cstddef>
+#include <cstring>
 #include <memory>
-#include <unordered_set>
 
 namespace ft { namespace detail {
 
@@ -76,13 +76,7 @@ public:
 
 protected:
 	// XXX: Is this the best way? I could also inherit in private & tag everything protected...
-	template<
-		class Key_,
-		class T_,
-		class Hash_,
-		class Pred_,
-		class Allocator_
-	>
+	template<class Key_, class T_, class Hash_, class Pred_, class Allocator_>
 	friend class ft::unordered_map;
 	// friend class unordered_set;
 	// friend class unordered_multimap;
@@ -94,8 +88,9 @@ protected:
 		ValueType	value;
 	};
 
-	typedef typename Allocator::template rebind<_Node>::other	_NodeAllocator;
-	typedef typename Allocator::template rebind<_Node*>::other	_NodePtrAllocator;
+	typedef typename	Allocator::template rebind<_Node>::other				_NodeAllocator;
+	typedef typename	Allocator::template rebind<_Node*>::other				_NodePtrAllocator;
+	typedef				Hashtable<Key, ValueType, Hash, KeyEqual, Allocator>	_SelfType;
 
 	_Node		**_buckets;
 	_Node		*_end;
@@ -275,7 +270,9 @@ public:
 	size_type	size() const		{ return _element_count; }
 	size_type	max_size() const	{ _allocator.max_size(); }
 
-	size_type	count(key_type const& key)
+	bool		has(key_type const& key) const	{ return equal_unique() != NULL; }
+
+	size_type	count(key_type const& key) const
 	{
 		_Node *node = equal_unique(key);
 		size_type n = 0;
@@ -287,6 +284,7 @@ public:
 		return n;
 	}
 
+	// TODO
 	void	rehash(size_type n) {}
 
 	std::pair<_Node*, bool> insert_unique(const value_type& value)
@@ -354,7 +352,7 @@ public:
 	* If the range does not exist, returns {NULL, NULL}. The second pointer may be
 	* the _end node.
 	*/
-	ft::pair<_Node*, _Node*>	equal_range(key_type const& key)
+	ft::pair<const _Node*, const _Node*>	equal_range(key_type const& key) const
 	{
 		_Node *range_begin = equal_unique(key);
 		if (!range_begin)
@@ -363,6 +361,10 @@ public:
 		while (range_end && range_end != _end && _key_equal(range_end->value, key))
 			range_end = range_end->next;
 		return ft::make_pair(range_begin, range_end);
+	}
+	ft::pair<_Node*, _Node*>	equal_range(key_type const& key)
+	{
+		const_cast< ft::pair<_Node*, _Node*> >(static_cast<const _SelfType*>(this)->equal_range());
 	}
 
 	/*

@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "unordered_map.hpp"
-#include <unordered_map>
 #include <string>
 
 namespace ft {
@@ -13,6 +12,8 @@ void	tests_multimap()
 {
 	{
 		ft::map_t	foo;
+
+		foo.hash_function();
 	}
 
 }
