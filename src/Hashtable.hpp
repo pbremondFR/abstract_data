@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/30 15:43:04 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/30 16:18:54 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,19 +22,32 @@
 
 namespace ft { namespace detail {
 
-template <class Key, class ValueType, class KeyEqual>
-struct _KeyEqualForPair
+template <class Key, class ValueType, class Hash>
+struct _HashPairAdapter
 {
-	KeyEqual	key_equal;
+	Hash	hash;
 
-	_KeyEqualForPair(KeyEqual keycmp = KeyEqual()) : key_equal(keycmp) {}
+	_HashPairAdapter(Hash hash_func = KeyEqual()) : hash(hash_func) {}
 
 	// Customize this struct according to value_type of the container
 	// (in reality, either just key_type or pair<(const) key_type, mapped_type> aka value_type)
-	bool	operator()(Key const& a, Key const& b)				{ return key_equal(a, b); }
-	bool	operator()(Key const& a, ValueType const& b)		{ return key_equal(a, b.first); }
-	bool	operator()(ValueType const& a, Key const& b)		{ return key_equal(a.first, b); }
-	bool	operator()(ValueType const& a, ValueType const& b)	{ return key_equal(a.first, b.first); }
+	Hash::result_type	operator()(Key const& a)		{ return hash(a); }
+	Hash::result_type	operator()(ValueType const& a)	{ return hash(a.first); }
+};
+
+template <class Key, class ValueType, class KeyEqual>
+struct _KeyEqualPairAdapter
+{
+	KeyEqual	key_equal;
+
+	_KeyEqualPairAdapter(KeyEqual keycmp = KeyEqual()) : key_equal(keycmp) {}
+
+	// Customize this struct according to value_type of the container
+	// (in reality, either just key_type or pair<(const) key_type, mapped_type> aka value_type)
+	KeyEqual::result_type	operator()(Key const& a, Key const& b)				{ return key_equal(a, b); }
+	KeyEqual::result_type	operator()(Key const& a, ValueType const& b)		{ return key_equal(a, b.first); }
+	KeyEqual::result_type	operator()(ValueType const& a, Key const& b)		{ return key_equal(a.first, b); }
+	KeyEqual::result_type	operator()(ValueType const& a, ValueType const& b)	{ return key_equal(a.first, b.first); }
 };
 
 template<
@@ -47,6 +60,12 @@ template<
 class Hashtable
 {
 private:
+	// XXX: Is this the best way? I could also inherit in private & tag everything protected...
+	friend class unordered_map;
+	friend class unordered_set;
+	friend class unordered_multimap;
+	friend class unordered_multiset;
+
 	struct _Node
 	{
 		_Node		*next;
@@ -199,6 +218,30 @@ public:
 	{
 		clear();
 		_ptr_allocator.deallocate(_buckets, _bucket_count);
+	}
+
+	allocator_type	get_allocator() const		{ return _allocator; }
+	allocator_type	get_ptr_allocator() const	{ return _ptr_allocator; }
+
+	size_type	get_bucket_count() const	{ return _bucket_count; }
+	size_type	max_bucket_count() const	{ return _ptr_allocator.max_size(); }
+
+	float	get_max_load_factor() const		{ return _max_load_factor; }
+	void	set_max_load_factor(float n)	{ _max_load_factor = n; }
+
+	size_type	size() const		{ return _element_count; }
+	size_type	max_size() const	{ _allocator.max_size(); }
+
+	size_type	count(key_type const& key)
+	{
+		_Node *node = equal_unique(key);
+		size_type count = 0;
+		while (node && node != _end && _key_equal(node->value, key))
+		{
+			node = node->next
+			++count;
+		}
+		return count;
 	}
 
 	std::pair<_Node*, bool> insert_unique(const value_type& value)
