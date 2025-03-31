@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:20:09 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/31 21:36:27 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/01 00:19:12 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "functional.hpp"
 #include "exception.hpp"
 #include "algorithm.hpp"
+#include "cmath.hpp"
 
 #include <string>
 #include <cstddef>
@@ -99,10 +100,13 @@ public:
 	pair<iterator, bool>	insert(const value_type& obj);
 	iterator 				insert(const_iterator hint, const value_type& obj);
 	template <class InputIterator>
-	void		insert(InputIterator first, InputIterator last);
-	iterator	erase(const_iterator position);
-	size_type	erase(const key_type& k)	{ return _ht.erase_unique(k); }
-	iterator	erase(const_iterator first, const_iterator last);
+	typename ft::enable_if<
+		!ft::is_fundamental<InputIterator>::value,
+		void
+	>::type		insert(InputIterator first, InputIterator last);
+	iterator	erase(const_iterator position)						{ return _ht.erase_unique(position); }
+	size_type	erase(const key_type& k)							{ return _ht.erase_unique(k); }
+	iterator	erase(const_iterator first, const_iterator last)	{ return _ht.erase_range(first, last); }
 	void 		clear() NOEXCEPT			{ _ht.clear(); }
 	void 		swap(unordered_map &other)	{ ft::swap(_ht, other._ht); }
 
@@ -111,8 +115,8 @@ public:
 	key_equal	key_eq() const			{ return _ht._key_equal.key_equal; }
 
 	// lookup
-	iterator		find(const key_type& k);
-	const_iterator	find(const key_type& k) const;
+	iterator		find(const key_type& k)			{ return _ht.equal_unique(k); }
+	const_iterator	find(const key_type& k) const	{ return _ht.equal_unique(k); }
 	size_type		count(const key_type& k) const	{ return _ht.has(k) ? 1 : 0; }
 	ft::pair<iterator, iterator>				equal_range(const key_type& k)			{ return _ht.equal_range(k); }
 	ft::pair<const_iterator, const_iterator>	equal_range(const key_type& k) const	{ return _ht.equal_range(k); }
@@ -133,11 +137,11 @@ public:
 	const_local_iterator	cend(size_type n) const		{ return n == _ht._bucket_count - 1 ? _ht._end : nullptr; }
 
 	// hash policy
-	float	load_factor() const NOEXCEPT;
+	float	load_factor() const NOEXCEPT		{ return _ht.get_load_factor(); }
 	float	max_load_factor() const NOEXCEPT	{ return _ht.get_max_load_factor(); }
 	void	max_load_factor(float z)			{ _ht.set_max_load_factor(z); }
-	void	rehash(size_type n);
-	void	reserve(size_type n);
+	void	rehash(size_type n)					{ _ht.rehash(n); }
+	void	reserve(size_type n)				{ rehash(ft::ceil(n / max_load_factor()));}
 };
 
 template <class Key, class T, class Hash, class Pred, class Alloc>

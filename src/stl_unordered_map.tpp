@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:58:50 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/31 21:54:23 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/31 23:50:20 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,17 +37,21 @@ ft::pair<
 
 template<class Key, class T, class Hash, class Pred, class Allocator>
 typename ft::unordered_map<Key, T, Hash, Pred, Allocator>::iterator
-	ft::unordered_map<Key, T, Hash, Pred, Allocator>::find(const key_type& key)
+	ft::unordered_map<Key, T, Hash, Pred, Allocator>::insert(const_iterator hint, const value_type& obj)
 {
-	return _ht.equal_unique(key);
+	(void)hint;
+	return insert(obj).first;
 }
 
 template<class Key, class T, class Hash, class Pred, class Allocator>
-typename ft::unordered_map<Key, T, Hash, Pred, Allocator>::const_iterator
-	ft::unordered_map<Key, T, Hash, Pred, Allocator>::find(const key_type& key) const
+template <class InputIterator>
+typename ft::enable_if<
+	!ft::is_fundamental<InputIterator>::value,
+	void
+>::type	ft::unordered_map<Key, T, Hash, Pred, Allocator>::insert(InputIterator first, InputIterator last)
 {
-	const _Node *node = _ht.equal_unique(key);
-	return node ? const_iterator(_ht._buckets, node) : _ht._end;
+	for (; first != last; ++first)
+		insert(*first);
 }
 
 template<class Key, class T, class Hash, class Pred, class Allocator>

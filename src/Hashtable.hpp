@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/31 21:59:34 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/01 00:18:27 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -304,6 +304,7 @@ public:
 
 	float	get_max_load_factor() const NOEXCEPT	{ return _max_load_factor; }
 	void	set_max_load_factor(float n) NOEXCEPT	{ _max_load_factor = n; }
+	float	get_load_factor() const NOEXCEPT		{ return _ht._element_count / static_cast<float>(_ht._bucket_count); }
 
 	size_type	size() const NOEXCEPT		{ return _element_count; }
 	size_type	max_size() const NOEXCEPT	{ return _allocator.max_size(); }
@@ -456,6 +457,23 @@ public:
 		}
 		return 0;
 	}
+	iterator	erase_unique(iterator pos)
+	{
+		// This is not invalidated because no rehash is triggered
+		iterator next = pos;
+		++next;
+
+		// If iterator is the first in the bucket, previous node is null, otherwise find the previous node.
+		_Node *prev = nullptr;
+		if (pos._bucket != pos._node)
+		{
+			prev = *pos._bucket;
+			while (prev->next != pos._node)
+				prev = prev->next;
+		}
+		remove_node(pos._bucket, prev);
+		return next;
+	}
 
 	/*
 	* Erases all nodes matching given key. Returns the amount of nodes erased.
@@ -481,6 +499,34 @@ public:
 		if (count > 0)
 			remove_node_range(&_buckets[idx], prev_begin, head);
 		return count;
+	}
+	iterator	erase_range(iterator first, iterator last)
+	{
+		// This is not invalidated because no rehash is triggered
+		iterator after_last = last;
+		++after_last;
+
+		while (first != last)
+		{
+			_Node *prev = nullptr;
+			// If iterator is the first in the bucket, previous node is null, otherwise find the previous node.
+			if (first._bucket != first._node)
+			{
+				prev = *first._bucket;
+				while (prev->next != first._node)
+					prev = prev->next;
+			}
+			_Node *head = first._node;
+			while (head && head != last._node)
+			{
+				remove_node(first._bucket, prev);
+				prev = head;
+				head = head->next;
+			}
+			first._node = prev;
+			++first;
+		}
+		return after_last;
 	}
 };
 
