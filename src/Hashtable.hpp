@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/31 00:46:02 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:59:34 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,10 @@ struct _HashPairAdapter
 
 	// Customize this struct according to value_type of the container
 	// (in reality, either just key_type or pair<(const) key_type, mapped_type> aka value_type)
-	typename Hash::result_type	operator()(Key const& a)		{ return hash(a); }
-	typename Hash::result_type	operator()(ValueType const& a)	{ return hash(a.first); }
+	typename Hash::result_type	operator()(Key const& a) 				{ return hash(a); }
+	typename Hash::result_type	operator()(Key const& a) const			{ return hash(a); }
+	typename Hash::result_type	operator()(ValueType const& a) 			{ return hash(a.first); }
+	typename Hash::result_type	operator()(ValueType const& a) const	{ return hash(a.first); }
 };
 
 template <class Key, class ValueType, class KeyEqual>
@@ -52,10 +54,14 @@ struct _KeyEqualPairAdapter
 
 	// Customize this struct according to value_type of the container
 	// (in reality, either just key_type or pair<(const) key_type, mapped_type> aka value_type)
-	typename KeyEqual::result_type	operator()(Key const& a, Key const& b)				{ return key_equal(a, b); }
-	typename KeyEqual::result_type	operator()(Key const& a, ValueType const& b)		{ return key_equal(a, b.first); }
-	typename KeyEqual::result_type	operator()(ValueType const& a, Key const& b)		{ return key_equal(a.first, b); }
-	typename KeyEqual::result_type	operator()(ValueType const& a, ValueType const& b)	{ return key_equal(a.first, b.first); }
+	typename KeyEqual::result_type	operator()(Key const& a, Key const& b) 						{ return key_equal(a, b); }
+	typename KeyEqual::result_type	operator()(Key const& a, Key const& b) const				{ return key_equal(a, b); }
+	typename KeyEqual::result_type	operator()(Key const& a, ValueType const& b) 				{ return key_equal(a, b.first); }
+	typename KeyEqual::result_type	operator()(Key const& a, ValueType const& b) const			{ return key_equal(a, b.first); }
+	typename KeyEqual::result_type	operator()(ValueType const& a, Key const& b) 				{ return key_equal(a.first, b); }
+	typename KeyEqual::result_type	operator()(ValueType const& a, Key const& b) const			{ return key_equal(a.first, b); }
+	typename KeyEqual::result_type	operator()(ValueType const& a, ValueType const& b)	 		{ return key_equal(a.first, b.first); }
+	typename KeyEqual::result_type	operator()(ValueType const& a, ValueType const& b) const	{ return key_equal(a.first, b.first); }
 };
 
 template<
@@ -67,21 +73,6 @@ template<
 >
 class Hashtable
 {
-public:
-	typedef Key						key_type;
-	typedef ValueType				value_type;
-	typedef Hash					hasher;
-	typedef KeyEqual				key_equal;
-	typedef Allocator				allocator_type;
-
-	typedef typename Allocator::size_type		size_type;
-	typedef typename Allocator::difference_type	difference_type;
-
-	typedef typename Allocator::pointer			pointer;
-	typedef typename Allocator::const_pointer	const_pointer;
-	typedef typename Allocator::reference		reference;
-	typedef typename Allocator::const_reference	const_reference;
-
 protected:
 	// XXX: Is this the best way? I could also inherit in private & tag everything protected...
 	template<class Key_, class T_, class Hash_, class Pred_, class Allocator_>
@@ -120,9 +111,10 @@ protected:
 	class _Iterator
 	{
 	private:
-		typedef typename	ft::remove_const<U>::type	U_constless;
-		U_constless	**_bucket_list;
-		U			*_bucket;
+		friend class Hashtable<Key, ValueType, Hash, KeyEqual, Allocator>;
+		// typedef typename	ft::remove_const<U>::type	U_constless;
+		_Node	**_bucket;
+		_Node	*_node;
 
 	public:
 		typedef ft::forward_iterator_tag	iterator_category;
@@ -131,29 +123,32 @@ protected:
 		typedef U*							pointer;
 		typedef U&							reference;
 
-		_Iterator(U_constless **buckets, U *entry) : _bucket_list(buckets), _bucket(entry) {}
-		_Iterator(const _Iterator& other) : _bucket_list(other._bucket_list), _bucket(other._bucket) {}
+		_Iterator(_Node **bucket, _Node *entry) : _bucket(bucket), _node(entry) {}
+		_Iterator(const _Iterator& other) : _bucket(other._bucket), _node(other._node) {}
 		_Iterator& operator=(const _Iterator& other) NOEXCEPT
 		{
-			this->_bucket_list = other._bucket_list;
 			this->_bucket = other._bucket;
+			this->_node = other._node;
 			return *this;
 		}
 		~_Iterator() {}
 
-		inline operator _Iterator<const U>() const { return _Iterator<const U>(_bucket_list, _bucket); }
+		inline operator _Iterator<const U>() const { return _Iterator<const U>(_bucket, _node); }
 
-		reference	operator*() NOEXCEPT	{ return _bucket->value; }
-		pointer		operator->() NOEXCEPT	{ return &_bucket->value; }
+		reference	operator*() NOEXCEPT	{ return _node->value; }
+		pointer		operator->() NOEXCEPT	{ return &_node->value; }
+		bool		operator==(_Iterator const& rhs) const NOEXCEPT	{ return _node == rhs._node; }
+		bool		operator!=(_Iterator const& rhs) const NOEXCEPT	{ return !operator==(rhs); }
 
 		_Iterator&	operator++() NOEXCEPT
 		{
-			_bucket = _bucket->next;
-			while (!_bucket)
+			_node = _node->next;
+			while (!_node)
 			{
-				++_bucket_list;
-				_bucket = *_bucket_list;
+				++_bucket;
+				_node = *_bucket;
 			}
+			return *this;
 		}
 		_Iterator	operator++(int) NOEXCEPT
 		{
@@ -168,7 +163,8 @@ protected:
 	class _LocalIterator
 	{
 	private:
-		U	*_bucket;
+		friend class Hashtable<Key, ValueType, Hash, KeyEqual, Allocator>;
+		U	*_node;
 
 	public:
 		typedef typename	_Iterator<U>::iterator_category	iterator_category;
@@ -177,23 +173,25 @@ protected:
 		typedef typename	_Iterator<U>::pointer			pointer;
 		typedef typename	_Iterator<U>::reference			reference;
 
-		_LocalIterator(U *entry) : _bucket(entry) {}
-		_LocalIterator(const _LocalIterator& other) : _bucket(other._bucket) {}
+		_LocalIterator(U *entry) : _node(entry) {}
+		_LocalIterator(const _LocalIterator& other) : _node(other._node) {}
 		_LocalIterator& operator=(const _LocalIterator& other) NOEXCEPT
 		{
-			this->_bucket = other._bucket;
+			this->_node = other._node;
 			return *this;
 		}
 		~_LocalIterator() {}
 
-		inline operator _Iterator<const U>() const { return _bucket; }
+		inline operator _Iterator<const U>() const { return _node; }
 
-		reference	operator*() NOEXCEPT	{ return _bucket->value; }
-		pointer		operator->() NOEXCEPT	{ return &_bucket->value; }
+		reference	operator*() NOEXCEPT	{ return _node->value; }
+		pointer		operator->() NOEXCEPT	{ return &_node->value; }
+		bool		operator==(_LocalIterator const& rhs) const NOEXCEPT	{ return _node == rhs._node; }
+		bool		operator!=(_LocalIterator const& rhs) const NOEXCEPT	{ return !operator==(rhs); }
 
 		_LocalIterator&	operator++() NOEXCEPT
 		{
-			_bucket = _bucket->next;
+			_node = _node->next;
 		}
 		_LocalIterator	operator++(int) NOEXCEPT
 		{
@@ -203,6 +201,27 @@ protected:
 		}
 	};
 
+public:
+	typedef				Key							key_type;
+	typedef				ValueType					value_type;
+	typedef				Hash						hasher;
+	typedef				KeyEqual					key_equal;
+	typedef				Allocator					allocator_type;
+
+	typedef typename	Allocator::size_type		size_type;
+	typedef typename	Allocator::difference_type	difference_type;
+
+	typedef typename	Allocator::pointer			pointer;
+	typedef typename	Allocator::const_pointer	const_pointer;
+	typedef typename	Allocator::reference		reference;
+	typedef typename	Allocator::const_reference	const_reference;
+
+	typedef 			_Iterator<value_type>				iterator;
+	typedef 			_Iterator<const value_type>			const_iterator;
+	typedef 			_LocalIterator<value_type>			local_iterator;
+	typedef 			_LocalIterator<const value_type>		const_local_iterator;
+
+protected:
 	_Node*	create_node(_Node *next, value_type const& value)
 		{
 			_Node *new_node;
@@ -289,7 +308,26 @@ public:
 	size_type	size() const NOEXCEPT		{ return _element_count; }
 	size_type	max_size() const NOEXCEPT	{ return _allocator.max_size(); }
 
-	bool		has(key_type const& key) const	{ return equal_unique(key) != NULL; }
+	iterator	begin() NOEXCEPT
+	{
+		_Node **head = _buckets;
+		while (*head == nullptr && head < _buckets + _bucket_count)
+			++head;
+		return iterator(head, *head);
+	}
+	const_iterator	begin() const NOEXCEPT	{ return cbegin(); }
+	const_iterator	cbegin() const NOEXCEPT
+	{
+		_Node **head = _buckets;
+		while (*head == nullptr && head < _buckets + _bucket_count)
+			++head;
+		return const_iterator(head, *head);
+	}
+	iterator		end() NOEXCEPT			{ return iterator(_buckets + _bucket_count - 1, _end); }
+	const_iterator	end() const NOEXCEPT	{ return cend(); }
+	const_iterator	cend() const NOEXCEPT	{ return const_iterator(_buckets + _bucket_count - 1, _end); }
+
+	bool		has(key_type const& key) const	{ return equal_unique(key) != end(); }
 
 	size_type	count(key_type const& key) const
 	{
@@ -307,7 +345,7 @@ public:
 	void	rehash(size_type n) { (void)n; }
 	void	clear() NOEXCEPT {}
 
-	ft::pair<_Node*, bool> insert_unique(const value_type& value)
+	ft::pair<iterator, bool> insert_unique(const value_type& value)
 	{
 		if (static_cast<float>(_element_count + 1) / _bucket_count > _max_load_factor)
 			rehash(_bucket_count * 2); // TODO: Fibonacci thing
@@ -317,16 +355,16 @@ public:
 		while (node && node != _end)
 		{
 			if (_key_equal(node->value, value))
-				return ft::make_pair(node, false); // Key already exists
+				return ft::make_pair(iterator(_buckets + idx, node), false); // Key already exists
 			node = node->next;
 		}
 		// Exception guarantee: No modifications before this point
 		_Node *new_node = push_node(&_buckets[idx], value);
 		++_element_count;
-		return ft::make_pair(new_node, true);
+		return ft::make_pair(iterator(_buckets + idx, new_node), true);
 	}
 
-	_Node*	insert_equal(const value_type& value)
+	iterator	insert_equal(const value_type& value)
 	{
 		if (static_cast<float>(_element_count + 1) / _bucket_count > _max_load_factor)
 			rehash(_bucket_count * 2); // TODO: Fibonacci thing
@@ -347,29 +385,30 @@ public:
 			node->next = new_node;
 		}
 		++_element_count;
-		return new_node;
+		return iterator(_buckets + idx, new_node);
 	}
 
 	/*
 	* Returns a pointer to the first node matching key, or NULL if none is found.
 	* The returned node is always valid (cannot be _end).
 	*/
-	// FIXME: Returning NULL instead of _end is inconsitent. Pick one!!!
-	const _Node*	equal_unique(key_type const& key) const
+	const_iterator	equal_unique(key_type const& key) const
 	{
 		size_t idx = _hash_function(key) % _bucket_count;
 		_Node *node = _buckets[idx];
 		while (node && node != _end)
 		{
 			if (_key_equal(key, node->value))
-				return node;
+				return const_iterator(_buckets + idx, node);
 			node = node->next;
 		}
-		return NULL;
+		return end();
 	}
-	_Node*	equal_unique(key_type const& key)
+	iterator	equal_unique(key_type const& key)
 	{
-		const_cast<_Node*>(static_cast<const _SelfType*>(this)->equal_unique(key));
+		const_iterator it = static_cast<const _SelfType*>(this)->equal_unique(key);
+		_Node *bucket = const_cast<_Node*>(it._node);
+		return iterator(it._bucket, bucket);
 	}
 
 	/*
@@ -377,19 +416,24 @@ public:
 	* If the range does not exist, returns {NULL, NULL}. The second pointer may be
 	* the _end node.
 	*/
-	ft::pair<const _Node*, const _Node*>	equal_range(key_type const& key) const
+	ft::pair<const_iterator, const_iterator>	equal_range(key_type const& key) const
 	{
-		_Node *range_begin = equal_unique(key);
-		if (!range_begin)
-			return ft::make_pair(NULL, NULL);
-		_Node *range_end = range_begin->next;
-		while (range_end && range_end != _end && _key_equal(range_end->value, key))
-			range_end = range_end->next;
+		const_iterator range_begin = equal_unique(key);
+		if (range_begin == end())
+			return ft::make_pair(range_begin, range_begin);
+		const_iterator range_end = range_begin;
+		++range_end;
+		while (range_end != end())
+			++range_end;
 		return ft::make_pair(range_begin, range_end);
 	}
-	ft::pair<_Node*, _Node*>	equal_range(key_type const& key)
+	ft::pair<iterator, iterator>	equal_range(key_type const& key)
 	{
-		const_cast< ft::pair<_Node*, _Node*> >(static_cast<const _SelfType*>(this)->equal_range(key));
+		ft::pair<const_iterator, const_iterator> range = static_cast<const _SelfType*>(this)->equal_range(key);
+		return ft::make_pair(
+			iterator(range.first._bucket, const_cast<_Node*>(range.first._node)),
+			iterator(range.second._bucket, const_cast<_Node*>(range.second._node))
+		);
 	}
 
 	/*
@@ -402,7 +446,7 @@ public:
 		_Node *prev = NULL;
 		while (head && head != _end)
 		{
-			if (_key_equal(head, key))
+			if (_key_equal(head->value, key))
 			{
 				remove_node(&_buckets[idx], prev);
 				return 1;

@@ -6,12 +6,14 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 18:57:53 by pbremond          #+#    #+#             */
-/*   Updated: 2024/10/21 00:50:31 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:27:49 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_FUNCTIONAL
 #define FT_FUNCTIONAL
+
+#include <cstddef>
 
 namespace ft
 {
@@ -53,122 +55,37 @@ struct __hash_base
 
 template <class T> struct hash {};
 
-template <>
-struct hash<bool> : __hash_base<bool>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
+#define HASH_SPECIALIZE(_Tp) \
+	template <> \
+	struct hash<_Tp> : __hash_base<_Tp> \
+	{ \
+		result_type operator()(argument_type x)	const throw() { return static_cast<result_type>(x); } \
+	};
 
-template <>
-struct hash<char> : __hash_base<char>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
 
-template <>
-struct hash<signed char> : __hash_base<signed char>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
+HASH_SPECIALIZE(bool)
+HASH_SPECIALIZE(char)
+HASH_SPECIALIZE(signed char)
+HASH_SPECIALIZE(unsigned char)
+HASH_SPECIALIZE(wchar_t)
+HASH_SPECIALIZE(short)
+HASH_SPECIALIZE(unsigned short)
+HASH_SPECIALIZE(int)
+HASH_SPECIALIZE(unsigned int)
+HASH_SPECIALIZE(long)
+HASH_SPECIALIZE(unsigned long)
+HASH_SPECIALIZE(long long)
+HASH_SPECIALIZE(unsigned long long)
+HASH_SPECIALIZE(float)
+HASH_SPECIALIZE(double)
+HASH_SPECIALIZE(long double)
 
-template <>
-struct hash<unsigned char> : __hash_base<unsigned char>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-// template <>
-// struct hash<char16_t> : __hash_base<char16_t>
-// {
-// 	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-// };
-
-// template <>
-// struct hash<char32_t> : __hash_base<char32_t>
-// {
-// 	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-// };
-
-template <>
-struct hash<wchar_t> : __hash_base<wchar_t>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-template <>
-struct hash<short> : __hash_base<short>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-template <>
-struct hash<unsigned short> : __hash_base<unsigned short>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-template <>
-struct hash<int> : __hash_base<int>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-template <>
-struct hash<unsigned int> : __hash_base<unsigned int>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-template <>
-struct hash<long> : __hash_base<long>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-template <>
-struct hash<unsigned long> : __hash_base<unsigned long>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-template <>
-struct hash<long long> : __hash_base<long long>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-template <>
-struct hash<unsigned long long> : __hash_base<unsigned long long>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-template <>
-struct hash<float> : __hash_base<float>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-template <>
-struct hash<double> : __hash_base<double>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
-template <>
-struct hash<long double> : __hash_base<long double>
-{
-	result_type operator()(argument_type x)	{ return static_cast<result_type>(x); }
-};
-
+// T* (for any type T)
 template <class T>
 struct hash<T*> : __hash_base<T*>
 {
-	std::size_t operator()(T *x)	{ return reinterpret_cast<std::size_t>(x); }
+	std::size_t operator()(T *x) const throw()	{ return reinterpret_cast<std::size_t>(x); }
 };
-
-
-// T* (for any type T)
 
 } // namespace ft
 

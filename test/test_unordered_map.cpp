@@ -12,9 +12,8 @@ void	tests_multimap()
 {
 	{
 		ft::map_t	foo;
+		ft::map_t	bar;
 
-		foo.hash_function();
-		foo.key_eq();
 		foo.empty();
 		foo.size();
 		foo.max_size();
@@ -22,7 +21,29 @@ void	tests_multimap()
 		foo.cbegin();
 		foo.end();
 		foo.cend();
-		foo.insert(ft::make_pair(0, "Hello"));
-	}
 
+		foo.insert(ft::make_pair(0, "Hello"));
+		// TODO: other inserts
+		foo.erase(0);
+		// TODO: other erases
+		foo.clear();
+		foo.swap(bar);
+
+		foo.hash_function();
+		foo.key_eq();
+
+		foo.find(0);
+		foo.count(0);
+		foo.equal_range(0);
+		foo[0];
+		foo.at(0);
+	}
+	{
+		ft::map_t	foo;
+
+		ft::map_t::iterator it = foo.begin();
+		ft::map_t::const_iterator cit = foo.cbegin();
+
+		ft::map_t::const_iterator cit2 = it;
+	}
 }
