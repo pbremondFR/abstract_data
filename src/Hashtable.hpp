@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/01 22:31:57 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/01 22:43:53 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,10 @@
 
 namespace ft { namespace detail {
 
+/*
+* Adapter struct that allows to call the Hash function with both key_type and value_type.
+* This is used in maps, because value_type is a pair<key_type, mapped_type>.
+*/
 template <class Key, class ValueType, class Hash>
 struct _HashPairAdapter
 {
@@ -45,6 +49,10 @@ struct _HashPairAdapter
 	typename Hash::result_type	operator()(ValueType const& a) const	{ return hash(a.first); }
 };
 
+/*
+* Adapter struct that allows to call compare key_type with value_type.
+* This is useful because in maps, calue_type is a pair<key_type, mapped_type>.
+*/
 template <class Key, class ValueType, class KeyEqual>
 struct _KeyEqualPairAdapter
 {
@@ -53,7 +61,7 @@ struct _KeyEqualPairAdapter
 	_KeyEqualPairAdapter(KeyEqual keycmp = KeyEqual()) : key_equal(keycmp) {}
 
 	// Customize this struct according to value_type of the container
-	// (in reality, either just key_type or pair<(const) key_type, mapped_type> aka value_type)
+	// (in reality, just pair<(const) key_type, mapped_type> aka value_type)
 	typename KeyEqual::result_type	operator()(Key const& a, Key const& b) 						{ return key_equal(a, b); }
 	typename KeyEqual::result_type	operator()(Key const& a, Key const& b) const				{ return key_equal(a, b); }
 	typename KeyEqual::result_type	operator()(Key const& a, ValueType const& b) 				{ return key_equal(a, b.first); }

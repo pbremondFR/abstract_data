@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:20:09 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/01 20:24:41 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/01 22:37:58 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,9 @@ class unordered_map
 private:
 	typedef typename	ft::detail::Hashtable<
 		Key,
-		ft::pair<Key, T>,
-		ft::detail::_HashPairAdapter<Key, ft::pair<Key, T>, Hash>,
-		ft::detail::_KeyEqualPairAdapter<Key, ft::pair<Key, T>, ft::equal_to<Key> >,
+		ft::pair<const Key, T>,
+		ft::detail::_HashPairAdapter<Key, ft::pair<const Key, T>, Hash>,
+		ft::detail::_KeyEqualPairAdapter<Key, ft::pair<const Key, T>, ft::equal_to<Key> >,
 		Allocator
 	>	_Hashtable;
 

@@ -48,6 +48,7 @@ void	tests_multimap()
 		foo.end(0);
 		foo.cbegin(0);
 		foo.cend(0);
+
 	}
 	{
 		ft::map_t	foo;
@@ -56,5 +57,12 @@ void	tests_multimap()
 		ft::map_t::const_iterator cit = foo.cbegin();
 
 		ft::map_t::const_iterator cit2 = it;
+
+		++it;
+		cit++;
+		++cit2++;
+
+		// it->first = 0;
+		it->second = "foo";
 	}
 }
