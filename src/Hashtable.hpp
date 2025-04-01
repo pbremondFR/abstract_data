@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/01 19:06:23 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/01 22:31:57 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,10 +111,15 @@ protected:
 	class _Iterator
 	{
 	private:
+		// Hashtable needs to access the internal pointers to use iterators internally
 		friend class Hashtable<Key, ValueType, Hash, KeyEqual, Allocator>;
-		// typedef typename	ft::remove_const<U>::type	U_constless;
-		_Node	**_bucket;
-		_Node	*_node;
+		// _NodePtr has same const-qualifier (or lack of) as template type U (_Node const* vs _Node*).
+		// _NodeDoublePtr is the same, but with the bonus of C++ double pointer shenanigans.
+		typedef typename conditional<is_const<U>::value, const _Node*,			_Node*>::type	_NodePtr;
+		typedef typename conditional<is_const<U>::value, const _Node* const*,	_Node**>::type	_NodeDoublePtr;
+
+		_NodeDoublePtr	_bucket;
+		_NodePtr		_node;
 
 	public:
 		typedef ft::forward_iterator_tag	iterator_category;
@@ -123,7 +128,7 @@ protected:
 		typedef U*							pointer;
 		typedef U&							reference;
 
-		_Iterator(_Node **bucket, _Node *entry) : _bucket(bucket), _node(entry) {}
+		_Iterator(_NodeDoublePtr bucket, _NodePtr entry) : _bucket(bucket), _node(entry) {}
 		_Iterator(const _Iterator& other) : _bucket(other._bucket), _node(other._node) {}
 		_Iterator& operator=(const _Iterator& other) NOEXCEPT
 		{
@@ -164,7 +169,8 @@ protected:
 	{
 	private:
 		friend class Hashtable<Key, ValueType, Hash, KeyEqual, Allocator>;
-		U	*_node;
+		typedef typename conditional<is_const<U>::value, const _Node*, _Node*>::type	_NodePtr;
+		_NodePtr	_node;
 
 	public:
 		typedef typename	_Iterator<U>::iterator_category	iterator_category;
@@ -173,7 +179,7 @@ protected:
 		typedef typename	_Iterator<U>::pointer			pointer;
 		typedef typename	_Iterator<U>::reference			reference;
 
-		_LocalIterator(U *entry) : _node(entry) {}
+		_LocalIterator(_NodePtr entry) : _node(entry) {}
 		_LocalIterator(const _LocalIterator& other) : _node(other._node) {}
 		_LocalIterator& operator=(const _LocalIterator& other) NOEXCEPT
 		{
@@ -557,9 +563,11 @@ public:
 	}
 	iterator	equal_unique(key_type const& key)
 	{
+		// Using Meyer's pattern to avoid repeating code twice
 		const_iterator it = static_cast<const _SelfType*>(this)->equal_unique(key);
-		_Node *bucket = const_cast<_Node*>(it._node);
-		return iterator(it._bucket, bucket);
+		_Node *node = const_cast<_Node*>(it._node);
+		_Node **bucket = const_cast<_Node**>(it._bucket);
+		return iterator(bucket, node);
 	}
 
 	/*
@@ -580,10 +588,11 @@ public:
 	}
 	ft::pair<iterator, iterator>	equal_range(key_type const& key)
 	{
+		// Using Meyer's pattern to avoid repeating code twice
 		ft::pair<const_iterator, const_iterator> range = static_cast<const _SelfType*>(this)->equal_range(key);
 		return ft::make_pair(
-			iterator(range.first._bucket, const_cast<_Node*>(range.first._node)),
-			iterator(range.second._bucket, const_cast<_Node*>(range.second._node))
+			iterator(const_cast<_Node**>(range.first._bucket), const_cast<_Node*>(range.first._node)),
+			iterator(const_cast<_Node**>(range.second._bucket), const_cast<_Node*>(range.second._node))
 		);
 	}
 

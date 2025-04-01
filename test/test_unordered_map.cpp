@@ -37,6 +37,17 @@ void	tests_multimap()
 		foo.equal_range(0);
 		foo[0];
 		foo.at(0);
+
+		foo.bucket_count();
+		foo.max_bucket_count();
+		foo.bucket_size(0);
+		foo.bucket(0);
+		foo.begin(0);
+		foo.begin(0);
+		foo.end(0);
+		foo.end(0);
+		foo.cbegin(0);
+		foo.cend(0);
 	}
 	{
 		ft::map_t	foo;
