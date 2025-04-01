@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/01 23:18:02 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/02 00:10:02 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "functional.hpp"
 #include "iterator.hpp"
 #include "type_traits.hpp"
+#include "algorithm.hpp"
 
 #include <cstddef>
 #include <cstring>
@@ -123,11 +124,16 @@ protected:
 		friend class Hashtable<Key, ValueType, Hash, KeyEqual, Allocator>;
 		// _NodePtr has same const-qualifier (or lack of) as template type U (_Node const* vs _Node*).
 		// _NodeDoublePtr is the same, but with the bonus of C++ double pointer shenanigans.
-		typedef typename conditional<is_const<U>::value, const _Node*,			_Node*>::type	_NodePtr;
-		typedef typename conditional<is_const<U>::value, const _Node* const*,	_Node**>::type	_NodeDoublePtr;
+		// XXX: I loved this trick but C++11 say I have to accept const_iterators in erase so it doesn't apply :(
+		// typedef typename conditional<is_const<U>::value, const _Node*,			_Node*>::type	_NodePtr;
+		// typedef typename conditional<is_const<U>::value, const _Node* const*,	_Node**>::type	_NodeDoublePtr;
+
+		typedef _Node* _NodePtr;
+		typedef _Node** _NodeDoublePtr;
 
 		_NodeDoublePtr	_bucket;
 		_NodePtr		_node;
+		_Iterator(_NodeDoublePtr bucket, _NodePtr entry) : _bucket(bucket), _node(entry) {}
 
 	public:
 		typedef ft::forward_iterator_tag	iterator_category;
@@ -136,7 +142,6 @@ protected:
 		typedef U*							pointer;
 		typedef U&							reference;
 
-		_Iterator(_NodeDoublePtr bucket, _NodePtr entry) : _bucket(bucket), _node(entry) {}
 		_Iterator(const _Iterator& other) : _bucket(other._bucket), _node(other._node) {}
 		_Iterator& operator=(const _Iterator& other) NOEXCEPT
 		{
@@ -637,15 +642,15 @@ public:
 		}
 		return 0;
 	}
-	iterator	erase_unique(iterator pos)
+	iterator	erase_unique(const_iterator pos)
 	{
 		// This is not invalidated because no rehash is triggered
-		iterator next = pos;
+		iterator next(pos._bucket, pos._node);
 		++next;
 
 		// If iterator is the first in the bucket, previous node is null, otherwise find the previous node.
 		_Node *prev = nullptr;
-		if (pos._bucket != pos._node)
+		if (*pos._bucket != pos._node)
 		{
 			prev = *pos._bucket;
 			while (prev->next != pos._node)
@@ -653,6 +658,10 @@ public:
 		}
 		remove_node(pos._bucket, prev);
 		return next;
+	}
+	iterator	erase_unique(iterator pos)
+	{
+		return erase_unique(static_cast<const_iterator>(pos));
 	}
 
 	/*
@@ -680,17 +689,17 @@ public:
 			remove_node_range(&_buckets[idx], prev_begin, head);
 		return count;
 	}
-	iterator	erase_range(iterator first, iterator last)
+	iterator	erase_range(const_iterator first, const_iterator last)
 	{
 		// This is not invalidated because no rehash is triggered
-		iterator after_last = last;
+		iterator after_last(last._bucket, last._node);
 		++after_last;
 
 		while (first != last)
 		{
 			_Node *prev = nullptr;
 			// If iterator is the first in the bucket, previous node is null, otherwise find the previous node.
-			if (first._bucket != first._node)
+			if (*first._bucket != first._node)
 			{
 				prev = *first._bucket;
 				while (prev->next != first._node)

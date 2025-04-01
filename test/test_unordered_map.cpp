@@ -23,9 +23,11 @@ void	tests_multimap()
 		foo.cend();
 
 		foo.insert(ft::make_pair(0, "Hello"));
-		// TODO: other inserts
+		foo.insert(foo.begin(), ft::make_pair(1, ", world!"));
+		foo.insert(foo.begin(), foo.end());
+		foo.erase(foo.find(1));
 		foo.erase(0);
-		// TODO: other erases
+		foo.erase(foo.begin(), foo.end());
 		foo.clear();
 		foo.swap(bar);
 
