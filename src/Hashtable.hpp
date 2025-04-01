@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/01 22:43:53 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/01 23:18:02 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -412,6 +412,19 @@ public:
 	iterator		end() NOEXCEPT			{ return iterator(_buckets + _bucket_count - 1, _end); }
 	const_iterator	end() const NOEXCEPT	{ return cend(); }
 	const_iterator	cend() const NOEXCEPT	{ return const_iterator(_buckets + _bucket_count - 1, _end); }
+
+	void	swap(Hashtable &other) NOEXCEPT
+	{
+		ft::swap(_buckets,			other._buckets);
+		ft::swap(_end,				other._end);
+		ft::swap(_bucket_count,		other._bucket_count);
+		ft::swap(_element_count,	other._element_count);
+		ft::swap(_max_load_factor,	other._max_load_factor);
+		ft::swap(_hash_function,	other._hash_function);
+		ft::swap(_key_equal,		other._key_equal);
+		ft::swap(_allocator,		other._allocator);
+		ft::swap(_ptr_allocator,	other._ptr_allocator);
+	}
 
 	bool		has(key_type const& key) const	{ return equal_unique(key) != end(); }
 

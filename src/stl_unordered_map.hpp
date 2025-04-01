@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:20:09 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/01 22:37:58 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/01 23:18:49 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,8 +119,8 @@ public:
 	iterator	erase(const_iterator position)						{ return _ht.erase_unique(position); }
 	size_type	erase(const key_type& k)							{ return _ht.erase_unique(k); }
 	iterator	erase(const_iterator first, const_iterator last)	{ return _ht.erase_range(first, last); }
-	void 		clear() NOEXCEPT			{ _ht.clear(); }
-	void 		swap(unordered_map &other)	{ ft::swap(_ht, other._ht); }
+	void 		clear() NOEXCEPT									{ _ht.clear(); }
+	void 		swap(unordered_map &other)							{ _ht.swap(other._ht); }
 
 	// observers
 	hasher		hash_function() const	{ return _ht._hash_function.hash; }
@@ -157,13 +157,22 @@ public:
 };
 
 template <class Key, class T, class Hash, class Pred, class Alloc>
-void swap(unordered_map<Key, T, Hash, Pred, Alloc>& x, unordered_map<Key, T, Hash, Pred, Alloc>& y);
+void swap(unordered_map<Key, T, Hash, Pred, Alloc>& x, unordered_map<Key, T, Hash, Pred, Alloc>& y)
+{
+	x.swap(y);
+}
 
 template <class Key, class T, class Hash, class Pred, class Alloc>
-bool operator==(const unordered_map<Key, T, Hash, Pred, Alloc>& a, const unordered_map<Key, T, Hash, Pred, Alloc>& b);
+bool operator==(const unordered_map<Key, T, Hash, Pred, Alloc>& a, const unordered_map<Key, T, Hash, Pred, Alloc>& b)
+{
+	return ft::equal(a.begin(), a.end(), b.begin(), b.end());
+}
 
 template <class Key, class T, class Hash, class Pred, class Alloc>
-bool operator!=(const unordered_map<Key, T, Hash, Pred, Alloc>& a, const unordered_map<Key, T, Hash, Pred, Alloc>& b);
+bool operator!=(const unordered_map<Key, T, Hash, Pred, Alloc>& a, const unordered_map<Key, T, Hash, Pred, Alloc>& b)
+{
+	return !(a == b);
+}
 
 } // namespace ft
 
