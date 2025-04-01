@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/01 00:18:27 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/01 18:40:35 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,6 +245,12 @@ protected:
 		*list = new_node;
 		return new_node;
 	}
+	_Node*	push_node(_Node **list, _Node *new_node)
+	{
+		new_node->next = *list;
+		*list = new_node;
+		return new_node;
+	}
 	void	remove_node(_Node **list, _Node *prev)
 	{
 		_Node *node = prev ? prev->next : *list;
@@ -292,7 +298,8 @@ public:
 	}
 	~Hashtable()
 	{
-		// clear();
+		clear();
+		_allocator.deallocate(_end, 1);
 		_ptr_allocator.deallocate(_buckets, _bucket_count);
 	}
 
@@ -302,9 +309,10 @@ public:
 	size_type	get_bucket_count() const NOEXCEPT	{ return _bucket_count; }
 	size_type	max_bucket_count() const NOEXCEPT	{ return _ptr_allocator.max_size(); }
 
-	float	get_max_load_factor() const NOEXCEPT	{ return _max_load_factor; }
-	void	set_max_load_factor(float n) NOEXCEPT	{ _max_load_factor = n; }
-	float	get_load_factor() const NOEXCEPT		{ return _ht._element_count / static_cast<float>(_ht._bucket_count); }
+	float	get_max_load_factor() const NOEXCEPT		{ return _max_load_factor; }
+	void	set_max_load_factor(float n) NOEXCEPT		{ _max_load_factor = n; }
+	float	get_load_factor() const NOEXCEPT			{ return _element_count / static_cast<float>(_bucket_count); }
+	float	get_load_factor(size_type n) const NOEXCEPT	{ return n / static_cast<float>(_bucket_count); }
 
 	size_type	size() const NOEXCEPT		{ return _element_count; }
 	size_type	max_size() const NOEXCEPT	{ return _allocator.max_size(); }
@@ -342,14 +350,97 @@ public:
 		return n;
 	}
 
-	// TODO
-	void	rehash(size_type n) { (void)n; }
-	void	clear() NOEXCEPT {}
+	// Rehashes table but does not need to walk the linked list to push new nodes in
+	void	rehash_unique(size_type n)
+	{
+		if ( n < static_cast<size_type>(size() / get_max_load_factor()) )
+			return;
+
+		_Node **new_bucket_list = nullptr;
+		try {
+			new_bucket_list = _ptr_allocator.allocate(n);
+			memset(new_bucket_list, 0, n * sizeof(*new_bucket_list));
+			iterator it = begin();
+			// Do it node-by-node because rehashing might individuqlly  change the bucket index of
+			// nodes in the old bucket
+			while (it._node != _end)
+			{
+				iterator next = it;
+				++next;
+				// Just push the node at the front of the bucket
+				size_type new_idx = _hash_function(*it) % n;
+				it._node->next = new_bucket_list[new_idx];
+				new_bucket_list[new_idx] = it._node;
+				it = next;
+			}
+			// Put the _end marker at the end of the last bucket
+			_Node **last_next = new_bucket_list + n - 1;
+			while (*last_next && (*last_next)->next != nullptr)
+				last_next = &(*last_next)->next;
+			*last_next = _end;
+
+			_ptr_allocator.deallocate(_buckets, _bucket_count);
+			_buckets = new_bucket_list;
+			_bucket_count = n;
+		}
+		catch (...) {
+			return;
+		}
+	}
+	// Rehashes table but keeps identical nodes (according to KeyEq) next to eachother
+	void	rehash_equal(size_type n)
+	{
+		if ( n < static_cast<size_type>(size() / get_max_load_factor()) )
+			return;
+
+		_Node **new_bucket_list = nullptr;
+		try {
+			new_bucket_list = _ptr_allocator.allocate(n);
+			memset(new_bucket_list, 0, n * sizeof(*new_bucket_list));
+			iterator it = begin();
+			while (it._node != _end)
+			{
+				iterator next = it;
+				++next;
+				size_type new_idx = _hash_function(*it) % n;
+
+				// Find the correct insertion spot
+				_Node **prev_next = new_bucket_list + new_idx;
+				while (*prev_next && !_key_equal((*prev_next)->value, *it))
+					prev_next = &(*prev_next)->next;
+				it._node->next = *prev_next ? (*prev_next)->next : nullptr;
+				*prev_next = it._node;
+			}
+			// Put the _end marker at the end of the last bucket
+			_Node **last_bucket = new_bucket_list + n - 1;
+			while (*last_bucket && (*last_bucket)->next != nullptr)
+				*last_bucket = (*last_bucket)->next;
+			*last_bucket = _end;
+
+			_ptr_allocator.deallocate(_buckets, _bucket_count);
+			_buckets = new_bucket_list;
+			_bucket_count = n;
+		}
+		catch (...) {
+			return;
+		}
+	}
+	void	clear() NOEXCEPT
+	{
+		for (size_t i = 0; i + 1 < _bucket_count; ++i)
+			remove_node_range(_buckets + i, nullptr, nullptr);
+		remove_node_range(_buckets + _bucket_count - 1, nullptr, _end);
+		_element_count = 0;
+	}
 
 	ft::pair<iterator, bool> insert_unique(const value_type& value)
 	{
-		if (static_cast<float>(_element_count + 1) / _bucket_count > _max_load_factor)
-			rehash(_bucket_count * 2); // TODO: Fibonacci thing
+		// Strong exception guarantee: No modifications before this point
+		_Node *new_node = create_node(nullptr, value);
+
+		// Check for rehash after creating node to avoid rehashing if allocation/construction throws
+		if (get_load_factor(_element_count + 1) > _max_load_factor)
+			rehash_unique(_bucket_count * 2); // TODO: Fibonacci thing
 
 		size_t idx = _hash_function(value) % _bucket_count;
 		_Node* node = _buckets[idx];
@@ -359,18 +450,20 @@ public:
 				return ft::make_pair(iterator(_buckets + idx, node), false); // Key already exists
 			node = node->next;
 		}
-		// Exception guarantee: No modifications before this point
-		_Node *new_node = push_node(&_buckets[idx], value);
+		push_node(&_buckets[idx], new_node);
 		++_element_count;
 		return ft::make_pair(iterator(_buckets + idx, new_node), true);
 	}
 
 	iterator	insert_equal(const value_type& value)
 	{
-		if (static_cast<float>(_element_count + 1) / _bucket_count > _max_load_factor)
-			rehash(_bucket_count * 2); // TODO: Fibonacci thing
-
+		// Strong exception guarantee: No modifications before this point
 		_Node *new_node = create_node(NULL, value);
+
+		// Check for rehash after creating node to avoid rehashing if allocation/construction throws
+		if (get_load_factor(_element_count + 1) > _max_load_factor)
+			rehash_equal(_bucket_count * 2); // TODO: Fibonacci thing
+
 		size_t idx = _hash_function(value) % _bucket_count;
 		_Node* node = _buckets[idx];
 		if (!node || node == _end)
