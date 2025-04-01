@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:58:50 by pbremond          #+#    #+#             */
-/*   Updated: 2025/03/31 23:50:20 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/01 20:25:04 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,47 @@ ft::unordered_map<Key, T, Hash, Pred, Allocator>::unordered_map(
 	const key_equal& eql,
 	const allocator_type& alloc)
 : _ht(n, hf, eql, alloc)
+{
+
+}
+
+template<class Key, class T, class Hash, class Pred, class Allocator>
+template <class InputIterator>
+ft::unordered_map<Key, T, Hash, Pred, Allocator>::unordered_map(
+	InputIterator first,
+	InputIterator last,
+	size_type n,
+	const hasher& hf,
+	const key_equal& eql,
+	const allocator_type& alloc)
+: _ht(n, hf, eql, alloc)
+{
+	_ht.insert(first, last);
+}
+
+template<class Key, class T, class Hash, class Pred, class Allocator>
+ft::unordered_map<Key, T, Hash, Pred, Allocator>::unordered_map(const unordered_map& other)
+: _ht(other._ht)
+{
+
+}
+
+template<class Key, class T, class Hash, class Pred, class Allocator>
+ft::unordered_map<Key, T, Hash, Pred, Allocator>::unordered_map(const Allocator& alloc)
+: _ht(10, Hash(), Pred(), alloc)
+{
+
+}
+
+template<class Key, class T, class Hash, class Pred, class Allocator>
+ft::unordered_map<Key, T, Hash, Pred, Allocator>::unordered_map(const unordered_map& src, const Allocator& alloc)
+: _ht(src.bucket_count(), src.hash_function(), src.key_eq(), alloc)
+{
+	insert(src.begin(), src.end());
+}
+
+template<class Key, class T, class Hash, class Pred, class Allocator>
+ft::unordered_map<Key, T, Hash, Pred, Allocator>::~unordered_map()
 {
 
 }

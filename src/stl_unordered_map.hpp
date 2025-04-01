@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:20:09 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/01 00:19:12 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/01 20:24:41 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,15 +73,27 @@ public:
 	typedef typename	_Hashtable::const_local_iterator	const_local_iterator;
 
 	// construct/destroy/copy
-	explicit unordered_map(size_type n = 10 , const hasher& hf = hasher(), const key_equal& eql = key_equal(), const allocator_type& a = allocator_type());
+	explicit unordered_map(
+		size_type n = 10,
+		const hasher& hf = hasher(),
+		const key_equal& eql = key_equal(),
+		const allocator_type& a = allocator_type()
+	);
 	template <class InputIterator>
-	unordered_map(InputIterator f, InputIterator l, size_type n = 10 , const hasher& hf = hasher(), const key_equal& eql = key_equal(), const allocator_type& a = allocator_type());
+	unordered_map(
+		InputIterator f,
+		InputIterator l,
+		size_type n = 10,
+		const hasher& hf = hasher(),
+		const key_equal& eql = key_equal(),
+		const allocator_type& a = allocator_type()
+	);
 	unordered_map(const unordered_map&);
 	explicit unordered_map(const Allocator&);
 	unordered_map(const unordered_map&, const Allocator&);
 	~unordered_map();
 	unordered_map& operator=(const unordered_map&);
-	allocator_type get_allocator() const NOEXCEPT;
+	allocator_type get_allocator() const NOEXCEPT	{ return _ht._allocator; }
 
 	// size and capacity
 	bool		empty() const NOEXCEPT		{ return _ht.size() == 0; };

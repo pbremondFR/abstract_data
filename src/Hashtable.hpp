@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/01 18:40:35 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/01 19:06:23 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,12 +276,22 @@ protected:
 		else
 			prev_begin->next = end;
 	}
+	// Append _end node at the end of given bucket.
+	// The bucket MUST be a different bucket than the one _end belongs to.
+	void	append_end_node(_Node **bucket) NOEXCEPT
+	{
+		// Put the _end marker at the end of the given bucket
+		_Node **last_next = bucket;
+		while (*last_next && (*last_next)->next != nullptr)
+			last_next = &(*last_next)->next;
+		*last_next = _end;
+	}
 
 public:
 	Hashtable(size_t bucket_count = 10, const Hash& hash = Hash(), const KeyEqual& key_equal = KeyEqual(), const Allocator& alloc = Allocator())
 	: _element_count(0), _max_load_factor(1.0f), _hash_function(hash), _key_equal(key_equal), _allocator(alloc), _ptr_allocator(alloc)
 	{
-		// XXX: Strong exception guarantee
+		// XXX: Basic exception guarantee
 		try {
 			_bucket_count = bucket_count > 0 ? bucket_count : 1;
 			_buckets = _ptr_allocator.allocate(_bucket_count);
@@ -296,11 +306,64 @@ public:
 			throw;
 		}
 	}
+	Hashtable(const Hashtable& other)
+	: _element_count(0), _max_load_factor(other._max_load_factor), _hash_function(other._hash_function), _key_equal(other._key_equal), _allocator(other._allocator), _ptr_allocator(other._ptr_allocator)
+	{
+		// XXX: Basic exception guarantee
+		try {
+			_bucket_count = other._bucket_count;
+			_buckets = _ptr_allocator.allocate(_bucket_count);
+			memset(_buckets, 0, sizeof(*_buckets) * _bucket_count);
+			_end = _allocator.allocate(1);
+			_end->next = NULL;
+			_buckets[_bucket_count - 1] = _end;
+
+			for (size_t i = 0; i < _bucket_count; ++i)
+				if (other._buckets[i])
+					push_node(&_buckets[i], other._buckets[i]->value);
+		}
+		catch (...) {
+			if (_buckets) {
+				clear();
+				_ptr_allocator.deallocate(_buckets, _bucket_count);
+			}
+			if (_end)
+				_allocator.deallocate(_end, 1);
+			throw;
+		}
+	}
+	Hashtable&	operator=(const Hashtable& other)
+	{
+		// XXX: Basic exception guarantee
+		if (this == &other)
+			return *this;
+		clear();
+		_allocator.deallocate(_end, 1);
+		_bucket_count		= other._bucket_count;
+		_element_count		= other._element_count;
+		_max_load_factor	= other._max_load_factor;
+		_hash_function		= other._hash_function;
+		_key_equal			= other._key_equal;
+		_allocator			= other._allocator;
+		_ptr_allocator		= other._ptr_allocator;
+
+		_buckets = _ptr_allocator.allocate(_bucket_count);
+		memset(_buckets, 0, sizeof(*_buckets) * _bucket_count);
+		_end = _allocator.allocate(1);
+		_end->next = nullptr;
+		_buckets[_bucket_count - 1] = _end;
+		for (size_t i = 0; i < _bucket_count; ++i)
+			if (other._buckets[i])
+				push_node(&_buckets[i], other._buckets[i]->value);
+		return *this;
+	}
 	~Hashtable()
 	{
 		clear();
-		_allocator.deallocate(_end, 1);
-		_ptr_allocator.deallocate(_buckets, _bucket_count);
+		if (_end)
+			_allocator.deallocate(_end, 1);
+		if (_buckets)
+			_ptr_allocator.deallocate(_buckets, _bucket_count);
 	}
 
 	allocator_type	get_allocator() const NOEXCEPT		{ return _allocator; }
@@ -374,17 +437,14 @@ public:
 				it = next;
 			}
 			// Put the _end marker at the end of the last bucket
-			_Node **last_next = new_bucket_list + n - 1;
-			while (*last_next && (*last_next)->next != nullptr)
-				last_next = &(*last_next)->next;
-			*last_next = _end;
+			append_end_node(new_bucket_list + n - 1);
 
 			_ptr_allocator.deallocate(_buckets, _bucket_count);
 			_buckets = new_bucket_list;
 			_bucket_count = n;
 		}
 		catch (...) {
-			return;
+			throw;
 		}
 	}
 	// Rehashes table but keeps identical nodes (according to KeyEq) next to eachother
@@ -412,17 +472,14 @@ public:
 				*prev_next = it._node;
 			}
 			// Put the _end marker at the end of the last bucket
-			_Node **last_bucket = new_bucket_list + n - 1;
-			while (*last_bucket && (*last_bucket)->next != nullptr)
-				*last_bucket = (*last_bucket)->next;
-			*last_bucket = _end;
+			append_end_node(new_bucket_list + n - 1);
 
 			_ptr_allocator.deallocate(_buckets, _bucket_count);
 			_buckets = new_bucket_list;
 			_bucket_count = n;
 		}
 		catch (...) {
-			return;
+			throw;
 		}
 	}
 	void	clear() NOEXCEPT
