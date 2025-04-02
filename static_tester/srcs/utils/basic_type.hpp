@@ -1,6 +1,8 @@
 #ifndef MONKEY_TESTER_BASIC_TYPE_HPP
 # define MONKEY_TESTER_BASIC_TYPE_HPP
 
+#include "functional.hpp"
+
 class basic_type
 {
 public:
@@ -20,5 +22,23 @@ public:
 		bool operator()(const basic_type &) const {return false;}
 	};
 };
+
+namespace std
+{
+	template <>
+	struct hash<basic_type>
+	{
+		std::size_t operator()(const basic_type&) const	{ return 0; }
+	};
+}
+
+namespace ft
+{
+	template <>
+	struct hash<basic_type>
+	{
+		std::size_t operator()(const basic_type&) const	{ return 0; }
+	};
+}
 
 #endif

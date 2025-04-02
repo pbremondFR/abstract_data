@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/02 00:10:02 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/02 16:29:55 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,16 +38,18 @@ namespace ft { namespace detail {
 template <class Key, class ValueType, class Hash>
 struct _HashPairAdapter
 {
+	// According to N3337: Hash shall be a unary function object type such that the
+	// expression hf(k) has type std::size_t
 	Hash	hash;
 
 	_HashPairAdapter(Hash hash_func = Hash()) : hash(hash_func) {}
 
 	// Customize this struct according to value_type of the container
 	// (in reality, either just key_type or pair<(const) key_type, mapped_type> aka value_type)
-	typename Hash::result_type	operator()(Key const& a) 				{ return hash(a); }
-	typename Hash::result_type	operator()(Key const& a) const			{ return hash(a); }
-	typename Hash::result_type	operator()(ValueType const& a) 			{ return hash(a.first); }
-	typename Hash::result_type	operator()(ValueType const& a) const	{ return hash(a.first); }
+	std::size_t	operator()(Key const& a) 				{ return hash(a); }
+	std::size_t	operator()(Key const& a) const			{ return hash(a); }
+	std::size_t	operator()(ValueType const& a) 			{ return hash(a.first); }
+	std::size_t	operator()(ValueType const& a) const	{ return hash(a.first); }
 };
 
 /*
@@ -57,20 +59,21 @@ struct _HashPairAdapter
 template <class Key, class ValueType, class KeyEqual>
 struct _KeyEqualPairAdapter
 {
+	// Pred shall be a binary predicate that takes two arguments of type Key. Pred is an equivalence relation
 	KeyEqual	key_equal;
 
 	_KeyEqualPairAdapter(KeyEqual keycmp = KeyEqual()) : key_equal(keycmp) {}
 
 	// Customize this struct according to value_type of the container
 	// (in reality, just pair<(const) key_type, mapped_type> aka value_type)
-	typename KeyEqual::result_type	operator()(Key const& a, Key const& b) 						{ return key_equal(a, b); }
-	typename KeyEqual::result_type	operator()(Key const& a, Key const& b) const				{ return key_equal(a, b); }
-	typename KeyEqual::result_type	operator()(Key const& a, ValueType const& b) 				{ return key_equal(a, b.first); }
-	typename KeyEqual::result_type	operator()(Key const& a, ValueType const& b) const			{ return key_equal(a, b.first); }
-	typename KeyEqual::result_type	operator()(ValueType const& a, Key const& b) 				{ return key_equal(a.first, b); }
-	typename KeyEqual::result_type	operator()(ValueType const& a, Key const& b) const			{ return key_equal(a.first, b); }
-	typename KeyEqual::result_type	operator()(ValueType const& a, ValueType const& b)	 		{ return key_equal(a.first, b.first); }
-	typename KeyEqual::result_type	operator()(ValueType const& a, ValueType const& b) const	{ return key_equal(a.first, b.first); }
+	bool	operator()(Key const& a, Key const& b) 						{ return key_equal(a, b); }
+	bool	operator()(Key const& a, Key const& b) const				{ return key_equal(a, b); }
+	bool	operator()(Key const& a, ValueType const& b) 				{ return key_equal(a, b.first); }
+	bool	operator()(Key const& a, ValueType const& b) const			{ return key_equal(a, b.first); }
+	bool	operator()(ValueType const& a, Key const& b) 				{ return key_equal(a.first, b); }
+	bool	operator()(ValueType const& a, Key const& b) const			{ return key_equal(a.first, b); }
+	bool	operator()(ValueType const& a, ValueType const& b)	 		{ return key_equal(a.first, b.first); }
+	bool	operator()(ValueType const& a, ValueType const& b) const	{ return key_equal(a.first, b.first); }
 };
 
 template<
@@ -142,6 +145,7 @@ protected:
 		typedef U*							pointer;
 		typedef U&							reference;
 
+		_Iterator() : _bucket(nullptr), _node(nullptr) {}
 		_Iterator(const _Iterator& other) : _bucket(other._bucket), _node(other._node) {}
 		_Iterator& operator=(const _Iterator& other) NOEXCEPT
 		{
@@ -182,8 +186,10 @@ protected:
 	{
 	private:
 		friend class Hashtable<Key, ValueType, Hash, KeyEqual, Allocator>;
-		typedef typename conditional<is_const<U>::value, const _Node*, _Node*>::type	_NodePtr;
+		// typedef typename conditional<is_const<U>::value, const _Node*, _Node*>::type	_NodePtr;
+		typedef _Node* _NodePtr;
 		_NodePtr	_node;
+		_LocalIterator(_NodePtr entry) : _node(entry) {}
 
 	public:
 		typedef typename	_Iterator<U>::iterator_category	iterator_category;
@@ -192,7 +198,7 @@ protected:
 		typedef typename	_Iterator<U>::pointer			pointer;
 		typedef typename	_Iterator<U>::reference			reference;
 
-		_LocalIterator(_NodePtr entry) : _node(entry) {}
+		_LocalIterator() : _node(nullptr) {}
 		_LocalIterator(const _LocalIterator& other) : _node(other._node) {}
 		_LocalIterator& operator=(const _LocalIterator& other) NOEXCEPT
 		{
@@ -211,6 +217,7 @@ protected:
 		_LocalIterator&	operator++() NOEXCEPT
 		{
 			_node = _node->next;
+			return *this;
 		}
 		_LocalIterator	operator++(int) NOEXCEPT
 		{
@@ -417,6 +424,13 @@ public:
 	iterator		end() NOEXCEPT			{ return iterator(_buckets + _bucket_count - 1, _end); }
 	const_iterator	end() const NOEXCEPT	{ return cend(); }
 	const_iterator	cend() const NOEXCEPT	{ return const_iterator(_buckets + _bucket_count - 1, _end); }
+
+	local_iterator			begin(size_type n)			{ return local_iterator(_buckets[n]); }
+	const_local_iterator	begin(size_type n) const	{ return const_local_iterator(_buckets[n]); }
+	local_iterator			end(size_type n)			{ return n == _bucket_count - 1 ? _end : nullptr; }
+	const_local_iterator	end(size_type n) const		{ return n == _bucket_count - 1 ? _end : nullptr; }
+	const_local_iterator	cbegin(size_type n) const	{ return const_local_iterator(_buckets[n]); }
+	const_local_iterator	cend(size_type n) const		{ return n == _bucket_count - 1 ? _end : nullptr; }
 
 	void	swap(Hashtable &other) NOEXCEPT
 	{

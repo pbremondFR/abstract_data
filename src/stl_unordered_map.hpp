@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:20:09 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/01 23:18:49 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/02 16:30:49 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ private:
 		Key,
 		ft::pair<const Key, T>,
 		ft::detail::_HashPairAdapter<Key, ft::pair<const Key, T>, Hash>,
-		ft::detail::_KeyEqualPairAdapter<Key, ft::pair<const Key, T>, ft::equal_to<Key> >,
+		ft::detail::_KeyEqualPairAdapter<Key, ft::pair<const Key, T>, Pred >,
 		Allocator
 	>	_Hashtable;
 
@@ -141,18 +141,18 @@ public:
 	size_type				max_bucket_count() const NOEXCEPT	{ return _ht.max_bucket_count(); }
 	size_type				bucket_size(size_type n) const;
 	size_type				bucket(const key_type& k) const		{ return _ht._hash_function(k) % _ht._bucket_count; }
-	local_iterator			begin(size_type n)			{ return local_iterator(_ht._buckets[n]); }
-	const_local_iterator	begin(size_type n) const	{ return const_local_iterator(_ht._buckets[n]); }
-	local_iterator			end(size_type n)			{ return n == _ht._bucket_count - 1 ? _ht._end : nullptr; }
-	const_local_iterator	end(size_type n) const		{ return n == _ht._bucket_count - 1 ? _ht._end : nullptr; }
-	const_local_iterator	cbegin(size_type n) const	{ return const_local_iterator(_ht._buckets[n]); }
-	const_local_iterator	cend(size_type n) const		{ return n == _ht._bucket_count - 1 ? _ht._end : nullptr; }
+	local_iterator			begin(size_type n)			{ return _ht.begin(n); }
+	const_local_iterator	begin(size_type n) const	{ return _ht.begin(n); }
+	local_iterator			end(size_type n)			{ return _ht.end(n); }
+	const_local_iterator	end(size_type n) const		{ return _ht.end(n); }
+	const_local_iterator	cbegin(size_type n) const	{ return _ht.cbegin(n); }
+	const_local_iterator	cend(size_type n) const		{ return _ht.cend(n); }
 
 	// hash policy
 	float	load_factor() const NOEXCEPT		{ return _ht.get_load_factor(); }
 	float	max_load_factor() const NOEXCEPT	{ return _ht.get_max_load_factor(); }
 	void	max_load_factor(float z)			{ _ht.set_max_load_factor(z); }
-	void	rehash(size_type n)					{ _ht.rehash(n); }
+	void	rehash(size_type n)					{ _ht.rehash_unique(n); }
 	void	reserve(size_type n)				{ rehash(ft::ceil(n / max_load_factor()));}
 };
 

@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:58:50 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/01 20:25:04 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/02 15:48:45 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ ft::unordered_map<Key, T, Hash, Pred, Allocator>::unordered_map(
 	const hasher& hf,
 	const key_equal& eql,
 	const allocator_type& alloc)
-: _ht(n, hf, eql, alloc)
+: _ht(n, typename _Hashtable::hasher(hf), typename _Hashtable::key_equal(eql), alloc)
 {
 
 }
@@ -34,9 +34,9 @@ ft::unordered_map<Key, T, Hash, Pred, Allocator>::unordered_map(
 	const hasher& hf,
 	const key_equal& eql,
 	const allocator_type& alloc)
-: _ht(n, hf, eql, alloc)
+: _ht(n, typename _Hashtable::hasher(hf), typename _Hashtable::key_equal(eql), alloc)
 {
-	_ht.insert(first, last);
+	insert(first, last);
 }
 
 template<class Key, class T, class Hash, class Pred, class Allocator>
