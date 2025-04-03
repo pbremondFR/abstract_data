@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/29 19:24:35 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/02 16:29:55 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/03 19:50:25 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -277,7 +277,7 @@ protected:
 		*list = new_node;
 		return new_node;
 	}
-	void	remove_node(_Node **list, _Node *prev)
+	void	remove_next_node(_Node **list, _Node *prev)
 	{
 		_Node *node = prev ? prev->next : *list;
 		if (prev == NULL)
@@ -323,7 +323,7 @@ public:
 			_buckets = _ptr_allocator.allocate(_bucket_count);
 			memset(_buckets, 0, sizeof(*_buckets) * _bucket_count);
 			_end = _allocator.allocate(1);
-			_end->next = NULL;
+			_end->next = nullptr;
 			_buckets[_bucket_count - 1] = _end;
 		}
 		catch (...) {
@@ -341,12 +341,13 @@ public:
 			_buckets = _ptr_allocator.allocate(_bucket_count);
 			memset(_buckets, 0, sizeof(*_buckets) * _bucket_count);
 			_end = _allocator.allocate(1);
-			_end->next = NULL;
+			_end->next = nullptr;
 			_buckets[_bucket_count - 1] = _end;
 
-			for (size_t i = 0; i < _bucket_count; ++i)
-				if (other._buckets[i])
-					push_node(&_buckets[i], other._buckets[i]->value);
+			const_iterator first = other.begin();
+			const_iterator last = other.end();
+			for (; first != last; ++first)
+				insert_unique(*first);
 		}
 		catch (...) {
 			if (_buckets) {
@@ -366,7 +367,7 @@ public:
 		clear();
 		_allocator.deallocate(_end, 1);
 		_bucket_count		= other._bucket_count;
-		_element_count		= other._element_count;
+		_element_count		= 0;
 		_max_load_factor	= other._max_load_factor;
 		_hash_function		= other._hash_function;
 		_key_equal			= other._key_equal;
@@ -378,9 +379,12 @@ public:
 		_end = _allocator.allocate(1);
 		_end->next = nullptr;
 		_buckets[_bucket_count - 1] = _end;
-		for (size_t i = 0; i < _bucket_count; ++i)
-			if (other._buckets[i])
-				push_node(&_buckets[i], other._buckets[i]->value);
+
+		const_iterator first = other.begin();
+		const_iterator last = other.end();
+		// TODO: Change this a walk in the linked list instead of insert_equal?
+		for (; first != last; ++first)
+			insert_unique(*first);
 		return *this;
 	}
 	~Hashtable()
@@ -516,6 +520,7 @@ public:
 					prev_next = &(*prev_next)->next;
 				it._node->next = *prev_next ? (*prev_next)->next : nullptr;
 				*prev_next = it._node;
+				it = next;
 			}
 			// Put the _end marker at the end of the last bucket
 			append_end_node(new_bucket_list + n - 1);
@@ -576,7 +581,7 @@ public:
 		}
 		else
 		{
-			while (node && node->next != _end && !_key_equal(node->value, value))
+			while (node && node->next && node->next != _end && !_key_equal(node->value, value))
 				node = node->next;
 			new_node->next = node->next;
 			node->next = new_node;
@@ -648,7 +653,8 @@ public:
 		{
 			if (_key_equal(head->value, key))
 			{
-				remove_node(&_buckets[idx], prev);
+				remove_next_node(&_buckets[idx], prev);
+				--_element_count;
 				return 1;
 			}
 			prev = head;
@@ -670,7 +676,8 @@ public:
 			while (prev->next != pos._node)
 				prev = prev->next;
 		}
-		remove_node(pos._bucket, prev);
+		remove_next_node(pos._bucket, prev);
+		--_element_count;
 		return next;
 	}
 	iterator	erase_unique(iterator pos)
@@ -681,7 +688,7 @@ public:
 	/*
 	* Erases all nodes matching given key. Returns the amount of nodes erased.
 	*/
-	size_type	erase_range(key_type const& key)
+	size_type	erase_equal(key_type const& key)
 	{
 		size_type idx = _hash_function(key) % _bucket_count;
 		_Node *head = _buckets[idx];
@@ -701,34 +708,19 @@ public:
 		}
 		if (count > 0)
 			remove_node_range(&_buckets[idx], prev_begin, head);
+		_element_count -= count;
 		return count;
 	}
 	iterator	erase_range(const_iterator first, const_iterator last)
 	{
 		// This is not invalidated because no rehash is triggered
 		iterator after_last(last._bucket, last._node);
-		++after_last;
+		if (after_last._node != _end)
+			++after_last;
 
+		// Why bother making something complicated?
 		while (first != last)
-		{
-			_Node *prev = nullptr;
-			// If iterator is the first in the bucket, previous node is null, otherwise find the previous node.
-			if (*first._bucket != first._node)
-			{
-				prev = *first._bucket;
-				while (prev->next != first._node)
-					prev = prev->next;
-			}
-			_Node *head = first._node;
-			while (head && head != last._node)
-			{
-				remove_node(first._bucket, prev);
-				prev = head;
-				head = head->next;
-			}
-			first._node = prev;
-			++first;
-		}
+			first = erase_unique(first);
 		return after_last;
 	}
 };
