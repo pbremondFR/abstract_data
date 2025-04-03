@@ -6,7 +6,7 @@
 /*   By: pbremond <pbremond@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 16:58:50 by pbremond          #+#    #+#             */
-/*   Updated: 2025/04/02 15:48:45 by pbremond         ###   ########.fr       */
+/*   Updated: 2025/04/02 19:27:44 by pbremond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,14 @@ ft::unordered_map<Key, T, Hash, Pred, Allocator>::unordered_map(const unordered_
 : _ht(src.bucket_count(), src.hash_function(), src.key_eq(), alloc)
 {
 	insert(src.begin(), src.end());
+}
+
+template<class Key, class T, class Hash, class Pred, class Allocator>
+ft::unordered_map<Key, T, Hash, Pred, Allocator>&
+	ft::unordered_map<Key, T, Hash, Pred, Allocator>::operator=(unordered_map const& other)
+{
+	_ht = other._ht;
+	return *this;
 }
 
 template<class Key, class T, class Hash, class Pred, class Allocator>
